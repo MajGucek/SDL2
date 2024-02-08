@@ -1,0 +1,3 @@
+all:
+	g++ -Iinclude -ISDL2/SDL2x64 -Iinclude/headers -ISDL2 -Iinclude/source -LC:\Users\Maj\Desktop\Game\lib\libx64 -o game include/source/*.cpp main/main.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -Wall
+	./game

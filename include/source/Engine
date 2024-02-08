@@ -1,0 +1,8 @@
+#include <headers/game.h>
+
+namespace Engine {
+void run() {
+    Game game;
+    game.run();
+}
+};  // namespace Engine
