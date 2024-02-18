@@ -7,11 +7,8 @@ void InputHandler::notifySubs(std::string message, float delta_time) {
         sub->handleInput(message, delta_time);
     }
 }
-void InputHandler::subscribe(InputListener* observer) {
-    _subscribers.push_back(observer);
-}
-void InputHandler::unsubscribe(InputListener* observer) {
-    _subscribers.remove(observer);
+void InputHandler::subscribe(std::shared_ptr<InputListener> observer) {
+    _subscribers.push_back(std::move(observer));
 }
 
 std::string InputHandler::handleInput(float delta_time) {

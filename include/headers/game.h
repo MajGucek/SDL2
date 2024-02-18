@@ -5,6 +5,7 @@
 #include <SDL2x64/SDL_image.h>
 #include <headers/Entity.h>
 #include <headers/InputHandler.h>
+#include <headers/RenderHandler.h>
 
 #include <iostream>
 #include <memory>
@@ -14,19 +15,15 @@
 enum class GameState { PLAY, EXIT };
 
 class Game {
-    // remove this shit
-    friend class InputHandler;
-
    private:
-    SDL_Window *_window;
-    SDL_Renderer *_renderer;
-    SDL_Surface *_surface;
+    RenderHandler _render_handler;
     InputHandler _input_handler;
-    CollisionHandler _collision_handler;
 
-    Entity *_background;
-    Player *_player;
-    Entity *_rock;
+    std::shared_ptr<CollisionHandler> _collision_handler;
+
+    std::shared_ptr<Entity> _background;
+    std::shared_ptr<Player> _player;
+    std::shared_ptr<Entity> _rock;
 
     GameState _game_state;
 
@@ -39,7 +36,6 @@ class Game {
     void init(const char *title, int x, int y, int w, int h, Uint32 flags);
     void gameLoop();
     void handleEvents(float delta_time);
-    void render();
 
    public:
     Game();

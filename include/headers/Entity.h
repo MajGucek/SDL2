@@ -14,7 +14,7 @@ class Entity {
    protected:
     SDL_Texture* _texture;
     SDL_Rect _hitbox;
-    Collider* _collider;
+    std::shared_ptr<Collider> _collider;
 
    public:
     Entity() = default;
@@ -23,17 +23,20 @@ class Entity {
     void setTexture(const std::string path, SDL_Renderer* ren);
     SDL_Texture* getTexture();
     SDL_Rect* getHitbox();
-    virtual void isCollider(CollisionHandler* collision_handler);
+
+    virtual void isCollider(
+        std::shared_ptr<CollisionHandler> collision_handler);
 };
 class ControlledEntity : public Entity {
    protected:
     unsigned _velocity;
-    CollisionHandler* _collision_handler;
+    std::shared_ptr<CollisionHandler> _collision_handler;
 
    public:
-    virtual ~ControlledEntity();
     ControlledEntity(SDL_Rect hitbox, unsigned velocity);
-    virtual void isCollider(CollisionHandler* collision_handler) override;
+
+    virtual void isCollider(
+        std::shared_ptr<CollisionHandler> collision_handler) override;
 };
 
 class Player : public ControlledEntity, public InputListener {
@@ -43,14 +46,21 @@ class Player : public ControlledEntity, public InputListener {
                              float delta_time) override;
 };
 
+class Laboratory : public ControlledEntity {
+   private:
+    unsigned animals_stored;
+};
+
 class EntityFactory {
    public:
-    static Entity* createEntity(const std::string path, SDL_Renderer* ren,
-                                SDL_Rect hitbox);
-    static ControlledEntity* createControlledEntity(const std::string path,
-                                                    SDL_Renderer* ren,
-                                                    SDL_Rect hitbox,
-                                                    unsigned velocity);
-    static Player* createPlayer(const std::string path, SDL_Renderer* ren,
-                                SDL_Rect hitbox, unsigned velocity);
+    static std::unique_ptr<Entity> createEntity(const std::string path,
+                                                SDL_Renderer* ren,
+                                                SDL_Rect hitbox);
+    static std::unique_ptr<ControlledEntity> createControlledEntity(
+        const std::string path, SDL_Renderer* ren, SDL_Rect hitbox,
+        unsigned velocity);
+    static std::unique_ptr<Player> createPlayer(const std::string path,
+                                                SDL_Renderer* ren,
+                                                SDL_Rect hitbox,
+                                                unsigned velocity);
 };

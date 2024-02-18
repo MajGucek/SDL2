@@ -1,23 +1,12 @@
 #include <headers/game.h>
 
 Game::Game() {
-    _window = nullptr;
-    _renderer = nullptr;
     _screen_width = 2560;
     _screen_height = 1440;
     _game_state = GameState::PLAY;
-    _prev_time = SDL_GetTicks();
-    _delta_time = 0.0f;
 }
 
-Game::~Game() {
-    SDL_DestroyRenderer(_renderer);
-    SDL_DestroyWindow(_window);
-    SDL_Quit();
-    delete _player;
-    delete _background;
-    delete _rock;
-}
+Game::~Game() { SDL_Quit(); }
 
 float Game::getDeltaTime() { return _delta_time; }
 
@@ -29,49 +18,41 @@ void Game::run() {
 }
 
 void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
-    SDL_Init(SDL_INIT_EVERYTHING);
-
-    _window = SDL_CreateWindow(title, x, y, w, h, flags);
-    _renderer = SDL_CreateRenderer(_window, -1, 0);
-    _surface = SDL_GetWindowSurface(_window);
+    _render_handler.initSystem()
+        .createWindow(title, x, y, w, h, flags)
+        .createRenderer();
+    _collision_handler = CollisionHandlerFactory::createCollisionHandler();
 
     _background = EntityFactory::createEntity(
-        "res/background.png", _renderer, {0, 0, _screen_width, _screen_height});
+        "res/background.png", _render_handler.getRenderer(),
+        {0, 0, _screen_width, _screen_height});
 
-    _player = EntityFactory::createPlayer("res/player.png", _renderer,
-                                          {200, 200, 100, 100}, 750);
-    _rock = EntityFactory::createEntity("res/sigma.png", _renderer,
-                                        {400, 400, 100, 100});
+    _player = EntityFactory::createPlayer("res/player.png",
+                                          _render_handler.getRenderer(),
+                                          {200, 200, 100, 100}, 5);
+    _rock = EntityFactory::createEntity(
+        "res/sigma.png", _render_handler.getRenderer(), {400, 400, 100, 100});
 
     _input_handler.subscribe(_player);
+    _render_handler.includeInRender(_background);
+    _render_handler.includeInRender(_player);
+    _render_handler.includeInRender(_rock);
 
-    _rock->isCollider(&_collision_handler);
-    _player->isCollider(&_collision_handler);
-}
-
-void Game::render() {
-    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
-    SDL_RenderClear(_renderer);
-
-    SDL_RenderCopy(_renderer, _background->getTexture(), nullptr,
-                   _background->getHitbox());
-
-    SDL_RenderCopy(_renderer, _player->getTexture(), nullptr,
-                   _player->getHitbox());
-
-    SDL_RenderCopy(_renderer, _rock->getTexture(), nullptr, _rock->getHitbox());
-
-    SDL_RenderPresent(_renderer);
+    _rock->isCollider(_collision_handler);
+    _player->isCollider(_collision_handler);
 }
 
 void Game::gameLoop() {
+    int fps = 144;
+    int desiredDelta = 1000 / fps;
     while (_game_state != GameState::EXIT) {
-        Uint32 current_time = SDL_GetTicks();
-        _delta_time = (current_time - _prev_time) / 1000.0f;
-        _prev_time = current_time;
+        int startLoop = SDL_GetTicks();
         handleEvents(_delta_time);
-        render();
-        SDL_Delay(2);
+        _render_handler.render();
+        int delta = SDL_GetTicks() - startLoop;
+        if (delta < desiredDelta) {
+            SDL_Delay(desiredDelta - delta);
+        }
     }
 }
 

@@ -15,12 +15,11 @@ class InputListener {
 
 class InputHandler {
    protected:
-    std::list<InputListener*> _subscribers;
+    std::list<std::shared_ptr<InputListener>> _subscribers;
     void notifySubs(std::string message, float delta_time);
 
    public:
     InputHandler();
-    void subscribe(InputListener* observer);
-    void unsubscribe(InputListener* observer);
+    void subscribe(std::shared_ptr<InputListener> observer);
     std::string handleInput(float delta_time);
 };

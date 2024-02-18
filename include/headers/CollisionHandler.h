@@ -3,6 +3,7 @@
 #include <SDL2x64/SDL.h>
 
 #include <list>
+#include <memory>
 
 class Collider {
    private:
@@ -15,15 +16,19 @@ class Collider {
 
 class CollisionHandler {
    private:
-    std::list<Collider*> _colliders;
+    std::list<std::shared_ptr<Collider>> _colliders;
 
    public:
-    void addCollider(Collider* collider);
-    bool isColliding(Collider* collider);
+    void addCollider(std::shared_ptr<Collider> collider);
+    bool isColliding(std::shared_ptr<Collider> collider);
+};
+
+class CollisionHandlerFactory {
+   public:
+    static std::unique_ptr<CollisionHandler> createCollisionHandler();
 };
 
 class ColliderFactory {
    public:
-    static Collider* createCollider(SDL_Rect* collision_hitbox);
-    static Collider createColliderOnStack(SDL_Rect* collision_hitbox);
+    static std::unique_ptr<Collider> createCollider(SDL_Rect* collision_hitbox);
 };
