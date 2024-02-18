@@ -46,9 +46,14 @@ class Player : public ControlledEntity, public InputListener {
                              float delta_time) override;
 };
 
-class Laboratory : public ControlledEntity {
+class Laboratory : public Entity {
    private:
     unsigned animals_stored;
+    std::list<std::shared_ptr<Laboratory>> _connections;
+
+   public:
+    bool checkDistanceToPlayer(const SDL_Rect* player, unsigned threshold);
+    void connectedTo(std::shared_ptr<Laboratory> laboratory);
 };
 
 class EntityFactory {
@@ -63,4 +68,7 @@ class EntityFactory {
                                                 SDL_Renderer* ren,
                                                 SDL_Rect hitbox,
                                                 unsigned velocity);
+    static std::unique_ptr<Laboratory> createLaboratory(const std::string path,
+                                                        SDL_Renderer* ren,
+                                                        SDL_Rect hitbox);
 };

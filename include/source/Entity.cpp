@@ -1,4 +1,4 @@
-#include <headers/Entity.h>
+#include <Entity.h>
 
 Entity::Entity(SDL_Rect hitbox) { _hitbox = hitbox; }
 Entity::~Entity() {
@@ -80,11 +80,24 @@ void Player::handleInput(const std::string message, float delta_time) {
 Player::Player(SDL_Rect hitbox, unsigned velocity)
     : ControlledEntity(hitbox, velocity) {}
 
+bool Laboratory::checkDistanceToPlayer(const SDL_Rect* player,
+                                       unsigned threshold) {
+    int distance = std::sqrt(std::pow(_hitbox.x - player.x, 2) +
+                             std::pow(_hitbox.y - player.y, 2));
+    return distance < threshold;
+}
+
 // Factories
 std::unique_ptr<Entity> EntityFactory::createEntity(const std::string path,
                                                     SDL_Renderer* ren,
                                                     SDL_Rect hitbox) {
     auto ent = std::make_unique<Entity>(hitbox);
+    ent->setTexture(path, ren);
+    return std::move(ent);
+}
+std::unique_ptr<Laboratory> EntityFactory::createLaboratory(
+    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox) {
+    auto ent = std::make_unique<Laboratory>(hitbox);
     ent->setTexture(path, ren);
     return std::move(ent);
 }

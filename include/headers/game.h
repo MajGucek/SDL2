@@ -1,11 +1,12 @@
 #pragma once
 
 #include <CollisionHandler.h>
+#include <EnemyHandler.h>
+#include <Entity.h>
+#include <InputHandler.h>
+#include <RenderHandler.h>
 #include <SDL2x64/SDL.h>
 #include <SDL2x64/SDL_image.h>
-#include <headers/Entity.h>
-#include <headers/InputHandler.h>
-#include <headers/RenderHandler.h>
 
 #include <iostream>
 #include <memory>
@@ -18,11 +19,11 @@ class Game {
    private:
     RenderHandler _render_handler;
     InputHandler _input_handler;
-
+    LaboratoryHandler _laboratory_handler;
     std::shared_ptr<CollisionHandler> _collision_handler;
 
-    std::shared_ptr<Entity> _background;
     std::shared_ptr<Player> _player;
+    std::shared_ptr<Entity> _background;
     std::shared_ptr<Entity> _rock;
 
     GameState _game_state;

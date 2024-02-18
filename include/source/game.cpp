@@ -21,6 +21,7 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
     _render_handler.initSystem()
         .createWindow(title, x, y, w, h, flags)
         .createRenderer();
+
     _collision_handler = CollisionHandlerFactory::createCollisionHandler();
 
     _background = EntityFactory::createEntity(
@@ -34,6 +35,7 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
         "res/sigma.png", _render_handler.getRenderer(), {400, 400, 100, 100});
 
     _input_handler.subscribe(_player);
+
     _render_handler.includeInRender(_background);
     _render_handler.includeInRender(_player);
     _render_handler.includeInRender(_rock);
@@ -46,9 +48,10 @@ void Game::gameLoop() {
     int fps = 144;
     int desiredDelta = 1000 / fps;
     while (_game_state != GameState::EXIT) {
-        int startLoop = SDL_GetTicks();
         handleEvents(_delta_time);
         _render_handler.render();
+        // framerate
+        int startLoop = SDL_GetTicks();
         int delta = SDL_GetTicks() - startLoop;
         if (delta < desiredDelta) {
             SDL_Delay(desiredDelta - delta);
@@ -57,7 +60,9 @@ void Game::gameLoop() {
 }
 
 void Game::handleEvents(float delta_time) {
+    // player gets handled
     if (_input_handler.handleInput(delta_time) == "exit") {
         _game_state = GameState::EXIT;
     }
+    _laboratory_handler.handleLaboratories();
 }
