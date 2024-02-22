@@ -13,7 +13,7 @@ void Entity::setTexture(const std::string path, SDL_Renderer* ren) {
 SDL_Texture* Entity::getTexture() { return _texture; }
 SDL_Rect* Entity::getHitbox() { return &_hitbox; }
 
-void Entity::isCollider(std::shared_ptr<CollisionHandler> collision_handler) {
+void Entity::isCollider(CollisionHandler* collision_handler) {
     _collider = ColliderFactory::createCollider(&_hitbox);
     collision_handler->addCollider(_collider);
 }
@@ -22,11 +22,12 @@ void Entity::isCollider(std::shared_ptr<CollisionHandler> collision_handler) {
 ControlledEntity::ControlledEntity(SDL_Rect hitbox, unsigned velocity) {
     _hitbox = hitbox;
     _velocity = velocity;
+    _collision_handler = nullptr;
 }
-void ControlledEntity::isCollider(
-    std::shared_ptr<CollisionHandler> collision_handler) {
+
+void ControlledEntity::isCollider(CollisionHandler* collision_handler) {
     _collider = ColliderFactory::createCollider(&_hitbox);
-    _collision_handler = std::move(collision_handler);
+    _collision_handler = collision_handler;
 }
 
 void Player::handleInput(const std::string message, float delta_time) {
@@ -80,11 +81,21 @@ void Player::handleInput(const std::string message, float delta_time) {
 Player::Player(SDL_Rect hitbox, unsigned velocity)
     : ControlledEntity(hitbox, velocity) {}
 
-bool Laboratory::checkDistanceToPlayer(const SDL_Rect* player,
+Laboratory::Laboratory(SDL_Rect hitbox) : Entity(hitbox) {}
+bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
                                        unsigned threshold) {
-    int distance = std::sqrt(std::pow(_hitbox.x - player.x, 2) +
-                             std::pow(_hitbox.y - player.y, 2));
+    int cent_x = _hitbox.x + _hitbox.w / 2;
+    int cent_y = _hitbox.y + _hitbox.h / 2;
+    int p_cent_x = player.x + player.w / 2;
+    int p_cent_y = player.y + player.h / 2;
+    unsigned distance = std::abs(std::sqrt(std::pow(cent_x - p_cent_x, 2) +
+                                           std::pow(cent_y - p_cent_y, 2)));
     return distance < threshold;
+}
+void Laboratory::connectedTo(std::weak_ptr<Laboratory> laboratory) {
+    if (!laboratory.expired()) {
+        _connections.push_back(std::move(laboratory));
+    }
 }
 
 // Factories

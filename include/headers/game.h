@@ -19,12 +19,11 @@ class Game {
    private:
     RenderHandler _render_handler;
     InputHandler _input_handler;
+    CollisionHandler _collision_handler;
     LaboratoryHandler _laboratory_handler;
-    std::shared_ptr<CollisionHandler> _collision_handler;
 
     std::shared_ptr<Player> _player;
     std::shared_ptr<Entity> _background;
-    std::shared_ptr<Entity> _rock;
 
     GameState _game_state;
 

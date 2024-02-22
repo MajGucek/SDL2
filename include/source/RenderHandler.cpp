@@ -29,8 +29,12 @@ RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
 }
 SDL_Renderer *RenderHandler::getRenderer() { return _renderer; }
 
-void RenderHandler::includeInRender(std::shared_ptr<Entity> entity) {
-    _entities.push_back(std::move(entity));
+void RenderHandler::includeInRender(std::weak_ptr<Entity> entity) {
+    if (std::shared_ptr<Entity> ent = entity.lock()) {
+        _entities.push_back(std::move(ent));
+    } else {
+        std::cout << "entity does not exist" << std::endl;
+    }
 }
 
 void RenderHandler::render() {
@@ -38,9 +42,11 @@ void RenderHandler::render() {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
-    for (auto entity : _entities) {
-        SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
-                       entity->getHitbox());
+    for (auto &entity : _entities) {
+        if (std::shared_ptr<Entity> ent = entity.lock()) {
+            SDL_RenderCopy(_renderer, ent->getTexture(), nullptr,
+                           ent->getHitbox());
+        }
     }
 
     SDL_RenderPresent(_renderer);

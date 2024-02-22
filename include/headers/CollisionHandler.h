@@ -2,6 +2,7 @@
 
 #include <SDL2x64/SDL.h>
 
+#include <iostream>
 #include <list>
 #include <memory>
 
@@ -17,15 +18,13 @@ class Collider {
 class CollisionHandler {
    private:
     std::list<std::shared_ptr<Collider>> _colliders;
+    int _screen_width = 0;
+    int _screen_height = 0;
 
    public:
+    void setSize(int w, int h);
     void addCollider(std::shared_ptr<Collider> collider);
     bool isColliding(std::shared_ptr<Collider> collider);
-};
-
-class CollisionHandlerFactory {
-   public:
-    static std::unique_ptr<CollisionHandler> createCollisionHandler();
 };
 
 class ColliderFactory {

@@ -22,8 +22,7 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
         .createWindow(title, x, y, w, h, flags)
         .createRenderer();
 
-    _collision_handler = CollisionHandlerFactory::createCollisionHandler();
-
+    _collision_handler.setSize(_screen_width, _screen_height);
     _background = EntityFactory::createEntity(
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
@@ -31,17 +30,19 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
                                           {200, 200, 100, 100}, 5);
-    _rock = EntityFactory::createEntity(
-        "res/sigma.png", _render_handler.getRenderer(), {400, 400, 100, 100});
+    _laboratory_handler.setVisibility(200);
+    _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
+                                      &_collision_handler);
+    _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
+                                      &_collision_handler);
 
     _input_handler.subscribe(_player);
 
     _render_handler.includeInRender(_background);
+    _laboratory_handler.includeInRender(_render_handler);
     _render_handler.includeInRender(_player);
-    _render_handler.includeInRender(_rock);
 
-    _rock->isCollider(_collision_handler);
-    _player->isCollider(_collision_handler);
+    _player->isCollider(&_collision_handler);
 }
 
 void Game::gameLoop() {
@@ -64,5 +65,5 @@ void Game::handleEvents(float delta_time) {
     if (_input_handler.handleInput(delta_time) == "exit") {
         _game_state = GameState::EXIT;
     }
-    _laboratory_handler.handleLaboratories();
+    _laboratory_handler.handleLaboratories(*_player->getHitbox());
 }

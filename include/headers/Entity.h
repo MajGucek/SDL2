@@ -24,19 +24,17 @@ class Entity {
     SDL_Texture* getTexture();
     SDL_Rect* getHitbox();
 
-    virtual void isCollider(
-        std::shared_ptr<CollisionHandler> collision_handler);
+    virtual void isCollider(CollisionHandler* collision_handler);
 };
 class ControlledEntity : public Entity {
    protected:
     unsigned _velocity;
-    std::shared_ptr<CollisionHandler> _collision_handler;
+    CollisionHandler* _collision_handler;
 
    public:
     ControlledEntity(SDL_Rect hitbox, unsigned velocity);
 
-    virtual void isCollider(
-        std::shared_ptr<CollisionHandler> collision_handler) override;
+    virtual void isCollider(CollisionHandler* collision_handler) override;
 };
 
 class Player : public ControlledEntity, public InputListener {
@@ -49,11 +47,12 @@ class Player : public ControlledEntity, public InputListener {
 class Laboratory : public Entity {
    private:
     unsigned animals_stored;
-    std::list<std::shared_ptr<Laboratory>> _connections;
+    std::list<std::weak_ptr<Laboratory>> _connections;
 
    public:
-    bool checkDistanceToPlayer(const SDL_Rect* player, unsigned threshold);
-    void connectedTo(std::shared_ptr<Laboratory> laboratory);
+    Laboratory(SDL_Rect hitbox);
+    bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
+    void connectedTo(std::weak_ptr<Laboratory> laboratory);
 };
 
 class EntityFactory {

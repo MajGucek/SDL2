@@ -9,7 +9,7 @@
 
 class RenderHandler {
    private:
-    std::list<std::shared_ptr<Entity>> _entities;
+    std::list<std::weak_ptr<Entity>> _entities;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
 
@@ -22,6 +22,6 @@ class RenderHandler {
     RenderHandler &createRenderer(int index = -1, Uint32 flags = 0);
 
     SDL_Renderer *getRenderer();
-    void includeInRender(std::shared_ptr<Entity> entity);
+    void includeInRender(std::weak_ptr<Entity> entity);
     void render();
 };
