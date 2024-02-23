@@ -9,7 +9,7 @@
 
 class LaboratoryHandler {
    private:
-    std::list<std::shared_ptr<Laboratory>> _laboratories;
+    std::list<std::pair<std::shared_ptr<Laboratory>, bool>> _laboratories;
     int _seeing_distance = 200;
 
    public:

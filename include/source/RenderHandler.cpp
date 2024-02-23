@@ -50,4 +50,5 @@ void RenderHandler::render() {
     }
 
     SDL_RenderPresent(_renderer);
+    _entities.erase(_entities.begin(), _entities.end());
 }

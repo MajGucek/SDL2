@@ -1,8 +1,8 @@
 #include <headers/game.h>
 
 Game::Game() {
-    _screen_width = 2560;
-    _screen_height = 1440;
+    _screen_width = 1000;
+    _screen_height = 1000;
     _game_state = GameState::PLAY;
 }
 
@@ -30,17 +30,13 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
                                           {200, 200, 100, 100}, 5);
-    _laboratory_handler.setVisibility(200);
+    _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
                                       &_collision_handler);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
                                       &_collision_handler);
 
     _input_handler.subscribe(_player);
-
-    _render_handler.includeInRender(_background);
-    _laboratory_handler.includeInRender(_render_handler);
-    _render_handler.includeInRender(_player);
 
     _player->isCollider(&_collision_handler);
 }
@@ -50,7 +46,13 @@ void Game::gameLoop() {
     int desiredDelta = 1000 / fps;
     while (_game_state != GameState::EXIT) {
         handleEvents(_delta_time);
+
+        _render_handler.includeInRender(_background);
+        _laboratory_handler.includeInRender(_render_handler);
+        _render_handler.includeInRender(_player);
+
         _render_handler.render();
+
         // framerate
         int startLoop = SDL_GetTicks();
         int delta = SDL_GetTicks() - startLoop;

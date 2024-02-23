@@ -37,6 +37,10 @@ class ControlledEntity : public Entity {
     virtual void isCollider(CollisionHandler* collision_handler) override;
 };
 
+/*
+class LaboratoryDrone : public ControlledEntity {};
+*/
+
 class Player : public ControlledEntity, public InputListener {
    public:
     Player(SDL_Rect hitbox, unsigned velocity);
@@ -47,12 +51,10 @@ class Player : public ControlledEntity, public InputListener {
 class Laboratory : public Entity {
    private:
     unsigned animals_stored;
-    std::list<std::weak_ptr<Laboratory>> _connections;
 
    public:
     Laboratory(SDL_Rect hitbox);
     bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
-    void connectedTo(std::weak_ptr<Laboratory> laboratory);
 };
 
 class EntityFactory {
@@ -63,10 +65,16 @@ class EntityFactory {
     static std::unique_ptr<ControlledEntity> createControlledEntity(
         const std::string path, SDL_Renderer* ren, SDL_Rect hitbox,
         unsigned velocity);
+    /*
+        static std::unique_ptr<LaboratoryDrone> createLaboratoryDrone(
+            const std::string path, SDL_Renderer* ren, SDL_Rect hitbox,
+            unsigned velocity);
+    */
     static std::unique_ptr<Player> createPlayer(const std::string path,
                                                 SDL_Renderer* ren,
                                                 SDL_Rect hitbox,
                                                 unsigned velocity);
+
     static std::unique_ptr<Laboratory> createLaboratory(const std::string path,
                                                         SDL_Renderer* ren,
                                                         SDL_Rect hitbox);

@@ -92,11 +92,6 @@ bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
                                            std::pow(cent_y - p_cent_y, 2)));
     return distance < threshold;
 }
-void Laboratory::connectedTo(std::weak_ptr<Laboratory> laboratory) {
-    if (!laboratory.expired()) {
-        _connections.push_back(std::move(laboratory));
-    }
-}
 
 // Factories
 std::unique_ptr<Entity> EntityFactory::createEntity(const std::string path,
@@ -129,3 +124,13 @@ std::unique_ptr<Player> EntityFactory::createPlayer(const std::string path,
     player->setTexture(path, ren);
     return std::move(player);
 }
+
+/*
+std::unique_ptr<LaboratoryDrone> EntityFactory::createLaboratoryDrone(
+    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox,
+    unsigned velocity) {
+    auto drone = std::make_unique<LaboratoryDrone>(hitbox, velocity);
+    drone->setTexture(path, ren);
+    return std::move(drone);
+}
+*/
