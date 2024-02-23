@@ -14,8 +14,8 @@ SDL_Texture* Entity::getTexture() { return _texture; }
 SDL_Rect* Entity::getHitbox() { return &_hitbox; }
 
 void Entity::isCollider(CollisionHandler* collision_handler) {
-    _collider = ColliderFactory::createCollider(&_hitbox);
-    collision_handler->addCollider(_collider);
+    // _collider = ColliderFactory::createCollider(&_hitbox);
+    collision_handler->addCollider(&_hitbox);
 }
 
 // Controlled Entity
@@ -26,7 +26,7 @@ ControlledEntity::ControlledEntity(SDL_Rect hitbox, unsigned velocity) {
 }
 
 void ControlledEntity::isCollider(CollisionHandler* collision_handler) {
-    _collider = ColliderFactory::createCollider(&_hitbox);
+    //_collider = ColliderFactory::createCollider(&_hitbox);
     _collision_handler = collision_handler;
 }
 
@@ -55,19 +55,20 @@ void Player::handleInput(const std::string message, float delta_time) {
         if (_collision_handler) {
             // cekiraj za X movement
             SDL_Rect tempX = {new_x, _hitbox.y, _hitbox.w, _hitbox.h};
-            std::unique_ptr<Collider> tempColliderX =
-                ColliderFactory::createCollider(&tempX);
 
-            if (!_collision_handler->isColliding(std::move(tempColliderX))) {
+            // std::unique_ptr<Collider> tempColliderX =
+            // ColliderFactory::createCollider(&tempX);
+
+            if (!_collision_handler->isColliding(&tempX)) {
                 _hitbox.x = new_x;
             }
 
             // cekiraj za Y movement
             SDL_Rect tempY = {_hitbox.x, new_y, _hitbox.w, _hitbox.h};
-            std::unique_ptr<Collider> tempColliderY =
-                ColliderFactory::createCollider(&tempY);
+            // std::unique_ptr<Collider> tempColliderY =
+            //     ColliderFactory::createCollider(&tempY);
 
-            if (!_collision_handler->isColliding(std::move(tempColliderY))) {
+            if (!_collision_handler->isColliding(&tempY)) {
                 _hitbox.y = new_y;
             }
             return;

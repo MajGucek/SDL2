@@ -12,9 +12,8 @@
 
 class Entity {
    protected:
-    SDL_Texture* _texture;
-    SDL_Rect _hitbox;
-    std::shared_ptr<Collider> _collider;
+    SDL_Texture* _texture = nullptr;
+    SDL_Rect _hitbox = {};
 
    public:
     Entity() = default;

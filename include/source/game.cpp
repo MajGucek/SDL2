@@ -23,6 +23,7 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
         .createRenderer();
 
     _collision_handler.setSize(_screen_width, _screen_height);
+
     _background = EntityFactory::createEntity(
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
@@ -30,6 +31,7 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
                                           {200, 200, 100, 100}, 5);
+
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
                                       &_collision_handler);
