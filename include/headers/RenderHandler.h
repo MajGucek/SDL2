@@ -4,7 +4,7 @@
 #include <SDL2x64/SDL_image.h>
 #include <headers/Entity.h>
 
-class Entity;
+class GameObject;
 class Scoreboard;
 
 #include <algorithm>
@@ -16,8 +16,8 @@ class Scoreboard;
 
 class RenderHandler {
    private:
-    std::list<std::shared_ptr<Entity>> _entities;
-    std::list<std::pair<std::shared_ptr<Entity>, int>> _animation_entities;
+    std::list<std::shared_ptr<GameObject>> _entities;
+    std::list<std::pair<std::shared_ptr<GameObject>, int>> _animation_entities;
     Scoreboard *_scoreboard;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
@@ -31,8 +31,8 @@ class RenderHandler {
     RenderHandler &createRenderer(int index = -1, Uint32 flags = 0);
 
     SDL_Renderer *getRenderer();
-    void includeInRender(std::shared_ptr<Entity> entity);
-    void includeInRender(std::shared_ptr<Entity> entity, int frames);
+    void includeInRender(std::shared_ptr<GameObject> entity);
+    void includeInRender(std::shared_ptr<GameObject> entity, int frames);
     void includeScoreboardInRender(Scoreboard *scoreboard);
     void render();
 };

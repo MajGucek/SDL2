@@ -1,13 +1,8 @@
 #include <headers/game.h>
 
-Game::Game() {
-    _screen_width = 2560;
-    _screen_height = 1440;
-    _game_state = GameState::PLAY;
-}
-
+Game::Game()
+    : _screen_width(2560), _screen_height(1440), _game_state(GameState::PLAY) {}
 Game::~Game() { SDL_Quit(); }
-
 float Game::getDeltaTime() { return _delta_time; }
 
 void Game::run() {
@@ -24,19 +19,19 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
 
     _collision_handler.setSize(_screen_width, _screen_height);
 
-    _background = EntityFactory::createEntity(
+    _background = EntityFactory::createGameObject(
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
 
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
-                                          {200, 200, 100, 100}, 5);
+                                          {200, 200, 100, 100}, 100, 5);
 
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
-                                      &_collision_handler);
+                                      &_collision_handler, 2000, 10);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
-                                      &_collision_handler);
+                                      &_collision_handler, 1000, 40);
 
     _input_handler.subscribe(_player);
 

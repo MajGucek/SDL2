@@ -1,9 +1,10 @@
 #include <EnemyHandler.h>
 
 void LaboratoryHandler::addLaboratory(SDL_Renderer* ren, int x, int y,
-                                      CollisionHandler* collision_handler) {
+                                      CollisionHandler* collision_handler,
+                                      int hp, unsigned animals_stored) {
     std::shared_ptr<Laboratory> lab = EntityFactory::createLaboratory(
-        "res/laboratory.png", ren, {x, y, 200, 200});
+        "res/laboratory.png", ren, {x, y, 200, 200}, hp, animals_stored);
     collision_handler->addCollider(lab);
     _laboratories.push_back({std::move(lab), false});
 }

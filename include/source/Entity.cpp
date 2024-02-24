@@ -1,26 +1,25 @@
 #include <Entity.h>
 
-Entity::Entity(SDL_Rect hitbox) { _hitbox = hitbox; }
-Entity::~Entity() {
+GameObject::GameObject(SDL_Rect hitbox) : _hitbox(hitbox) {}
+GameObject::~GameObject() {
     SDL_DestroyTexture(_texture);
     _texture = nullptr;
 }
-void Entity::setTexture(const std::string path, SDL_Renderer* ren) {
+void GameObject::setTexture(const std::string path, SDL_Renderer* ren) {
     SDL_Surface* temp = IMG_Load(path.c_str());
     _texture = SDL_CreateTextureFromSurface(ren, temp);
     SDL_FreeSurface(temp);
 }
-SDL_Texture* Entity::getTexture() { return _texture; }
-SDL_Rect* Entity::getHitbox() { return &_hitbox; }
+SDL_Texture* GameObject::getTexture() { return _texture; }
+SDL_Rect* GameObject::getHitbox() { return &_hitbox; }
+
+Entity::Entity(SDL_Rect hitbox, int hp) : GameObject(hitbox), _hp(hp) {}
 void Entity::hit(int damage) { _hp -= damage; }
 int Entity::getHP() { return _hp; }
 
 // Controlled Entity
-ControlledEntity::ControlledEntity(SDL_Rect hitbox, unsigned velocity) {
-    _hitbox = hitbox;
-    _velocity = velocity;
-    _collision_handler = nullptr;
-}
+ControlledEntity::ControlledEntity(SDL_Rect hitbox, int hp, unsigned velocity)
+    : Entity(hitbox, hp), _velocity(velocity), _collision_handler(nullptr) {}
 
 void ControlledEntity::addCollisionHandler(
     CollisionHandler* collision_handler) {
@@ -86,12 +85,11 @@ void Player::handleInput(const std::string message, float delta_time,
         }
     }
 }
-Player::Player(SDL_Rect hitbox, unsigned velocity)
-    : ControlledEntity(hitbox, velocity) {}
-void Player::hitUp(RenderHandler* render_handler, Scoreboard* scoreboard) {
-    SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y - _hitbox.h, _hitbox.w,
-                              _hitbox.h};
+Player::Player(SDL_Rect hitbox, int hp, unsigned velocity)
+    : ControlledEntity(hitbox, hp, velocity) {}
 
+void Player::handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
+                       SDL_Rect attack_hitbox) {
     if (_collision_handler) {
         auto hit = _collision_handler->isColliding(&attack_hitbox);
         if (hit.second) {
@@ -106,87 +104,35 @@ void Player::hitUp(RenderHandler* render_handler, Scoreboard* scoreboard) {
         }
     }
     if (render_handler) {
-        std::shared_ptr<Entity> ent = EntityFactory::createEntity(
+        std::shared_ptr<GameObject> ent = EntityFactory::createGameObject(
             "res/hit.png", render_handler->getRenderer(), attack_hitbox);
         render_handler->includeInRender(std::move(ent), _attack_frames);
-    } else {
-        // std::cout << "no render handler!" << std::endl;
     }
+}
+
+void Player::hitUp(RenderHandler* render_handler, Scoreboard* scoreboard) {
+    SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y - _hitbox.h, _hitbox.w,
+                              _hitbox.h};
+    handleHit(render_handler, scoreboard, attack_hitbox);
 }
 void Player::hitDown(RenderHandler* render_handler, Scoreboard* scoreboard) {
     SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y + _hitbox.h, _hitbox.w,
                               _hitbox.h};
-    if (_collision_handler) {
-        auto hit = _collision_handler->isColliding(&attack_hitbox);
-        if (hit.second) {
-            if (auto entity = hit.first.lock()) {
-                // zadel entity
-                entity->hit(_damage);
-                std::cout << "zadel!" << std::endl;
-                //(*scoreboard)++;
-            }
-        } else {
-            // std::cout << "zgresil!" << std::endl;
-        }
-    }
-    if (render_handler) {
-        std::shared_ptr<Entity> ent = EntityFactory::createEntity(
-            "res/hit.png", render_handler->getRenderer(), attack_hitbox);
-        render_handler->includeInRender(std::move(ent), _attack_frames);
-    } else {
-        std::cout << "no render handler!" << std::endl;
-    }
+    handleHit(render_handler, scoreboard, attack_hitbox);
 }
 void Player::hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard) {
     SDL_Rect attack_hitbox = {_hitbox.x - _hitbox.w, _hitbox.y, _hitbox.w,
                               _hitbox.h};
-    if (_collision_handler) {
-        auto hit = _collision_handler->isColliding(&attack_hitbox);
-        if (hit.second) {
-            if (auto entity = hit.first.lock()) {
-                // zadel entity
-                entity->hit(_damage);
-                std::cout << "zadel!" << std::endl;
-                //(*scoreboard)++;
-            }
-        } else {
-            // std::cout << "zgresil!" << std::endl;
-        }
-    }
-    if (render_handler) {
-        std::shared_ptr<Entity> ent = EntityFactory::createEntity(
-            "res/hit.png", render_handler->getRenderer(), attack_hitbox);
-        render_handler->includeInRender(std::move(ent), _attack_frames);
-    } else {
-        // std::cout << "no render handler!" << std::endl;
-    }
+    handleHit(render_handler, scoreboard, attack_hitbox);
 }
 void Player::hitRight(RenderHandler* render_handler, Scoreboard* scoreboard) {
     SDL_Rect attack_hitbox = {_hitbox.x + _hitbox.w, _hitbox.y, _hitbox.w,
                               _hitbox.h};
-    if (_collision_handler) {
-        auto hit = _collision_handler->isColliding(&attack_hitbox);
-        if (hit.second) {
-            if (auto entity = hit.first.lock()) {
-                // zadel entity
-                entity->hit(_damage);
-                std::cout << "zadel!" << std::endl;
-                //(*scoreboard)++;
-            }
-        } else {
-            // std::cout << "zgresil!" << std::endl;
-        }
-    }
-    if (render_handler) {
-        std::shared_ptr<Entity> ent = EntityFactory::createEntity(
-            "res/hit.png", render_handler->getRenderer(), attack_hitbox);
-        render_handler->includeInRender(std::move(ent), _attack_frames);
-    } else {
-        std::cout << "no render handler!" << std::endl;
-    }
+    handleHit(render_handler, scoreboard, attack_hitbox);
 }
 
-Laboratory::Laboratory(SDL_Rect hitbox) : Entity(hitbox) {}
+Laboratory::Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored)
+    : Entity(hitbox, hp), _animals_stored(animals_stored) {}
 
 bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
                                        unsigned threshold) {
@@ -252,33 +198,41 @@ SDL_Texture* Scoreboard::getDigitTexture(int digit, SDL_Renderer* ren) {
 }
 
 // Factories
+std::unique_ptr<GameObject> EntityFactory::createGameObject(
+    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox) {
+    auto ent = std::make_unique<GameObject>(hitbox);
+    ent->setTexture(path, ren);
+    return std::move(ent);
+}
+
 std::unique_ptr<Entity> EntityFactory::createEntity(const std::string path,
                                                     SDL_Renderer* ren,
-                                                    SDL_Rect hitbox) {
-    auto ent = std::make_unique<Entity>(hitbox);
+                                                    SDL_Rect hitbox, int hp) {
+    auto ent = std::make_unique<Entity>(hitbox, hp);
     ent->setTexture(path, ren);
     return std::move(ent);
 }
 std::unique_ptr<Laboratory> EntityFactory::createLaboratory(
-    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox) {
-    auto ent = std::make_unique<Laboratory>(hitbox);
+    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
+    unsigned animals_stored) {
+    auto ent = std::make_unique<Laboratory>(hitbox, hp, animals_stored);
     ent->setTexture(path, ren);
     return std::move(ent);
 }
 
 std::unique_ptr<ControlledEntity> EntityFactory::createControlledEntity(
-    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox,
+    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
     unsigned velocity) {
-    auto cont_ent = std::make_unique<ControlledEntity>(hitbox, velocity);
+    auto cont_ent = std::make_unique<ControlledEntity>(hitbox, hp, velocity);
     cont_ent->setTexture(path, ren);
     return std::move(cont_ent);
 }
 
 std::unique_ptr<Player> EntityFactory::createPlayer(const std::string path,
                                                     SDL_Renderer* ren,
-                                                    SDL_Rect hitbox,
+                                                    SDL_Rect hitbox, int hp,
                                                     unsigned velocity) {
-    auto player = std::make_unique<Player>(hitbox, velocity);
+    auto player = std::make_unique<Player>(hitbox, hp, velocity);
     player->setTexture(path, ren);
     return std::move(player);
 }

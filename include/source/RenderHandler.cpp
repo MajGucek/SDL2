@@ -31,10 +31,10 @@ RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
 }
 SDL_Renderer *RenderHandler::getRenderer() { return _renderer; }
 
-void RenderHandler::includeInRender(std::shared_ptr<Entity> entity) {
+void RenderHandler::includeInRender(std::shared_ptr<GameObject> entity) {
     _entities.push_back(std::move(entity));
 }
-void RenderHandler::includeInRender(std::shared_ptr<Entity> entity,
+void RenderHandler::includeInRender(std::shared_ptr<GameObject> entity,
                                     int frames) {
     _animation_entities.push_back({std::move(entity), frames});
 }

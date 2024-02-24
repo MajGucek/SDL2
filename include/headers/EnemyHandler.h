@@ -15,7 +15,8 @@ class LaboratoryHandler {
    public:
     void setVisibility(int seeing_distance);
     void addLaboratory(SDL_Renderer* ren, int x, int y,
-                       CollisionHandler* collision_handler);
+                       CollisionHandler* collision_handler, int hp,
+                       unsigned animals_stored);
 
     void includeInRender(RenderHandler& render_handler);
     void handleLaboratories(SDL_Rect player, Scoreboard* scoreboard);
