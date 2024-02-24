@@ -29,12 +29,12 @@ RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
 }
 SDL_Renderer *RenderHandler::getRenderer() { return _renderer; }
 
-void RenderHandler::includeInRender(std::weak_ptr<Entity> entity) {
-    if (std::shared_ptr<Entity> ent = entity.lock()) {
-        _entities.push_back(std::move(ent));
-    } else {
-        std::cout << "entity does not exist" << std::endl;
-    }
+void RenderHandler::includeInRender(std::shared_ptr<Entity> entity) {
+    _entities.push_back(std::move(entity));
+}
+void RenderHandler::includeInRender(std::shared_ptr<Entity> entity,
+                                    int frames) {
+    _animation_entities.push_back({std::move(entity), frames});
 }
 
 void RenderHandler::render() {
@@ -43,12 +43,17 @@ void RenderHandler::render() {
     SDL_RenderClear(_renderer);
 
     for (auto &entity : _entities) {
-        if (std::shared_ptr<Entity> ent = entity.lock()) {
-            SDL_RenderCopy(_renderer, ent->getTexture(), nullptr,
-                           ent->getHitbox());
+        SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
+                       entity->getHitbox());
+    }
+    for (auto &an_entity : _animation_entities) {
+        if (an_entity.second > 0) {
+            SDL_RenderCopy(_renderer, an_entity.first->getTexture(), nullptr,
+                           an_entity.first->getHitbox());
+            an_entity.second--;
         }
     }
 
     SDL_RenderPresent(_renderer);
-    _entities.erase(_entities.begin(), _entities.end());
+    _entities.clear();
 }

@@ -1,16 +1,13 @@
 #pragma once
-
-#include <CollisionHandler.h>
-#include <EnemyHandler.h>
+// ---- //
 #include <Entity.h>
-#include <InputHandler.h>
-#include <RenderHandler.h>
+#include <Handlers.h>
+// ---- //
 #include <SDL2x64/SDL.h>
 #include <SDL2x64/SDL_image.h>
-
+// ---- //
 #include <iostream>
 #include <memory>
-#include <vector>
 
 enum class GameState { PLAY, EXIT };
 
@@ -23,6 +20,7 @@ class Game {
 
     std::shared_ptr<Player> _player;
     std::shared_ptr<Entity> _background;
+    std::shared_ptr<Entity> _rock;
 
     GameState _game_state;
 

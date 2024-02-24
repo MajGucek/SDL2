@@ -4,7 +4,7 @@ void LaboratoryHandler::addLaboratory(SDL_Renderer* ren, int x, int y,
                                       CollisionHandler* collision_handler) {
     std::shared_ptr<Laboratory> lab = EntityFactory::createLaboratory(
         "res/laboratory.png", ren, {x, y, 200, 200});
-    lab->isCollider(collision_handler);
+    collision_handler->addCollider(lab);
     _laboratories.push_back({std::move(lab), false});
 }
 
@@ -18,6 +18,11 @@ void LaboratoryHandler::includeInRender(RenderHandler& render_handler) {
 
 void LaboratoryHandler::handleLaboratories(SDL_Rect player) {
     for (auto& lab : _laboratories) {
+        if (lab.first->getHP() < 0) {
+            std::cout << "unicil laboratorij!" << std::endl;
+            _laboratories.remove(lab);
+            continue;
+        }
         if (lab.first->checkDistanceToPlayer(player, _seeing_distance)) {
             lab.second = true;
         } else {
