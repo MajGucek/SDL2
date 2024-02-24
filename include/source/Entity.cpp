@@ -13,6 +13,13 @@ void GameObject::setTexture(const std::string path, SDL_Renderer* ren) {
 SDL_Texture* GameObject::getTexture() { return _texture; }
 SDL_Rect* GameObject::getHitbox() { return &_hitbox; }
 
+void GameObject::addMusic(std::string file_path, std::string name) {
+    _audio_helper.addSong(name, file_path);
+}
+void GameObject::addSound(std::string file_path, std::string name) {
+    _audio_helper.addAudio(name, file_path);
+}
+
 Entity::Entity(SDL_Rect hitbox, int hp) : GameObject(hitbox), _hp(hp) {}
 void Entity::hit(int damage) { _hp -= damage; }
 int Entity::getHP() { return _hp; }
@@ -96,11 +103,10 @@ void Player::handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
             if (auto entity = hit.first.lock()) {
                 // zadel entity
                 entity->hit(_damage);
-                std::cout << "zadel!" << std::endl;
-                //(*scoreboard)++;
+                // std::cout << "zadel!" << std::endl;
             }
         } else {
-            std::cout << "zgresil!" << std::endl;
+            // std::cout << "zgresil!" << std::endl;
         }
     }
     if (render_handler) {

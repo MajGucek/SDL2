@@ -14,6 +14,7 @@ RenderHandler::~RenderHandler() {
 }
 RenderHandler &RenderHandler::initSystem() {
     SDL_Init(SDL_INIT_EVERYTHING);
+    Mix_Init(MIX_INIT_MP3);
     return *this;
 }
 RenderHandler &RenderHandler::createWindow(int screen_width,

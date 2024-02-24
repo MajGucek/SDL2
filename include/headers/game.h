@@ -13,6 +13,7 @@ class Game {
    private:
     // Handlers //
     RenderHandler _render_handler;
+    AudioHandler _audio_handler;
     InputHandler _input_handler;
     CollisionHandler _collision_handler;
     LaboratoryHandler _laboratory_handler;

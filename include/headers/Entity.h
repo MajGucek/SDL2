@@ -1,9 +1,11 @@
 #pragma once
 
+#include <AudioHandler.h>
 #include <CollisionHandler.h>
 #include <RenderHandler.h>
 #include <SDL2x64/SDL.h>
 #include <SDL2x64/SDL_image.h>
+#include <SDL2x64/SDL_mixer.h>
 
 class CollisionHandler;
 class RenderHandler;
@@ -26,14 +28,12 @@ class Scoreboard {
     int getScore();
     SDL_Texture* getDigitTexture(int digit, SDL_Renderer* ren);
 };
-
 class InputListener {
    public:
     virtual void handleInput(const std::string message, float delta_time,
                              RenderHandler* render_handler,
                              Scoreboard* scoreboard) = 0;
 };
-
 class InputHandler {
    protected:
     std::list<std::shared_ptr<InputListener>> _subscribers;
@@ -49,15 +49,18 @@ class InputHandler {
 
 class GameObject {
    protected:
+    AudioHelper _audio_helper;
     SDL_Rect _hitbox = {};
     SDL_Texture* _texture = nullptr;
 
    public:
+    GameObject(SDL_Rect hitbox);
+    virtual ~GameObject();
     SDL_Texture* getTexture();
     SDL_Rect* getHitbox();
     void setTexture(const std::string path, SDL_Renderer* ren);
-    virtual ~GameObject();
-    GameObject(SDL_Rect hitbox);
+    void addSound(std::string file_path, std::string name);
+    void addMusic(std::string file_path, std::string name);
 };
 
 class Entity : public GameObject {

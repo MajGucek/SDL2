@@ -59,7 +59,9 @@
     "xhash": "cpp",
     "algorithm": "cpp",
     "optional": "cpp",
-    "engine": "cpp"
+    "engine": "cpp",
+    "map": "cpp",
+    "xtree": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

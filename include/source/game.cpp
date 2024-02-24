@@ -19,18 +19,41 @@ void Game::init() {
     _render_handler.initSystem()
         .createWindow(_screen_width, _screen_height)
         .createRenderer();
+
+    // init audio handler
+    // .addAudio("", "audio/.mp3")
+    _audio_handler.initAudio()
+        .addAudio("boom", "audio/boom.mp3")
+        .addAudio("circus_clown", "audio/circus_clown.mp3")
+        .addAudio("death", "audio/death.mp3")
+        .addAudio("hell_naw", "audio/hell_naw.mp3")
+        .addAudio("money", "audio/money.mp3")
+        .addAudio("shine", "audio/shine.mp3")
+        .addAudio("startup", "audio/startup.mp3")
+        .addAudio("yawn", "audio/yawn.mp3")
+        .addAudio("you_died", "audio/you_died.mp3")
+        .addAudio("zombie_hit", "audio/zombie_hit.mp3")
+        .addAudio("usb_out", "audio/usb_out.mp3")
+        .addAudio("usb", "audio/usb.mp3")
+        .playAudio("usb")
+        .addSong("posnia", "audio/posnia.mp3");
+
     // init collision handling
     _collision_handler.setSize(_screen_width, _screen_height);
+
     // create background
     _background = EntityFactory::createGameObject(
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
+    _audio_handler.playAudio("usb_out");
+
     // create player
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
                                           {200, 200, 100, 100}, 100, 5);
     _input_handler.subscribe(_player);
     _player->addCollisionHandler(&_collision_handler);
+
     // set laboratory constants
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
