@@ -26,8 +26,7 @@ class RenderHandler {
     RenderHandler();
     ~RenderHandler();
     RenderHandler &initSystem();
-    RenderHandler &createWindow(const char *title, int x, int y, int w, int h,
-                                Uint32 flags);
+    RenderHandler &createWindow(int screen_width, int screen_height);
     RenderHandler &createRenderer(int index = -1, Uint32 flags = 0);
 
     SDL_Renderer *getRenderer();

@@ -16,9 +16,11 @@ RenderHandler &RenderHandler::initSystem() {
     SDL_Init(SDL_INIT_EVERYTHING);
     return *this;
 }
-RenderHandler &RenderHandler::createWindow(const char *title, int x, int y,
-                                           int w, int h, Uint32 flags) {
-    _window = SDL_CreateWindow(title, x, y, w, h, flags);
+RenderHandler &RenderHandler::createWindow(int screen_width,
+                                           int screen_height) {
+    _window =
+        SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                         screen_width, screen_height, SDL_WINDOW_SHOWN);
     return *this;
 }
 RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
