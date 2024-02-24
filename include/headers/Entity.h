@@ -13,22 +13,38 @@ class RenderHandler;
 #include <memory>
 #include <string>
 
+class Scoreboard {
+   private:
+    int _score = 0;
+    std::string getDigitPath(int scoreDigit);
+
+   public:
+    void operator++(int x);
+    void operator++();
+    void operator+=(unsigned inc);
+    void operator-=(unsigned dec);
+    int getScore();
+    SDL_Texture* getDigitTexture(int digit, SDL_Renderer* ren);
+};
+
 class InputListener {
    public:
     virtual void handleInput(const std::string message, float delta_time,
-                             RenderHandler* render_handler) = 0;
+                             RenderHandler* render_handler,
+                             Scoreboard* scoreboard) = 0;
 };
 
 class InputHandler {
    protected:
     std::list<std::shared_ptr<InputListener>> _subscribers;
     void notifySubs(std::string message, float delta_time,
-                    RenderHandler* render_handler);
+                    RenderHandler* render_handler, Scoreboard* scoreboard);
 
    public:
     InputHandler();
     void subscribe(std::shared_ptr<InputListener> observer);
-    std::string handleInput(float delta_time, RenderHandler* render_handler);
+    std::string handleInput(float delta_time, RenderHandler* render_handler,
+                            Scoreboard* scoreboard);
 };
 
 class Entity {
@@ -51,10 +67,10 @@ class ControlledEntity : public Entity {
    protected:
     unsigned _velocity;
     CollisionHandler* _collision_handler;
-    virtual void hitLeft(RenderHandler* render_handler);
-    virtual void hitRight(RenderHandler* render_handler);
-    virtual void hitUp(RenderHandler* render_handler);
-    virtual void hitDown(RenderHandler* render_handler);
+    virtual void attackLeft(RenderHandler* render_handler);
+    virtual void attackRight(RenderHandler* render_handler);
+    virtual void attackUp(RenderHandler* render_handler);
+    virtual void attackDown(RenderHandler* render_handler);
 
    public:
     ControlledEntity(SDL_Rect hitbox, unsigned velocity);
@@ -62,26 +78,29 @@ class ControlledEntity : public Entity {
 };
 
 class Player : public ControlledEntity, public InputListener {
-   protected:
+   private:
+    int _attack_frames = 7;
     int _damage = 5;
-    void hitLeft(RenderHandler* render_handler) override;
-    void hitRight(RenderHandler* render_handler) override;
-    void hitUp(RenderHandler* render_handler) override;
-    void hitDown(RenderHandler* render_handler) override;
+    void hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard);
+    void hitRight(RenderHandler* render_handler, Scoreboard* scoreboard);
+    void hitUp(RenderHandler* render_handler, Scoreboard* scoreboard);
+    void hitDown(RenderHandler* render_handler, Scoreboard* scoreboard);
 
    public:
     Player(SDL_Rect hitbox, unsigned velocity);
     void handleInput(const std::string message, float delta_time,
-                     RenderHandler* render_handler) override;
+                     RenderHandler* render_handler,
+                     Scoreboard* scoreboard) override;
 };
 
 class Laboratory : public Entity {
    private:
-    unsigned animals_stored;
+    unsigned _animals_stored = 1;
 
    public:
     Laboratory(SDL_Rect hitbox);
     bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
+    unsigned getAnimalCount();
 };
 
 class EntityFactory {

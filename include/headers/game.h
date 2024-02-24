@@ -20,7 +20,7 @@ class Game {
 
     std::shared_ptr<Player> _player;
     std::shared_ptr<Entity> _background;
-    std::shared_ptr<Entity> _rock;
+    Scoreboard _scoreboard;
 
     GameState _game_state;
 

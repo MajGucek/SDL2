@@ -1,8 +1,8 @@
 #include <headers/game.h>
 
 Game::Game() {
-    _screen_width = 1000;
-    _screen_height = 1000;
+    _screen_width = 2560;
+    _screen_height = 1440;
     _game_state = GameState::PLAY;
 }
 
@@ -27,9 +27,6 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
     _background = EntityFactory::createEntity(
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
-    _rock = EntityFactory::createEntity("res/background.png",
-                                        _render_handler.getRenderer(),
-                                        {700, 800, 100, 100});
 
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
@@ -43,7 +40,6 @@ void Game::init(const char* title, int x, int y, int w, int h, Uint32 flags) {
 
     _input_handler.subscribe(_player);
 
-    _collision_handler.addCollider(_rock);
     _player->addCollisionHandler(&_collision_handler);
 }
 
@@ -56,7 +52,7 @@ void Game::gameLoop() {
         _render_handler.includeInRender(_background);
         _laboratory_handler.includeInRender(_render_handler);
         _render_handler.includeInRender(_player);
-        _render_handler.includeInRender(_rock);
+        _render_handler.includeScoreboardInRender(&_scoreboard);
 
         _render_handler.render();
 
@@ -71,8 +67,9 @@ void Game::gameLoop() {
 
 void Game::handleEvents(float delta_time) {
     // player gets handled
-    if (_input_handler.handleInput(delta_time, &_render_handler) == "exit") {
+    if (_input_handler.handleInput(delta_time, &_render_handler,
+                                   &_scoreboard) == "exit") {
         _game_state = GameState::EXIT;
     }
-    _laboratory_handler.handleLaboratories(*_player->getHitbox());
+    _laboratory_handler.handleLaboratories(*_player->getHitbox(), &_scoreboard);
 }

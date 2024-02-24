@@ -18,5 +18,5 @@ class LaboratoryHandler {
                        CollisionHandler* collision_handler);
 
     void includeInRender(RenderHandler& render_handler);
-    void handleLaboratories(SDL_Rect player);
+    void handleLaboratories(SDL_Rect player, Scoreboard* scoreboard);
 };

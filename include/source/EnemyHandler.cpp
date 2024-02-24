@@ -16,11 +16,14 @@ void LaboratoryHandler::includeInRender(RenderHandler& render_handler) {
     }
 }
 
-void LaboratoryHandler::handleLaboratories(SDL_Rect player) {
+void LaboratoryHandler::handleLaboratories(SDL_Rect player,
+                                           Scoreboard* scoreboard) {
     for (auto& lab : _laboratories) {
         if (lab.first->getHP() < 0) {
             std::cout << "unicil laboratorij!" << std::endl;
+            (*scoreboard) += lab.first->getAnimalCount();
             _laboratories.remove(lab);
+
             continue;
         }
         if (lab.first->checkDistanceToPlayer(player, _seeing_distance)) {
