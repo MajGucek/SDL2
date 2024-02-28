@@ -6,4 +6,3 @@
 #include <Entity.h>
 #include <RenderHandler.h>
 #include <TimeHandler.h>
-#include <UIHandler.h>

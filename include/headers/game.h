@@ -13,15 +13,10 @@ class Game {
    private:
     // Handlers //
     RenderHandler _render_handler;
-    AudioHandler _audio_handler;
     InputHandler _input_handler;
     CollisionHandler _collision_handler;
     LaboratoryHandler _laboratory_handler;
-    UIHandler _ui;
     // --Handlers-- //
-    // UI //
-    std::shared_ptr<UIButton> _start_button;
-    // --UI-- //
 
     // GameObjects //
     Scoreboard _scoreboard;

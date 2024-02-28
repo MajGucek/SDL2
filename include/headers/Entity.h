@@ -51,7 +51,6 @@ class InputHandler {
 
 class GameObject {
    protected:
-    AudioHelper _audio_helper;
     SDL_Rect _hitbox = {};
     SDL_Texture* _texture = nullptr;
 
@@ -61,28 +60,13 @@ class GameObject {
     SDL_Texture* getTexture();
     SDL_Rect* getHitbox();
     void setTexture(const std::string path, SDL_Renderer* ren);
-    void addSound(std::string file_path, std::string name);
-    void addMusic(std::string file_path, std::string name);
-    void playSound(std::string name);
-    void playMusic(std::string name);
-};
-
-class UIButton : public GameObject {
-   private:
-    std::string _default;
-    std::string _hover;
-    bool isHovered(int x, int y);
-
-   public:
-    UIButton(SDL_Rect hitbox, std::string default_texture,
-             std::string hovered_texture);
-    bool handleButton(int mouse_x, int mouse_y, Uint8 type, Uint8 button,
-                      RenderHandler* render_handler);
 };
 
 class Entity : public GameObject {
    protected:
-    int _hp = 1000;
+    InternalTimer _invincibility_timer;
+    int _invincibility_frames = 5;
+    int _hp = 100;
 
    public:
     Entity(SDL_Rect hitbox, int hp);
@@ -92,7 +76,10 @@ class Entity : public GameObject {
 
 class ControlledEntity : public Entity {
    protected:
-    unsigned _velocity;
+    InternalTimer _attack_timer;
+    const int _attack_frames = 5;
+    const int _damage = 5;
+    unsigned _velocity = 0;
     CollisionHandler* _collision_handler;
     virtual void attackLeft(RenderHandler* render_handler);
     virtual void attackRight(RenderHandler* render_handler);
@@ -106,8 +93,6 @@ class ControlledEntity : public Entity {
 
 class Player : public ControlledEntity, public InputListener {
    private:
-    const int _attack_frames = 10;
-    const int _damage = 5;
     void handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
                    SDL_Rect attack_hitbox);
     void hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard);
@@ -137,10 +122,6 @@ class EntityFactory {
     static std::unique_ptr<GameObject> createGameObject(const std::string path,
                                                         SDL_Renderer* ren,
                                                         SDL_Rect hitbox);
-    static std::unique_ptr<UIButton> createButton(const std::string path,
-                                                  std::string hovered_texture,
-                                                  SDL_Renderer* ren,
-                                                  SDL_Rect hitbox);
     static std::unique_ptr<Entity> createEntity(const std::string path,
                                                 SDL_Renderer* ren,
                                                 SDL_Rect hitbox, int hp);

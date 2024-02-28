@@ -10,7 +10,6 @@ class TimeHandler {
    private:
     int _fps = 0;
     unsigned long _frames = 0;
-    std::map<std::string, std::pair<unsigned long, int>> _timers;
     TimeHandler() = default;
 
    public:
@@ -20,7 +19,17 @@ class TimeHandler {
     void setFramerate(int fps);
     void handleFramerate();
     void updateFrame();
-    void addTimer(std::string timer_name, int frames);
-    bool timerExist(std::string timer_name);
-    // bool hasPassedFrames(std::string timer_name, int frames);
+    unsigned long getTime();
+};
+
+class InternalTimer {
+   private:
+    bool _exist = false;
+    unsigned long _start = 0;
+    int _frames = -1;
+    bool finished();
+
+   public:
+    void startTimer(int frames);
+    bool exists();
 };

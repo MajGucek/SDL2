@@ -1,42 +1,52 @@
 #include <AudioHandler.h>
 
-std::map<std::string, std::string> AudioHelper::_audios;
-std::map<std::string, std::string> AudioHelper::_songs;
+AudioHandler::AudioHandler() {
+    initAudio();
+    addSong("background_music", "audio/background_music.mp3");
+    addAudio("bonk", "audio/bonk.mp3");
+    addAudio("boom", "audio/boom.mp3");
+    addSong("circus_clown", "audio/circus_clown.mp3");
+    addAudio("death", "audio/death.mp3");
+    addAudio("he_hell_naw", "audio/he_hell_naw.mp3");
+    addAudio("hell_naw", "audio/hell_naw.mp3");
+    addAudio("metal_pipe", "audio/metal_pipe.mp3");
+    addAudio("money", "audio/money.mp3");
+    addAudio("nerd", "audio/nerd.mp3");
+    addSong("piano", "audio/piano.mp3");
+    addSong("posnia", "audio/posnia.mp3");
+    addAudio("shine", "audio/shine.mp3");
+    addSong("startup", "audio/startup.mp3");
+    addAudio("usb", "audio/usb.mp3");
+    addAudio("usb_out", "audio/usb_out.mp3");
+    addAudio("waterphone", "audio/waterphone.mp3");
+    addAudio("wha_wha", "audio/wha_wha.mp3");
+    addAudio("yawn", "audio/yawn.mp3");
+    addAudio("you_died", "audio/you_died.mp3");
+    addAudio("zombie_hit", "audio/zombie_hit.mp3");
+}
 
-AudioHandler& AudioHandler::initAudio() {
+void AudioHandler::initAudio() {
     Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048);
-    return *this;
 }
 
-AudioHandler& AudioHandler::addAudio(std::string name, std::string file_path) {
-    _audio_helper.addAudio(name, file_path);
-    return *this;
-}
-AudioHandler& AudioHandler::addSong(std::string name, std::string file_path) {
-    _audio_helper.addSong(name, file_path);
-    return *this;
-}
-AudioHandler& AudioHandler::playAudio(std::string name) {
-    _audio_helper.playAudio(name);
-    return *this;
-}
-AudioHandler& AudioHandler::playSong(std::string name) {
-    _audio_helper.playSong(name);
-    return *this;
-}
-AudioHandler& AudioHandler::stopAudio() {
-    _audio_helper.stopAudio();
-    return *this;
-}
-AudioHandler& AudioHandler::stopSongs() {
-    _audio_helper.stopMusic();
-    return *this;
-}
-
-void AudioHelper::addAudio(std::string name, std::string file_path) {
+void AudioHandler::addAudio(std::string name, std::string file_path) {
     _audios.insert({name, file_path});
 }
-void AudioHelper::playAudio(std::string name) {
+
+void AudioHandler::addSong(std::string name, std::string file_path) {
+    _songs.insert({name, file_path});
+}
+
+//
+// --- PUBLIC --- //
+//
+
+AudioHandler& AudioHandler::getInstance() {
+    static AudioHandler audio;
+    return audio;
+}
+
+void AudioHandler::playAudio(std::string name) {
     auto file = _audios.find(name);
     if (file != _audios.end()) {
         Mix_Chunk* sfx = Mix_LoadWAV(file->second.c_str());
@@ -50,10 +60,7 @@ void AudioHelper::playAudio(std::string name) {
     }
 }
 
-void AudioHelper::addSong(std::string name, std::string file_path) {
-    _songs.insert({name, file_path});
-}
-void AudioHelper::playSong(std::string name) {
+void AudioHandler::playSong(std::string name) {
     auto file = _songs.find(name);
     if (file != _songs.end()) {
         Mix_Music* music = Mix_LoadMUS(file->second.c_str());
@@ -67,5 +74,24 @@ void AudioHelper::playSong(std::string name) {
     }
 }
 
-void AudioHelper::stopAudio() { Mix_HaltChannel(-1); }
-void AudioHelper::stopMusic() { Mix_HaltMusic(); }
+AudioHandler& AudioHandler::playSFX(std::string name) {
+    if (_audios.count(name) > 0) {
+        // je audio
+        playAudio(name);
+    } else if (_songs.count(name) > 0) {
+        // je song
+        playSong(name);
+    } else {
+        std::cout << "invalid name!" << std::endl;
+    }
+    return *this;
+}
+
+AudioHandler& AudioHandler::stopSFX() {
+    stopAudio();
+    stopMusic();
+    return *this;
+}
+
+void AudioHandler::stopAudio() { Mix_HaltChannel(-1); }
+void AudioHandler::stopMusic() { Mix_HaltMusic(); }

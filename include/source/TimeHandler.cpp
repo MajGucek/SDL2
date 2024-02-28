@@ -16,35 +16,28 @@ void TimeHandler::handleFramerate() {
     }
 }
 
-void TimeHandler::updateFrame() {
-    _frames++;
-    for (auto& time : _timers) {
-        if (_frames >= time.second.first + time.second.second) {
-            // potekel cas timerja
-            _timers.erase(time.first);
-        }
+void TimeHandler::updateFrame() { _frames++; }
+
+unsigned long TimeHandler::getTime() { return _frames; }
+
+void InternalTimer::startTimer(int frames) {
+    _exist = true;
+    _frames = frames;
+    _start = TimeHandler::getInstance().getTime();
+}
+
+bool InternalTimer::exists() {
+    if (finished()) {
+        _exist = false;
     }
+    return _exist;
 }
 
-void TimeHandler::addTimer(std::string timer_name, int frames) {
-    _timers.insert({timer_name, {_frames, frames}});
-}
-
-/*
-bool TimeHandler::hasPassedFrames(std::string timer_name, int frames) {
-    if (auto time = _timers.find(timer_name); time != _timers.end()) {
-        if (_frames < time->second + frames) {
-            _timers.erase(timer_name);
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-*/
-
-bool TimeHandler::timerExist(std::string timer_name) {
-    if (_timers.find(timer_name) != _timers.end()) {
+bool InternalTimer::finished() {
+    if (TimeHandler::getInstance().getTime() >= _start + _frames) {
+        _start = 0;
+        _frames = -1;
+        _exist = false;
         return true;
     } else {
         return false;

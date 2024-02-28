@@ -20,23 +20,6 @@ void Game::init() {
         .createWindow(_screen_width, _screen_height)
         .createRenderer();
 
-    // init audio handler
-    // .addAudio("", "audio/.mp3")
-    _audio_handler.initAudio()
-        .addAudio("boom", "audio/boom.mp3")
-        .addAudio("circus_clown", "audio/circus_clown.mp3")
-        .addAudio("death", "audio/death.mp3")
-        .addAudio("hell_naw", "audio/hell_naw.mp3")
-        .addAudio("money", "audio/money.mp3")
-        .addAudio("shine", "audio/shine.mp3")
-        .addAudio("startup", "audio/startup.mp3")
-        .addAudio("yawn", "audio/yawn.mp3")
-        .addAudio("you_died", "audio/you_died.mp3")
-        .addAudio("zombie_hit", "audio/zombie_hit.mp3")
-        .addAudio("usb_out", "audio/usb_out.mp3")
-        .addAudio("usb", "audio/usb.mp3")
-        .addSong("posnia", "audio/posnia.mp3");
-
     // init collision handling
     _collision_handler.setSize(_screen_width, _screen_height);
 
@@ -44,16 +27,7 @@ void Game::init() {
     _background = EntityFactory::createGameObject(
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
-    /*
-    _start_button = EntityFactory::createButton(
-        "res/ui/start.png", "res/ui/start_hovered.png",
-        _render_handler.getRenderer(),
-        {_screen_width / 2 - 400, _screen_height / 2 - 100, 800, 200});
 
-
-    _ui.initUIHandler(&_input_handler, &_render_handler);
-    _ui.addUIElement(_start_button);
-    */
     // create player
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
@@ -65,9 +39,9 @@ void Game::init() {
 
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
-                                      &_collision_handler, 2000, 10);
+                                      &_collision_handler, 200, 10);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
-                                      &_collision_handler, 1000, 40);
+                                      &_collision_handler, 500, 40);
 }
 void Game::handleEvents(float delta_time) {
     // player gets handled in handleInput
@@ -79,16 +53,6 @@ void Game::handleEvents(float delta_time) {
 
 void Game::gameLoop() {
     while (_game_state != GameState::EXIT) {
-        /*
-        while (!_ui.handleUI()) {
-            // return true if pressed
-            handleEvents(_delta_time);
-            _render_handler.includeInRender(_background);
-            _render_handler.includeInRender(_start_button);
-            _render_handler.render();
-            handleFramerate();
-        }
-        */
         handleEvents(_delta_time);
         handleEnemies();
         includeInRender();
