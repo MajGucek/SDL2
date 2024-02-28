@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL2x64/SDL.h>
-#include <SDL2x64/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <TimeHandler.h>
 #include <headers/Entity.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL2x64/SDL_mixer.h>
+#include <SDL_mixer.h>
 
 #include <iostream>
 #include <map>

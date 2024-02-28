@@ -3,9 +3,9 @@
 #include <AudioHandler.h>
 #include <CollisionHandler.h>
 #include <RenderHandler.h>
-#include <SDL2x64/SDL.h>
-#include <SDL2x64/SDL_image.h>
-#include <SDL2x64/SDL_mixer.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <TimeHandler.h>
 
 class CollisionHandler;
