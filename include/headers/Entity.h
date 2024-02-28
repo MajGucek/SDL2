@@ -6,6 +6,7 @@
 #include <SDL2x64/SDL.h>
 #include <SDL2x64/SDL_image.h>
 #include <SDL2x64/SDL_mixer.h>
+#include <TimeHandler.h>
 
 class CollisionHandler;
 class RenderHandler;
@@ -35,7 +36,7 @@ class InputListener {
                              Scoreboard* scoreboard) = 0;
 };
 class InputHandler {
-   protected:
+   private:
     std::list<std::shared_ptr<InputListener>> _subscribers;
     void notifySubs(std::string message, float delta_time,
                     RenderHandler* render_handler, Scoreboard* scoreboard);
@@ -45,6 +46,7 @@ class InputHandler {
     void subscribe(std::shared_ptr<InputListener> observer);
     std::string handleInput(float delta_time, RenderHandler* render_handler,
                             Scoreboard* scoreboard);
+    SDL_MouseButtonEvent getMouse();
 };
 
 class GameObject {
@@ -61,6 +63,21 @@ class GameObject {
     void setTexture(const std::string path, SDL_Renderer* ren);
     void addSound(std::string file_path, std::string name);
     void addMusic(std::string file_path, std::string name);
+    void playSound(std::string name);
+    void playMusic(std::string name);
+};
+
+class UIButton : public GameObject {
+   private:
+    std::string _default;
+    std::string _hover;
+    bool isHovered(int x, int y);
+
+   public:
+    UIButton(SDL_Rect hitbox, std::string default_texture,
+             std::string hovered_texture);
+    bool handleButton(int mouse_x, int mouse_y, Uint8 type, Uint8 button,
+                      RenderHandler* render_handler);
 };
 
 class Entity : public GameObject {
@@ -89,8 +106,8 @@ class ControlledEntity : public Entity {
 
 class Player : public ControlledEntity, public InputListener {
    private:
-    int _attack_frames = 7;
-    int _damage = 5;
+    const int _attack_frames = 10;
+    const int _damage = 5;
     void handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
                    SDL_Rect attack_hitbox);
     void hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard);
@@ -120,6 +137,10 @@ class EntityFactory {
     static std::unique_ptr<GameObject> createGameObject(const std::string path,
                                                         SDL_Renderer* ren,
                                                         SDL_Rect hitbox);
+    static std::unique_ptr<UIButton> createButton(const std::string path,
+                                                  std::string hovered_texture,
+                                                  SDL_Renderer* ren,
+                                                  SDL_Rect hitbox);
     static std::unique_ptr<Entity> createEntity(const std::string path,
                                                 SDL_Renderer* ren,
                                                 SDL_Rect hitbox, int hp);

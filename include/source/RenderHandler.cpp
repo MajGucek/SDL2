@@ -21,7 +21,8 @@ RenderHandler &RenderHandler::createWindow(int screen_width,
                                            int screen_height) {
     _window =
         SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                         screen_width, screen_height, SDL_WINDOW_SHOWN);
+                         screen_width, screen_height, SDL_WINDOW_MOUSE_CAPTURE);
+
     return *this;
 }
 RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
@@ -85,4 +86,5 @@ void RenderHandler::render() {
     // ++++ //
     SDL_RenderPresent(_renderer);
     _entities.clear();
+    TimeHandler::getInstance().updateFrame();
 }

@@ -17,7 +17,11 @@ class Game {
     InputHandler _input_handler;
     CollisionHandler _collision_handler;
     LaboratoryHandler _laboratory_handler;
+    UIHandler _ui;
     // --Handlers-- //
+    // UI //
+    std::shared_ptr<UIButton> _start_button;
+    // --UI-- //
 
     // GameObjects //
     Scoreboard _scoreboard;
@@ -33,8 +37,6 @@ class Game {
 
     // Timers //
     int _fps;
-    int _desiredDelta;
-    Uint32 _prev_time;
     float _delta_time;
     // --Timers-- //
 
@@ -47,7 +49,7 @@ class Game {
     void handleEvents(float delta_time);
     float getDeltaTime();
     void includeInRender();
-    void handleFramerate();
+    void handleEnemies();
     // --Helper methods-- //
 
    public:

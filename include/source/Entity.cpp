@@ -19,6 +19,42 @@ void GameObject::addMusic(std::string file_path, std::string name) {
 void GameObject::addSound(std::string file_path, std::string name) {
     _audio_helper.addAudio(name, file_path);
 }
+void GameObject::playMusic(std::string name) { _audio_helper.playSong(name); }
+void GameObject::playSound(std::string name) { _audio_helper.playAudio(name); }
+
+UIButton::UIButton(SDL_Rect hitbox, std::string default_texture,
+                   std::string hovered_texture)
+    : GameObject(hitbox), _default(default_texture), _hover(hovered_texture) {}
+
+bool UIButton::isHovered(int x, int y) {
+    SDL_Rect mouse = {x - 5, y - 5, 5, 5};
+    if (SDL_HasIntersection(&mouse, &_hitbox)) {
+        return true;
+    }
+    return false;
+}
+
+bool UIButton::handleButton(int mouse_x, int mouse_y, Uint8 type, Uint8 button,
+                            RenderHandler* render_handler) {
+    // handle button hover and press
+    if (isHovered(mouse_x, mouse_y)) {
+        // hovered
+
+        setTexture(_hover, render_handler->getRenderer());
+        if (type == SDL_MOUSEBUTTONDOWN) {
+            // left-clicked
+            return true;
+            _audio_helper.playAudio("usb_out");
+
+        } else {
+            // only hovered
+            return false;
+        }
+    } else {
+        setTexture(_default, render_handler->getRenderer());
+    }
+    return false;
+}
 
 Entity::Entity(SDL_Rect hitbox, int hp) : GameObject(hitbox), _hp(hp) {}
 void Entity::hit(int damage) { _hp -= damage; }
@@ -53,14 +89,18 @@ void Player::handleInput(const std::string message, float delta_time,
     if (message.find("D") != std::string::npos) {
         move_X += 1.0;
     }
-    if (message.find("→") != std::string::npos) {
-        hitRight(render_handler, scoreboard);
-    } else if (message.find("←") != std::string::npos) {
-        hitLeft(render_handler, scoreboard);
-    } else if (message.find("↑") != std::string::npos) {
-        hitUp(render_handler, scoreboard);
-    } else if (message.find("↓") != std::string::npos) {
-        hitDown(render_handler, scoreboard);
+    if (!TimeHandler::getInstance().timerExist("hit")) {
+        // timer ne obstaja, lahko hit
+        // starta timer v Player::handleHit();
+        if (message.find("→") != std::string::npos) {
+            hitRight(render_handler, scoreboard);
+        } else if (message.find("←") != std::string::npos) {
+            hitLeft(render_handler, scoreboard);
+        } else if (message.find("↑") != std::string::npos) {
+            hitUp(render_handler, scoreboard);
+        } else if (message.find("↓") != std::string::npos) {
+            hitDown(render_handler, scoreboard);
+        }
     }
 
     double magnitude = std::sqrt(move_X * move_X + move_Y * move_Y);
@@ -97,6 +137,7 @@ Player::Player(SDL_Rect hitbox, int hp, unsigned velocity)
 
 void Player::handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
                        SDL_Rect attack_hitbox) {
+    TimeHandler::getInstance().addTimer("hit", _attack_frames);
     if (_collision_handler) {
         auto hit = _collision_handler->isColliding(&attack_hitbox);
         if (hit.second) {
@@ -211,6 +252,14 @@ std::unique_ptr<GameObject> EntityFactory::createGameObject(
     return std::move(ent);
 }
 
+std::unique_ptr<UIButton> EntityFactory::createButton(
+    const std::string path, std::string hovered_texture, SDL_Renderer* ren,
+    SDL_Rect hitbox) {
+    auto ent = std::make_unique<UIButton>(hitbox, path, hovered_texture);
+    ent->setTexture(path, ren);
+    return std::move(ent);
+}
+
 std::unique_ptr<Entity> EntityFactory::createEntity(const std::string path,
                                                     SDL_Renderer* ren,
                                                     SDL_Rect hitbox, int hp) {
@@ -254,6 +303,12 @@ void InputHandler::notifySubs(std::string message, float delta_time,
 }
 void InputHandler::subscribe(std::shared_ptr<InputListener> observer) {
     _subscribers.push_back(std::move(observer));
+}
+
+SDL_MouseButtonEvent InputHandler::getMouse() {
+    SDL_Event e;
+    SDL_PollEvent(&e);
+    return e.button;
 }
 
 std::string InputHandler::handleInput(float delta_time,

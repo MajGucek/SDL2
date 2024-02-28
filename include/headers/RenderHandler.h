@@ -2,6 +2,7 @@
 
 #include <SDL2x64/SDL.h>
 #include <SDL2x64/SDL_image.h>
+#include <TimeHandler.h>
 #include <headers/Entity.h>
 
 class GameObject;
