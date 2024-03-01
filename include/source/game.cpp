@@ -39,9 +39,9 @@ void Game::init() {
 
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
-                                      &_collision_handler, 200, 10);
+                                      &_collision_handler, 100, 700);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
-                                      &_collision_handler, 500, 40);
+                                      &_collision_handler, 70, 4340);
 }
 void Game::handleEvents(float delta_time) {
     // player gets handled in handleInput

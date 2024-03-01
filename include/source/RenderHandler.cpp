@@ -53,13 +53,13 @@ void RenderHandler::render() {
     SDL_RenderClear(_renderer);
 
     for (auto &entity : _entities) {
-        SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
+        SDL_RenderCopy(_renderer, entity->getTexture(_renderer), nullptr,
                        entity->getHitbox());
     }
     for (auto &an_entity : _animation_entities) {
         if (an_entity.second > 0) {
-            SDL_RenderCopy(_renderer, an_entity.first->getTexture(), nullptr,
-                           an_entity.first->getHitbox());
+            SDL_RenderCopy(_renderer, an_entity.first->getTexture(_renderer),
+                           nullptr, an_entity.first->getHitbox());
             an_entity.second--;
         }
     }

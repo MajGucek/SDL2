@@ -10,12 +10,12 @@ void GameObject::setTexture(const std::string path, SDL_Renderer* ren) {
     _texture = SDL_CreateTextureFromSurface(ren, temp);
     SDL_FreeSurface(temp);
 }
-SDL_Texture* GameObject::getTexture() { return _texture; }
+SDL_Texture* GameObject::getTexture(SDL_Renderer* renderer) { return _texture; }
 SDL_Rect* GameObject::getHitbox() { return &_hitbox; }
 
 Entity::Entity(SDL_Rect hitbox, int hp) : GameObject(hitbox), _hp(hp) {}
 
-void Entity::hit(int damage) {
+void Entity::hit(int damage, SDL_Renderer* renderer) {
     if (!_invincibility_timer.exists()) {
         // ne obstaja, apply damage
         _hp -= damage;
@@ -110,7 +110,7 @@ void Player::handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
         if (hit.second) {
             if (auto entity = hit.first.lock()) {
                 // zadel entity
-                entity->hit(_damage);
+                entity->hit(_damage, render_handler->getRenderer());
                 // std::cout << "zadel!" << std::endl;
             }
         } else {
@@ -147,6 +147,20 @@ void Player::hitRight(RenderHandler* render_handler, Scoreboard* scoreboard) {
 
 Laboratory::Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored)
     : Entity(hitbox, hp), _animals_stored(animals_stored) {}
+
+SDL_Texture* Laboratory::getTexture(SDL_Renderer* renderer) {
+    if (!_animation_timer.exists()) {
+        setTexture("res/laboratory.png", renderer);
+    }
+    return _texture;
+}
+
+void Laboratory::hit(int damage, SDL_Renderer* renderer) {
+    Entity::hit(damage, renderer);
+    AudioHandler::getInstance().playSFX("bonk");
+    _animation_timer.startTimer(_hit_animation_frames);
+    setTexture("res/laboratory_hit.png", renderer);
+}
 
 bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
                                        unsigned threshold) {

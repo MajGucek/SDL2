@@ -57,20 +57,21 @@ class GameObject {
    public:
     GameObject(SDL_Rect hitbox);
     virtual ~GameObject();
-    SDL_Texture* getTexture();
-    SDL_Rect* getHitbox();
+    virtual SDL_Texture* getTexture(SDL_Renderer* renderer);
+    virtual SDL_Rect* getHitbox();
     void setTexture(const std::string path, SDL_Renderer* ren);
 };
 
 class Entity : public GameObject {
    protected:
     InternalTimer _invincibility_timer;
+    InternalTimer _animation_timer;
     int _invincibility_frames = 5;
     int _hp = 100;
 
    public:
     Entity(SDL_Rect hitbox, int hp);
-    virtual void hit(int damage);
+    virtual void hit(int damage, SDL_Renderer* renderer);
     int getHP();
 };
 
@@ -93,6 +94,7 @@ class ControlledEntity : public Entity {
 
 class Player : public ControlledEntity, public InputListener {
    private:
+    const int _attack_frames = 25;
     void handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
                    SDL_Rect attack_hitbox);
     void hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard);
@@ -109,9 +111,12 @@ class Player : public ControlledEntity, public InputListener {
 
 class Laboratory : public Entity {
    private:
+    const int _hit_animation_frames = 10;
     unsigned _animals_stored = 1;
 
    public:
+    void hit(int damage, SDL_Renderer* renderer) override;
+    SDL_Texture* getTexture(SDL_Renderer* renderer) override;
     Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored);
     bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
     unsigned getAnimalCount();
