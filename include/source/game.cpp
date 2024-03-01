@@ -1,10 +1,10 @@
 #include <headers/game.h>
 
 Game::Game()
-    : _screen_width(2560),
-      _screen_height(1440),
+    : _screen_width(1920),
+      _screen_height(1080),
       _game_state(GameState::PLAY),
-      _fps(144) {}
+      _fps(60) {}
 Game::~Game() { SDL_Quit(); }
 float Game::getDeltaTime() { return _delta_time; }
 
@@ -31,7 +31,7 @@ void Game::init() {
     // create player
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
-                                          {200, 200, 100, 100}, 100, 5);
+                                          {200, 200, 100, 100}, 100, 15);
     _input_handler.subscribe(_player);
     _player->addCollisionHandler(&_collision_handler);
 
@@ -42,7 +42,7 @@ void Game::init() {
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
                                       &_collision_handler, 70, 4340);
     _poacher_handler.addPoacher(_render_handler.getRenderer(), 900, 900,
-                                &_collision_handler, 10, 4);
+                                &_collision_handler, 10, 10);
 }
 void Game::handleEvents(float delta_time) {
     // player gets handled in handleInput
