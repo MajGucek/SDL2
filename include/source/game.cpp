@@ -36,12 +36,13 @@ void Game::init() {
     _player->addCollisionHandler(&_collision_handler);
 
     // set laboratory constants
-
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
                                       &_collision_handler, 100, 700);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
                                       &_collision_handler, 70, 4340);
+    _poacher_handler.addPoacher(_render_handler.getRenderer(), 900, 900,
+                                &_collision_handler, 10, 4);
 }
 void Game::handleEvents(float delta_time) {
     // player gets handled in handleInput
@@ -62,12 +63,16 @@ void Game::gameLoop() {
 }
 
 void Game::handleEnemies() {
-    _laboratory_handler.handleLaboratories(*_player->getHitbox(), &_scoreboard);
+    _laboratory_handler.handle(_player, _scoreboard, _collision_handler,
+                               &_render_handler);
+    _poacher_handler.handle(_player, _scoreboard, _collision_handler,
+                            &_render_handler);
 }
 
 void Game::includeInRender() {
     _render_handler.includeInRender(_background);
     _laboratory_handler.includeInRender(_render_handler);
+    _poacher_handler.includeInRender(_render_handler);
     _render_handler.includeInRender(_player);
     _render_handler.includeScoreboardInRender(&_scoreboard);
 }

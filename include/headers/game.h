@@ -16,6 +16,7 @@ class Game {
     InputHandler _input_handler;
     CollisionHandler _collision_handler;
     LaboratoryHandler _laboratory_handler;
+    PoacherHandler _poacher_handler;
     // --Handlers-- //
 
     // GameObjects //

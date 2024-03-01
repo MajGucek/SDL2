@@ -23,6 +23,7 @@ AudioHandler::AudioHandler() {
     addAudio("yawn", "audio/yawn.mp3");
     addAudio("you_died", "audio/you_died.mp3");
     addAudio("zombie_hit", "audio/zombie_hit.mp3");
+    addAudio("damage", "audio/damage.mp3");
 }
 
 void AudioHandler::initAudio() {

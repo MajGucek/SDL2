@@ -67,11 +67,13 @@ class Entity : public GameObject {
     InternalTimer _invincibility_timer;
     InternalTimer _animation_timer;
     int _invincibility_frames = 5;
+    const int _hit_animation_frames = 10;
     int _hp = 100;
 
    public:
     Entity(SDL_Rect hitbox, int hp);
-    virtual void hit(int damage, SDL_Renderer* renderer);
+    virtual void hit(int damage, SDL_Renderer* renderer,
+                     std::string audio = "");
     int getHP();
 };
 
@@ -80,7 +82,7 @@ class ControlledEntity : public Entity {
     InternalTimer _attack_timer;
     const int _attack_frames = 5;
     const int _damage = 5;
-    unsigned _velocity = 0;
+    unsigned _velocity = 5;
     CollisionHandler* _collision_handler;
     virtual void attackLeft(RenderHandler* render_handler);
     virtual void attackRight(RenderHandler* render_handler);
@@ -88,6 +90,7 @@ class ControlledEntity : public Entity {
     virtual void attackDown(RenderHandler* render_handler);
 
    public:
+    int getDamage();
     ControlledEntity(SDL_Rect hitbox, int hp, unsigned velocity);
     void addCollisionHandler(CollisionHandler* collision_handler);
 };
@@ -95,6 +98,7 @@ class ControlledEntity : public Entity {
 class Player : public ControlledEntity, public InputListener {
    private:
     const int _attack_frames = 25;
+    int _invincibility_frames = 70;
     void handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
                    SDL_Rect attack_hitbox);
     void hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard);
@@ -103,25 +107,48 @@ class Player : public ControlledEntity, public InputListener {
     void hitDown(RenderHandler* render_handler, Scoreboard* scoreboard);
 
    public:
+    void hit(int damage, SDL_Renderer* renderer, std::string audio = "");
     Player(SDL_Rect hitbox, int hp, unsigned velocity);
     void handleInput(const std::string message, float delta_time,
                      RenderHandler* render_handler,
                      Scoreboard* scoreboard) override;
 };
 
+class Poacher : public ControlledEntity {
+   private:
+    const int _damage = 10;
+    const int _score = 100;
+    const int _attack_frames = 30;
+
+    void handleCollisionHelper(int x, int y);
+
+   public:
+    bool attack(RenderHandler* render_handler);
+    Poacher(SDL_Rect hitbox, int hp, unsigned velocity);
+    bool canSeePlayer(const SDL_Rect player, unsigned threshold);
+    void moveTowards(const SDL_Rect destination);
+    int getScore();
+    /*
+    void attackLeft(RenderHandler* render_handler);
+    void attackRight(RenderHandler* render_handler);
+    void attackUp(RenderHandler* render_handler);
+    void attackDown(RenderHandler* render_handler);
+    */
+};
+
 class Laboratory : public Entity {
    private:
     const int _hit_animation_frames = 10;
-    unsigned _animals_stored = 1;
+    unsigned _animals_stored = 500;
 
    public:
-    void hit(int damage, SDL_Renderer* renderer) override;
+    void hit(int damage, SDL_Renderer* renderer,
+             std::string audio = "") override;
     SDL_Texture* getTexture(SDL_Renderer* renderer) override;
     Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored);
     bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
     unsigned getAnimalCount();
 };
-
 class EntityFactory {
    public:
     static std::unique_ptr<GameObject> createGameObject(const std::string path,
@@ -138,6 +165,10 @@ class EntityFactory {
                                                 SDL_Renderer* ren,
                                                 SDL_Rect hitbox, int hp,
                                                 unsigned velocity);
+    static std::unique_ptr<Poacher> createPoacher(const std::string path,
+                                                  SDL_Renderer* ren,
+                                                  SDL_Rect hitbox, int hp,
+                                                  unsigned velocity);
 
     static std::unique_ptr<Laboratory> createLaboratory(
         const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
