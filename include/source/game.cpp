@@ -1,17 +1,22 @@
 #include <headers/game.h>
 
 Game::Game()
-    : _screen_width(1920),
-      _screen_height(1080),
+    : _screen_width(2560),
+      _screen_height(1440),
       _game_state(GameState::PLAY),
-      _fps(60) {}
+      _fps(144) {}
 Game::~Game() { SDL_Quit(); }
-float Game::getDeltaTime() { return _delta_time; }
 
 void Game::run() {
     init();
     gameLoop();
 }
+
+Game& Game::getInstance() {
+    static Game game;
+    return game;
+}
+void Game::stop() { _game_state = GameState::EXIT; }
 
 void Game::init() {
     TimeHandler::getInstance().setFramerate(_fps);
@@ -28,13 +33,28 @@ void Game::init() {
         "res/background.png", _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
 
+    _start_menu = UIFactory::createStartMenu();
+    _start_menu->init(_screen_width, _screen_height,
+                      _render_handler.getRenderer());
+    _input_handler.subscribe(_start_menu);
+
+    while (!_start_menu->isFinished() && _game_state == GameState::PLAY) {
+        if (!_input_handler.handleInput(&_render_handler)) {
+            _game_state = GameState::EXIT;
+        }
+        _render_handler.includeInRender(_background);
+        _start_menu->includeInRender(_render_handler);
+        _render_handler.render();
+        TimeHandler::getInstance().handleFramerate();
+    }
+
     // create player
+
     _player = EntityFactory::createPlayer("res/player.png",
                                           _render_handler.getRenderer(),
-                                          {200, 200, 100, 100}, 100, 15);
+                                          {200, 200, 100, 100}, 100, 6);
     _input_handler.subscribe(_player);
     _player->addCollisionHandler(&_collision_handler);
-
     // set laboratory constants
     _laboratory_handler.setVisibility(400);
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 700, 100,
@@ -42,19 +62,14 @@ void Game::init() {
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
                                       &_collision_handler, 70, 4340);
     _poacher_handler.addPoacher(_render_handler.getRenderer(), 900, 900,
-                                &_collision_handler, 10, 10);
-}
-void Game::handleEvents(float delta_time) {
-    // player gets handled in handleInput
-    if (_input_handler.handleInput(delta_time, &_render_handler,
-                                   &_scoreboard) == "exit") {
-        _game_state = GameState::EXIT;
-    }
+                                &_collision_handler, 10, 4);
 }
 
 void Game::gameLoop() {
     while (_game_state != GameState::EXIT) {
-        handleEvents(_delta_time);
+        if (!_input_handler.handleInput(&_render_handler)) {
+            _game_state = GameState::EXIT;
+        }
         handleEnemies();
         includeInRender();
         _render_handler.render();
@@ -63,10 +78,8 @@ void Game::gameLoop() {
 }
 
 void Game::handleEnemies() {
-    _laboratory_handler.handle(_player, _scoreboard, _collision_handler,
-                               &_render_handler);
-    _poacher_handler.handle(_player, _scoreboard, _collision_handler,
-                            &_render_handler);
+    _laboratory_handler.handle(_player, _collision_handler, &_render_handler);
+    _poacher_handler.handle(_player, _collision_handler, &_render_handler);
 }
 
 void Game::includeInRender() {
@@ -74,5 +87,4 @@ void Game::includeInRender() {
     _laboratory_handler.includeInRender(_render_handler);
     _poacher_handler.includeInRender(_render_handler);
     _render_handler.includeInRender(_player);
-    _render_handler.includeScoreboardInRender(&_scoreboard);
 }

@@ -19,7 +19,6 @@ class RenderHandler {
    private:
     std::list<std::shared_ptr<GameObject>> _entities;
     std::list<std::pair<std::shared_ptr<GameObject>, int>> _animation_entities;
-    Scoreboard *_scoreboard;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
 
@@ -33,6 +32,5 @@ class RenderHandler {
     SDL_Renderer *getRenderer();
     void includeInRender(std::shared_ptr<GameObject> entity);
     void includeInRender(std::shared_ptr<GameObject> entity, int frames);
-    void includeScoreboardInRender(Scoreboard *scoreboard);
     void render();
 };

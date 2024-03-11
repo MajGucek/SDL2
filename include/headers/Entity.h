@@ -7,7 +7,6 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <TimeHandler.h>
-
 class CollisionHandler;
 class RenderHandler;
 
@@ -18,10 +17,14 @@ class RenderHandler;
 
 class Scoreboard {
    private:
+    Scoreboard() = default;
     int _score = 0;
     std::string getDigitPath(int scoreDigit);
 
    public:
+    Scoreboard(const Scoreboard&) = delete;
+    Scoreboard& operator=(const Scoreboard&) = delete;
+    static Scoreboard& getInstance();
     void operator++(int x);
     void operator++();
     void operator+=(unsigned inc);
@@ -31,22 +34,18 @@ class Scoreboard {
 };
 class InputListener {
    public:
-    virtual void handleInput(const std::string message, float delta_time,
-                             RenderHandler* render_handler,
-                             Scoreboard* scoreboard) = 0;
+    virtual bool handleInput(const std::string message,
+                             RenderHandler* render_handler) = 0;
 };
 class InputHandler {
    private:
     std::list<std::shared_ptr<InputListener>> _subscribers;
-    void notifySubs(std::string message, float delta_time,
-                    RenderHandler* render_handler, Scoreboard* scoreboard);
+    bool notifySubs(std::string message, RenderHandler* render_handler);
 
    public:
     InputHandler();
     void subscribe(std::shared_ptr<InputListener> observer);
-    std::string handleInput(float delta_time, RenderHandler* render_handler,
-                            Scoreboard* scoreboard);
-    SDL_MouseButtonEvent getMouse();
+    bool handleInput(RenderHandler* render_handler);
 };
 
 class GameObject {
@@ -59,7 +58,7 @@ class GameObject {
     virtual ~GameObject();
     virtual SDL_Texture* getTexture(SDL_Renderer* renderer);
     virtual SDL_Rect* getHitbox();
-    void setTexture(const std::string path, SDL_Renderer* ren);
+    virtual void setTexture(const std::string path, SDL_Renderer* ren);
 };
 
 class Entity : public GameObject {
@@ -99,19 +98,17 @@ class Player : public ControlledEntity, public InputListener {
    private:
     const int _attack_frames = 25;
     int _invincibility_frames = 70;
-    void handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
-                   SDL_Rect attack_hitbox);
-    void hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard);
-    void hitRight(RenderHandler* render_handler, Scoreboard* scoreboard);
-    void hitUp(RenderHandler* render_handler, Scoreboard* scoreboard);
-    void hitDown(RenderHandler* render_handler, Scoreboard* scoreboard);
+    void handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox);
+    void hitLeft(RenderHandler* render_handler);
+    void hitRight(RenderHandler* render_handler);
+    void hitUp(RenderHandler* render_handler);
+    void hitDown(RenderHandler* render_handler);
 
    public:
     void hit(int damage, SDL_Renderer* renderer, std::string audio = "");
     Player(SDL_Rect hitbox, int hp, unsigned velocity);
-    void handleInput(const std::string message, float delta_time,
-                     RenderHandler* render_handler,
-                     Scoreboard* scoreboard) override;
+    bool handleInput(const std::string message,
+                     RenderHandler* render_handler) override;
 };
 
 class Poacher : public ControlledEntity {

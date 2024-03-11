@@ -20,6 +20,7 @@ class TimeHandler {
     void handleFramerate();
     void updateFrame();
     unsigned long getTime();
+    float deltaTime();
 };
 
 class InternalTimer {

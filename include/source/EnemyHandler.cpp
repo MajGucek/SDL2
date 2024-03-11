@@ -18,13 +18,12 @@ void LaboratoryHandler::includeInRender(RenderHandler& render_handler) {
 }
 
 void LaboratoryHandler::handle(std::shared_ptr<Player> player,
-                               Scoreboard& scoreboard,
                                CollisionHandler& collision_handler,
                                RenderHandler* render_handler) {
     for (auto& lab : _laboratories) {
         if (lab.first->getHP() < 0) {
             std::cout << "unicil laboratorij!" << std::endl;
-            scoreboard += lab.first->getAnimalCount();
+            Scoreboard::getInstance() += lab.first->getAnimalCount();
             _laboratories.remove(lab);
 
             continue;
@@ -53,13 +52,12 @@ void PoacherHandler::addPoacher(SDL_Renderer* ren, int x, int y,
 }
 
 void PoacherHandler::handle(std::shared_ptr<Player> player,
-                            Scoreboard& scoreboard,
                             CollisionHandler& collision_handler,
                             RenderHandler* render_handler) {
     for (auto& poacher : _poachers) {
         if (poacher->getHP() < 0) {
             std::cout << "ubil poacherja!" << std::endl;
-            scoreboard += poacher->getScore();
+            Scoreboard::getInstance() += poacher->getScore();
             _poachers.remove(poacher);
 
             continue;
@@ -73,7 +71,7 @@ void PoacherHandler::handle(std::shared_ptr<Player> player,
                     player->hit(poacher->getDamage(),
                                 render_handler->getRenderer());
                     _poachers.remove(poacher);
-                                }
+                }
             }
         }
     }

@@ -1,7 +1,13 @@
 #pragma once
 
 // ---- //
-#include <Handlers.h>
+#include <AudioHandler.h>
+#include <CollisionHandler.h>
+#include <EnemyHandler.h>
+#include <Entity.h>
+#include <RenderHandler.h>
+#include <TimeHandler.h>
+#include <UIHandler.h>
 // ---- //
 
 #include <iostream>
@@ -11,6 +17,7 @@ enum class GameState { PLAY, EXIT };
 
 class Game {
    private:
+    Game();
     // Handlers //
     RenderHandler _render_handler;
     InputHandler _input_handler;
@@ -19,8 +26,11 @@ class Game {
     PoacherHandler _poacher_handler;
     // --Handlers-- //
 
+    // UI //
+    std::shared_ptr<StartMenu> _start_menu;
+    // --UI--//
+
     // GameObjects //
-    Scoreboard _scoreboard;
     std::shared_ptr<Player> _player;
     std::shared_ptr<GameObject> _background;
     // --GameObjects-- //
@@ -33,7 +43,6 @@ class Game {
 
     // Timers //
     int _fps;
-    float _delta_time;
     // --Timers-- //
 
     // Core //
@@ -42,14 +51,13 @@ class Game {
     // --Core-- //
 
     // Helper methods //
-    void handleEvents(float delta_time);
-    float getDeltaTime();
     void includeInRender();
     void handleEnemies();
     // --Helper methods-- //
 
    public:
-    Game();
     ~Game();
     void run();
+    void stop();
+    static Game& getInstance();
 };

@@ -3,6 +3,10 @@
 #include <Entity.h>
 #include <RenderHandler.h>
 
+class Player;
+class CollisionHandler;
+class Laboratory;
+class Poacher;
 #include <cmath>
 #include <list>
 #include <memory>
@@ -13,7 +17,7 @@ class EnemyHandler {
 
    public:
     virtual void includeInRender(RenderHandler& render_handler) = 0;
-    virtual void handle(std::shared_ptr<Player> player, Scoreboard& scoreboard,
+    virtual void handle(std::shared_ptr<Player> player,
                         CollisionHandler& collision_handler,
                         RenderHandler* render_handler) = 0;
 };
@@ -29,7 +33,7 @@ class LaboratoryHandler : public EnemyHandler {
                        unsigned animals_stored);
 
     virtual void includeInRender(RenderHandler& render_handler) override;
-    virtual void handle(std::shared_ptr<Player> player, Scoreboard& scoreboard,
+    virtual void handle(std::shared_ptr<Player> player,
                         CollisionHandler& collision_handler,
                         RenderHandler* render_handler) override;
 };
@@ -44,7 +48,7 @@ class PoacherHandler : public EnemyHandler {
                     CollisionHandler* collision_handler, int hp,
                     unsigned velocity);
     virtual void includeInRender(RenderHandler& render_handler) override;
-    virtual void handle(std::shared_ptr<Player> player, Scoreboard& scoreboard,
+    virtual void handle(std::shared_ptr<Player> player,
                         CollisionHandler& collision_handler,
                         RenderHandler* render_handler) override;
 };

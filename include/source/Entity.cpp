@@ -52,9 +52,8 @@ void Player::hit(int damage, SDL_Renderer* renderer, std::string audio) {
     }
 }
 
-void Player::handleInput(const std::string message, float delta_time,
-                         RenderHandler* render_handler,
-                         Scoreboard* scoreboard) {
+bool Player::handleInput(const std::string message,
+                         RenderHandler* render_handler) {
     if (!_animation_timer.exists()) {
         setTexture("res/player.png", render_handler->getRenderer());
     }
@@ -75,13 +74,13 @@ void Player::handleInput(const std::string message, float delta_time,
         // timer ne obstaja, lahko hit
         // starta timer v Player::handleHit();
         if (message.find("→") != std::string::npos) {
-            hitRight(render_handler, scoreboard);
+            hitRight(render_handler);
         } else if (message.find("←") != std::string::npos) {
-            hitLeft(render_handler, scoreboard);
+            hitLeft(render_handler);
         } else if (message.find("↑") != std::string::npos) {
-            hitUp(render_handler, scoreboard);
+            hitUp(render_handler);
         } else if (message.find("↓") != std::string::npos) {
-            hitDown(render_handler, scoreboard);
+            hitDown(render_handler);
         }
     }
 
@@ -106,17 +105,17 @@ void Player::handleInput(const std::string message, float delta_time,
             if (!_collision_handler->isColliding(&tempY).second) {
                 _hitbox.y = new_y;
             }
-            return;
+
         } else {
             // nimas collision_handler
             _hitbox.x = new_x;
             _hitbox.y = new_y;
         }
     }
+    return true;
 }
 
-void Player::handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
-                       SDL_Rect attack_hitbox) {
+void Player::handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox) {
     //
     _attack_timer.startTimer(_attack_frames);
     //
@@ -139,25 +138,25 @@ void Player::handleHit(RenderHandler* render_handler, Scoreboard* scoreboard,
     }
 }
 
-void Player::hitUp(RenderHandler* render_handler, Scoreboard* scoreboard) {
+void Player::hitUp(RenderHandler* render_handler) {
     SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y - _hitbox.h, _hitbox.w,
                               _hitbox.h};
-    handleHit(render_handler, scoreboard, attack_hitbox);
+    handleHit(render_handler, attack_hitbox);
 }
-void Player::hitDown(RenderHandler* render_handler, Scoreboard* scoreboard) {
+void Player::hitDown(RenderHandler* render_handler) {
     SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y + _hitbox.h, _hitbox.w,
                               _hitbox.h};
-    handleHit(render_handler, scoreboard, attack_hitbox);
+    handleHit(render_handler, attack_hitbox);
 }
-void Player::hitLeft(RenderHandler* render_handler, Scoreboard* scoreboard) {
+void Player::hitLeft(RenderHandler* render_handler) {
     SDL_Rect attack_hitbox = {_hitbox.x - _hitbox.w, _hitbox.y, _hitbox.w,
                               _hitbox.h};
-    handleHit(render_handler, scoreboard, attack_hitbox);
+    handleHit(render_handler, attack_hitbox);
 }
-void Player::hitRight(RenderHandler* render_handler, Scoreboard* scoreboard) {
+void Player::hitRight(RenderHandler* render_handler) {
     SDL_Rect attack_hitbox = {_hitbox.x + _hitbox.w, _hitbox.y, _hitbox.w,
                               _hitbox.h};
-    handleHit(render_handler, scoreboard, attack_hitbox);
+    handleHit(render_handler, attack_hitbox);
 }
 
 Laboratory::Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored)
@@ -188,6 +187,11 @@ bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
     return distance < threshold;
 }
 unsigned Laboratory::getAnimalCount() { return _animals_stored; }
+
+Scoreboard& Scoreboard::getInstance() {
+    static Scoreboard timer;
+    return timer;
+}
 
 std::string Scoreboard::getDigitPath(int scoreDigit) {
     switch (scoreDigit) {
@@ -363,35 +367,28 @@ std::unique_ptr<Poacher> EntityFactory::createPoacher(const std::string path,
 
 InputHandler::InputHandler() { _subscribers = {}; }
 
-void InputHandler::notifySubs(std::string message, float delta_time,
-                              RenderHandler* render_handler,
-                              Scoreboard* scoreboard) {
+bool InputHandler::notifySubs(std::string message,
+                              RenderHandler* render_handler) {
     for (auto& sub : _subscribers) {
-        sub->handleInput(message, delta_time, render_handler, scoreboard);
+        if (!sub->handleInput(message, render_handler)) {
+            return false;
+        }
     }
+    return true;
 }
 void InputHandler::subscribe(std::shared_ptr<InputListener> observer) {
     _subscribers.push_back(std::move(observer));
 }
 
-SDL_MouseButtonEvent InputHandler::getMouse() {
-    SDL_Event e;
-    SDL_PollEvent(&e);
-    return e.button;
-}
-
-std::string InputHandler::handleInput(float delta_time,
-                                      RenderHandler* render_handler,
-                                      Scoreboard* scoreboard) {
+bool InputHandler::handleInput(RenderHandler* render_handler) {
     SDL_Event e;
     SDL_PollEvent(&e);
     const Uint8* state = SDL_GetKeyboardState(nullptr);
     std::string message = "";
 
     if (state[SDL_SCANCODE_ESCAPE]) {
-        return "exit";
+        message.append("x");
     }
-
     if (state[SDL_SCANCODE_A]) {
         message.append("A");
     }
@@ -416,15 +413,20 @@ std::string InputHandler::handleInput(float delta_time,
     if (state[SDL_SCANCODE_DOWN]) {
         message.append("↓");
     }
+    if (state[SDL_SCANCODE_SPACE]) {
+        message.append("e");
+    }
     if (message != "") {
-        notifySubs(message, delta_time, render_handler, scoreboard);
+        if (!notifySubs(message, render_handler)) {
+            return false;
+        }
     }
 
     switch (e.type) {
         case SDL_QUIT:
-            return "exit";
+            return false;
             break;
     }
 
-    return "";
+    return true;
 }

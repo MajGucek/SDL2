@@ -43,3 +43,5 @@ bool InternalTimer::finished() {
         return false;
     }
 }
+
+float TimeHandler::deltaTime() { return (1 / _fps) * 144; }

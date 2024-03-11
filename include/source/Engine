@@ -1,8 +1,5 @@
 #include <headers/game.h>
 
 namespace Engine {
-void run() {
-    Game game;
-    game.run();
-}
+void run() { Game::getInstance().run(); }
 };  // namespace Engine
