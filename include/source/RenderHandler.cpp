@@ -1,8 +1,7 @@
 #include <headers/RenderHandler.h>
 
-RenderHandler::RenderHandler() {
-    _window = nullptr;
-    _renderer = nullptr;
+RenderHandler::RenderHandler() : _window(nullptr), _renderer(nullptr) {
+    IMG_Init(IMG_INIT_PNG);
 }
 RenderHandler::~RenderHandler() {
     SDL_DestroyRenderer(_renderer);
@@ -33,10 +32,12 @@ RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
 }
 SDL_Renderer *RenderHandler::getRenderer() { return _renderer; }
 
-void RenderHandler::includeInRender(std::shared_ptr<GameObject> entity) {
-    _entities.push_back(std::move(entity));
+void RenderHandler::includeInRender(std::weak_ptr<GameObject> entity) {
+    if (entity.lock()) {
+        _entities.push_back(std::move(entity));
+    }
 }
-void RenderHandler::includeInRender(std::shared_ptr<GameObject> entity,
+void RenderHandler::includeInRender(std::unique_ptr<GameObject> entity,
                                     int frames) {
     _animation_entities.push_back({std::move(entity), frames});
 }
@@ -46,15 +47,25 @@ void RenderHandler::render() {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
 
-    for (auto &entity : _entities) {
-        SDL_RenderCopy(_renderer, entity->getTexture(_renderer), nullptr,
-                       entity->getHitbox());
+    for (auto &ent : _entities) {
+        if (auto entity = ent.lock()) {
+            if (entity->getTexture()) {
+                SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
+                               entity->getHitbox());
+            } else {
+                std::cout << "invalid texture!" << std::endl;
+            }
+        }
     }
     for (auto &an_entity : _animation_entities) {
         if (an_entity.second > 0) {
-            SDL_RenderCopy(_renderer, an_entity.first->getTexture(_renderer),
-                           nullptr, an_entity.first->getHitbox());
-            an_entity.second--;
+            if (an_entity.first->getTexture()) {
+                SDL_RenderCopy(_renderer, an_entity.first->getTexture(),
+                               nullptr, an_entity.first->getHitbox());
+                an_entity.second--;
+            } else {
+                std::cout << "invalid animation texture!" << std::endl;
+            }
         }
     }
 
@@ -80,4 +91,93 @@ void RenderHandler::render() {
     SDL_RenderPresent(_renderer);
     _entities.clear();
     TimeHandler::getInstance().updateFrame();
+}
+
+void TextureHandler::init(SDL_Renderer *renderer) {
+    _renderer = renderer;
+    loadTextures();
+}
+
+TextureHandler::TextureHandler() : _renderer(nullptr) {}
+
+TextureHandler &TextureHandler::getInstance() {
+    static TextureHandler t;
+    return t;
+}
+
+void TextureHandler::loadTextures() {
+    if (!_renderer) {
+    }
+    // GAMEPLAY //
+    _textures.insert({TextureType::background,
+                      IMG_LoadTexture(_renderer, "res/background.png")});
+    _textures.insert(
+        {TextureType::player, IMG_LoadTexture(_renderer, "res/player.png")});
+    _textures.insert({TextureType::player_hit,
+                      IMG_LoadTexture(_renderer, "res/player_hit.png")});
+    _textures.insert(
+        {TextureType::hit, IMG_LoadTexture(_renderer, "res/hit.png")});
+    _textures.insert({TextureType::laboratory,
+                      IMG_LoadTexture(_renderer, "res/laboratory.png")});
+    _textures.insert({TextureType::laboratory_hit,
+                      IMG_LoadTexture(_renderer, "res/laboratory_hit.png")});
+    _textures.insert({TextureType::laboratory_hit,
+                      IMG_LoadTexture(_renderer, "res/poacher.png")});
+    // SCORE //
+    _textures.insert(
+        {TextureType::score_0, IMG_LoadTexture(_renderer, "res/score/0.png")});
+    _textures.insert(
+        {TextureType::score_1, IMG_LoadTexture(_renderer, "res/score/1.png")});
+    _textures.insert(
+        {TextureType::score_2, IMG_LoadTexture(_renderer, "res/score/2.png")});
+    _textures.insert(
+        {TextureType::score_3, IMG_LoadTexture(_renderer, "res/score/3.png")});
+    _textures.insert(
+        {TextureType::score_4, IMG_LoadTexture(_renderer, "res/score/4.png")});
+    _textures.insert(
+        {TextureType::score_5, IMG_LoadTexture(_renderer, "res/score/5.png")});
+    _textures.insert(
+        {TextureType::score_6, IMG_LoadTexture(_renderer, "res/score/6.png")});
+    _textures.insert(
+        {TextureType::score_7, IMG_LoadTexture(_renderer, "res/score/7.png")});
+    _textures.insert(
+        {TextureType::score_8, IMG_LoadTexture(_renderer, "res/score/8.png")});
+    _textures.insert(
+        {TextureType::score_9, IMG_LoadTexture(_renderer, "res/score/9.png")});
+    // UI //
+    _textures.insert(
+        {TextureType::start, IMG_LoadTexture(_renderer, "res/ui/start.png")});
+    _textures.insert({TextureType::start_hovered,
+                      IMG_LoadTexture(_renderer, "res/ui/start_hovered.png")});
+    _textures.insert({TextureType::settings,
+                      IMG_LoadTexture(_renderer, "res/ui/settings.png")});
+    _textures.insert(
+        {TextureType::settings_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/settings_hovered.png")});
+    _textures.insert(
+        {TextureType::exit, IMG_LoadTexture(_renderer, "res/ui/exit.png")});
+    _textures.insert({TextureType::exit_hovered,
+                      IMG_LoadTexture(_renderer, "res/ui/exit_hovered.png")});
+}
+
+SDL_Texture *TextureHandler::getTexture(TextureType texture_type) {
+    if (_renderer) {
+        auto pair = _textures.find(texture_type);
+        if (pair != _textures.end()) {
+            return pair->second;
+        } else {
+            std::cout << "invalid texture type, this should never happen!"
+                      << std::endl;
+            return nullptr;
+        }
+    } else {
+        std::cout << "no renderer given!" << std::endl;
+        return nullptr;
+    }
+}
+
+TextureHandler::~TextureHandler() {
+    for (auto &x : _textures) {
+        SDL_DestroyTexture(x.second);
+    }
 }

@@ -1,5 +1,7 @@
 #include <TimeHandler.h>
 
+TimeHandler::TimeHandler() : _fps(60), _frames(0) {}
+
 TimeHandler& TimeHandler::getInstance() {
     static TimeHandler timer;
     return timer;
@@ -44,4 +46,4 @@ bool InternalTimer::finished() {
     }
 }
 
-float TimeHandler::deltaTime() { return (1 / _fps) * 144; }
+float TimeHandler::deltaTime() { return (double)1 / (double)_fps; }

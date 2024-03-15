@@ -2,15 +2,15 @@
 
 void StartMenu::init(int w, int h, SDL_Renderer* ren) {
     std::shared_ptr<GameObject> start = EntityFactory::createGameObject(
-        "res/ui/start.png", ren, {w / 2 - 400, h / 2 - 200, 800, 200});
+        TextureType::start, ren, {w / 2 - 400, h / 2 - 200, 800, 200});
 
     _ui.insert({"start", std::move(start)});
     std::shared_ptr<GameObject> settings = EntityFactory::createGameObject(
-        "res/ui/settings.png", ren, {w / 2 - 500, h / 2, 1000, 300});
+        TextureType::settings, ren, {w / 2 - 500, h / 2, 1000, 300});
     _ui.insert({"settings", std::move(settings)});
 
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
-        "res/ui/exit.png", ren, {w / 2 - 400, h / 2 + 400, 800, 200});
+        TextureType::exit, ren, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
     _state = StartStates::Start;
 }
@@ -19,12 +19,9 @@ bool StartMenu::isFinished() { return _finished; }
 
 bool StartMenu::handleInput(const std::string message,
                             RenderHandler* render_handler) {
-    _ui.at("start")->setTexture("res/ui/start.png",
-                                render_handler->getRenderer());
-    _ui.at("settings")
-        ->setTexture("res/ui/settings.png", render_handler->getRenderer());
-    _ui.at("exit")->setTexture("res/ui/exit.png",
-                               render_handler->getRenderer());
+    _ui.at("start")->setTexture(TextureType::start);
+    _ui.at("settings")->setTexture(TextureType::settings);
+    _ui.at("exit")->setTexture(TextureType::exit);
     if (message.find("e") != std::string::npos) {
         // Enter pressed
         if (_state == StartStates::Start) {
@@ -38,15 +35,13 @@ bool StartMenu::handleInput(const std::string message,
     }
     if (!_navigation_timer.exists()) {
         if (message.find("↑") != std::string::npos) {
-            std::cout << "up menu" << std::endl;
             if (_state != StartStates::Start) {
                 _state = static_cast<StartStates>(_state - 1);
             } else {
                 _state = StartStates::Exit;
             }
         } else if (message.find("↓") != std::string::npos) {
-            std::cout << "down menu" << std::endl;
-            if (_state != StartStates::Settings) {
+            if (_state != StartStates::Exit) {
                 _state = static_cast<StartStates>(_state + 1);
             } else {
                 _state = StartStates::Start;
@@ -56,15 +51,11 @@ bool StartMenu::handleInput(const std::string message,
     }
 
     if (_state == StartStates::Start) {
-        _ui.at("start")->setTexture("res/ui/start_hovered.png",
-                                    render_handler->getRenderer());
+        _ui.at("start")->setTexture(TextureType::start_hovered);
     } else if (_state == StartStates::Settings) {
-        _ui.at("settings")
-            ->setTexture("res/ui/settings_hovered.png",
-                         render_handler->getRenderer());
+        _ui.at("settings")->setTexture(TextureType::settings_hovered);
     } else if (_state == StartStates::Exit) {
-        _ui.at("exit")->setTexture("res/ui/exit_hovered.png",
-                                   render_handler->getRenderer());
+        _ui.at("exit")->setTexture(TextureType::exit_hovered);
     }
     return true;
 }

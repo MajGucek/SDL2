@@ -5,12 +5,12 @@ GameObject::~GameObject() {
     SDL_DestroyTexture(_texture);
     _texture = nullptr;
 }
-void GameObject::setTexture(const std::string path, SDL_Renderer* ren) {
-    SDL_Surface* temp = IMG_Load(path.c_str());
-    _texture = SDL_CreateTextureFromSurface(ren, temp);
-    SDL_FreeSurface(temp);
+void GameObject::setTexture(TextureType texture_type) {
+    _texture_type = texture_type;
 }
-SDL_Texture* GameObject::getTexture(SDL_Renderer* renderer) { return _texture; }
+SDL_Texture* GameObject::getTexture() {
+    return TextureHandler::getInstance().getTexture(_texture_type);
+}
 SDL_Rect* GameObject::getHitbox() { return &_hitbox; }
 
 Entity::Entity(SDL_Rect hitbox, int hp) : GameObject(hitbox), _hp(hp) {}
@@ -29,7 +29,9 @@ int Entity::getHP() { return _hp; }
 
 // Controlled Entity
 ControlledEntity::ControlledEntity(SDL_Rect hitbox, int hp, unsigned velocity)
-    : Entity(hitbox, hp), _velocity(velocity), _collision_handler(nullptr) {}
+    : Entity(hitbox, hp), _collision_handler(nullptr) {
+    _velocity = velocity * TimeHandler::getInstance().deltaTime();
+}
 
 void ControlledEntity::addCollisionHandler(
     CollisionHandler* collision_handler) {
@@ -48,14 +50,14 @@ void Player::hit(int damage, SDL_Renderer* renderer, std::string audio) {
     Entity::hit(damage, renderer, "damage");
     if (!_animation_timer.exists()) {
         _animation_timer.startTimer(_hit_animation_frames);
-        setTexture("res/player_hit.png", renderer);
+        setTexture(TextureType::player_hit);
     }
 }
 
 bool Player::handleInput(const std::string message,
                          RenderHandler* render_handler) {
     if (!_animation_timer.exists()) {
-        setTexture("res/player.png", render_handler->getRenderer());
+        setTexture(TextureType::player);
     }
     double move_X = 0.0, move_Y = 0.0;
     if (message.find("W") != std::string::npos) {
@@ -132,8 +134,8 @@ void Player::handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox) {
         }
     }
     if (render_handler) {
-        std::shared_ptr<GameObject> ent = EntityFactory::createGameObject(
-            "res/hit.png", render_handler->getRenderer(), attack_hitbox);
+        auto ent = EntityFactory::createGameObject(
+            TextureType::hit, render_handler->getRenderer(), attack_hitbox);
         render_handler->includeInRender(std::move(ent), _attack_frames);
     }
 }
@@ -162,18 +164,18 @@ void Player::hitRight(RenderHandler* render_handler) {
 Laboratory::Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored)
     : Entity(hitbox, hp), _animals_stored(animals_stored) {}
 
-SDL_Texture* Laboratory::getTexture(SDL_Renderer* renderer) {
+SDL_Texture* Laboratory::getTexture() {
     if (!_animation_timer.exists()) {
-        setTexture("res/laboratory.png", renderer);
+        setTexture(TextureType::laboratory);
     }
-    return _texture;
+    return TextureHandler::getInstance().getTexture(_texture_type);
 }
 
 void Laboratory::hit(int damage, SDL_Renderer* renderer, std::string audio) {
     Entity::hit(damage, renderer, "bonk");
     // AudioHandler::getInstance().playSFX("bonk");
     _animation_timer.startTimer(_hit_animation_frames);
-    setTexture("res/laboratory_hit.png", renderer);
+    setTexture(TextureType::laboratory_hit);
 }
 
 bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
@@ -318,50 +320,32 @@ int Poacher::getScore() { return _score; }
 
 // Factories
 std::unique_ptr<GameObject> EntityFactory::createGameObject(
-    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox) {
+    TextureType texture_type, SDL_Renderer* ren, SDL_Rect hitbox) {
     auto ent = std::make_unique<GameObject>(hitbox);
-    ent->setTexture(path, ren);
+    ent->setTexture(texture_type);
     return std::move(ent);
 }
 
-std::unique_ptr<Entity> EntityFactory::createEntity(const std::string path,
-                                                    SDL_Renderer* ren,
-                                                    SDL_Rect hitbox, int hp) {
-    auto ent = std::make_unique<Entity>(hitbox, hp);
-    ent->setTexture(path, ren);
-    return std::move(ent);
-}
 std::unique_ptr<Laboratory> EntityFactory::createLaboratory(
-    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
-    unsigned animals_stored) {
+    SDL_Renderer* ren, SDL_Rect hitbox, int hp, unsigned animals_stored) {
     auto ent = std::make_unique<Laboratory>(hitbox, hp, animals_stored);
-    ent->setTexture(path, ren);
+    ent->setTexture(TextureType::laboratory);
     return std::move(ent);
 }
 
-std::unique_ptr<ControlledEntity> EntityFactory::createControlledEntity(
-    const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
-    unsigned velocity) {
-    auto cont_ent = std::make_unique<ControlledEntity>(hitbox, hp, velocity);
-    cont_ent->setTexture(path, ren);
-    return std::move(cont_ent);
-}
-
-std::unique_ptr<Player> EntityFactory::createPlayer(const std::string path,
-                                                    SDL_Renderer* ren,
+std::unique_ptr<Player> EntityFactory::createPlayer(SDL_Renderer* ren,
                                                     SDL_Rect hitbox, int hp,
                                                     unsigned velocity) {
     auto player = std::make_unique<Player>(hitbox, hp, velocity);
-    player->setTexture(path, ren);
+    player->setTexture(TextureType::player);
     return std::move(player);
 }
 
-std::unique_ptr<Poacher> EntityFactory::createPoacher(const std::string path,
-                                                      SDL_Renderer* ren,
+std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Renderer* ren,
                                                       SDL_Rect hitbox, int hp,
                                                       unsigned velocity) {
     auto p = std::make_unique<Poacher>(hitbox, hp, velocity);
-    p->setTexture(path, ren);
+    p->setTexture(TextureType::poacher);
     return std::move(p);
 }
 
@@ -413,7 +397,7 @@ bool InputHandler::handleInput(RenderHandler* render_handler) {
     if (state[SDL_SCANCODE_DOWN]) {
         message.append("↓");
     }
-    if (state[SDL_SCANCODE_SPACE]) {
+    if (state[SDL_SCANCODE_RETURN]) {
         message.append("e");
     }
     if (message != "") {

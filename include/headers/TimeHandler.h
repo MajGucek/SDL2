@@ -8,9 +8,9 @@
 
 class TimeHandler {
    private:
-    int _fps = 0;
-    unsigned long _frames = 0;
-    TimeHandler() = default;
+    int _fps;
+    unsigned long _frames;
+    TimeHandler();
 
    public:
     TimeHandler(const TimeHandler&) = delete;

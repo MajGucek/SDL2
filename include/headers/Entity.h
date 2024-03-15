@@ -9,9 +9,11 @@
 #include <TimeHandler.h>
 class CollisionHandler;
 class RenderHandler;
+enum class TextureType;
 
 #include <cmath>
 #include <iostream>
+#include <list>
 #include <memory>
 #include <string>
 
@@ -50,15 +52,16 @@ class InputHandler {
 
 class GameObject {
    protected:
-    SDL_Rect _hitbox = {};
+    SDL_Rect _hitbox;
+    TextureType _texture_type;
     SDL_Texture* _texture = nullptr;
 
    public:
     GameObject(SDL_Rect hitbox);
     virtual ~GameObject();
-    virtual SDL_Texture* getTexture(SDL_Renderer* renderer);
+    virtual SDL_Texture* getTexture();
     virtual SDL_Rect* getHitbox();
-    virtual void setTexture(const std::string path, SDL_Renderer* ren);
+    virtual void setTexture(TextureType texture_type);
 };
 
 class Entity : public GameObject {
@@ -125,12 +128,6 @@ class Poacher : public ControlledEntity {
     bool canSeePlayer(const SDL_Rect player, unsigned threshold);
     void moveTowards(const SDL_Rect destination);
     int getScore();
-    /*
-    void attackLeft(RenderHandler* render_handler);
-    void attackRight(RenderHandler* render_handler);
-    void attackUp(RenderHandler* render_handler);
-    void attackDown(RenderHandler* render_handler);
-    */
 };
 
 class Laboratory : public Entity {
@@ -141,33 +138,23 @@ class Laboratory : public Entity {
    public:
     void hit(int damage, SDL_Renderer* renderer,
              std::string audio = "") override;
-    SDL_Texture* getTexture(SDL_Renderer* renderer) override;
+    SDL_Texture* getTexture() override;
     Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored);
     bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
     unsigned getAnimalCount();
 };
 class EntityFactory {
    public:
-    static std::unique_ptr<GameObject> createGameObject(const std::string path,
-                                                        SDL_Renderer* ren,
-                                                        SDL_Rect hitbox);
-    static std::unique_ptr<Entity> createEntity(const std::string path,
-                                                SDL_Renderer* ren,
-                                                SDL_Rect hitbox, int hp);
-    static std::unique_ptr<ControlledEntity> createControlledEntity(
-        const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
-        unsigned velocity);
+    static std::unique_ptr<GameObject> createGameObject(
+        TextureType texture_type, SDL_Renderer* ren, SDL_Rect hitbox);
 
-    static std::unique_ptr<Player> createPlayer(const std::string path,
-                                                SDL_Renderer* ren,
+    static std::unique_ptr<Player> createPlayer(SDL_Renderer* ren,
                                                 SDL_Rect hitbox, int hp,
                                                 unsigned velocity);
-    static std::unique_ptr<Poacher> createPoacher(const std::string path,
-                                                  SDL_Renderer* ren,
+    static std::unique_ptr<Poacher> createPoacher(SDL_Renderer* ren,
                                                   SDL_Rect hitbox, int hp,
                                                   unsigned velocity);
 
     static std::unique_ptr<Laboratory> createLaboratory(
-        const std::string path, SDL_Renderer* ren, SDL_Rect hitbox, int hp,
-        unsigned animals_stored);
+        SDL_Renderer* ren, SDL_Rect hitbox, int hp, unsigned animals_stored);
 };

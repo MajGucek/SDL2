@@ -4,7 +4,14 @@ Game::Game()
     : _screen_width(2560),
       _screen_height(1440),
       _game_state(GameState::PLAY),
-      _fps(144) {}
+      _fps(144) {
+    TimeHandler::getInstance().setFramerate(_fps);
+    _render_handler.initSystem()
+        .createWindow(_screen_width, _screen_height)
+        .createRenderer();
+    _collision_handler.setSize(_screen_width, _screen_height);
+    TextureHandler::getInstance().init(_render_handler.getRenderer());
+}
 Game::~Game() { SDL_Quit(); }
 
 void Game::run() {
@@ -19,18 +26,9 @@ Game& Game::getInstance() {
 void Game::stop() { _game_state = GameState::EXIT; }
 
 void Game::init() {
-    TimeHandler::getInstance().setFramerate(_fps);
-    // init renderer
-    _render_handler.initSystem()
-        .createWindow(_screen_width, _screen_height)
-        .createRenderer();
-
-    // init collision handling
-    _collision_handler.setSize(_screen_width, _screen_height);
-
     // create background
     _background = EntityFactory::createGameObject(
-        "res/background.png", _render_handler.getRenderer(),
+        TextureType::background, _render_handler.getRenderer(),
         {0, 0, _screen_width, _screen_height});
 
     _start_menu = UIFactory::createStartMenu();
@@ -45,14 +43,11 @@ void Game::init() {
         _render_handler.includeInRender(_background);
         _start_menu->includeInRender(_render_handler);
         _render_handler.render();
-        TimeHandler::getInstance().handleFramerate();
     }
 
     // create player
-
-    _player = EntityFactory::createPlayer("res/player.png",
-                                          _render_handler.getRenderer(),
-                                          {200, 200, 100, 100}, 100, 6);
+    _player = EntityFactory::createPlayer(_render_handler.getRenderer(),
+                                          {200, 200, 100, 100}, 100, 50);
     _input_handler.subscribe(_player);
     _player->addCollisionHandler(&_collision_handler);
     // set laboratory constants
@@ -62,7 +57,7 @@ void Game::init() {
     _laboratory_handler.addLaboratory(_render_handler.getRenderer(), 300, 600,
                                       &_collision_handler, 70, 4340);
     _poacher_handler.addPoacher(_render_handler.getRenderer(), 900, 900,
-                                &_collision_handler, 10, 4);
+                                &_collision_handler, 10, 20);
 }
 
 void Game::gameLoop() {
@@ -73,7 +68,6 @@ void Game::gameLoop() {
         handleEnemies();
         includeInRender();
         _render_handler.render();
-        TimeHandler::getInstance().handleFramerate();
     }
 }
 
