@@ -47,7 +47,7 @@ void Game::init() {
 
     // create player
     _player = EntityFactory::createPlayer(_render_handler.getRenderer(),
-                                          {200, 200, 100, 100}, 100, 50);
+                                          {200, 200, 100, 100}, 100, 150);
     _input_handler.subscribe(_player);
     _player->addCollisionHandler(&_collision_handler);
     // set laboratory constants

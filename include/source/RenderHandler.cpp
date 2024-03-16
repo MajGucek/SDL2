@@ -121,8 +121,8 @@ void TextureHandler::loadTextures() {
                       IMG_LoadTexture(_renderer, "res/laboratory.png")});
     _textures.insert({TextureType::laboratory_hit,
                       IMG_LoadTexture(_renderer, "res/laboratory_hit.png")});
-    _textures.insert({TextureType::laboratory_hit,
-                      IMG_LoadTexture(_renderer, "res/poacher.png")});
+    _textures.insert(
+        {TextureType::poacher, IMG_LoadTexture(_renderer, "res/poacher.png")});
     // SCORE //
     _textures.insert(
         {TextureType::score_0, IMG_LoadTexture(_renderer, "res/score/0.png")});

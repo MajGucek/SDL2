@@ -23,7 +23,7 @@ class UIHandler : public InputListener {
 class StartMenu : public UIHandler {
    private:
     InternalTimer _navigation_timer;
-    int _delay = 100;
+    int _delay = 500;
     StartStates _state = Start;
 
    public:
