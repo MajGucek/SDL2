@@ -8,29 +8,27 @@
 
 class TimeHandler {
    private:
-    int _fps;
-    unsigned long _frames;
+    Uint64 _last;
+    Uint64 _now;
     TimeHandler();
 
    public:
     TimeHandler(const TimeHandler&) = delete;
     TimeHandler& operator=(const TimeHandler&) = delete;
     static TimeHandler& getInstance();
-    void setFramerate(int fps);
-    void handleFramerate();
-    void updateFrame();
-    unsigned long getTime();
     float deltaTime();
+    void tick();
 };
 
 class InternalTimer {
    private:
     bool _exist = false;
-    unsigned long _start = 0;
-    int _frames = -1;
+    Uint64 _start_time = 0;
+    Uint64 _duration = 0;  // ms
     bool finished();
 
    public:
-    void startTimer(int frames);
+    InternalTimer();
+    void startTimer(int ms);
     bool exists();
 };

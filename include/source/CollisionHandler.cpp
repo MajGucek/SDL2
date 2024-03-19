@@ -54,10 +54,9 @@ bool CollisionHandler::isCollidingNotWithSelf(SDL_Rect* collider,
             }
 
             if (SDL_HasIntersection(oth_col->getHitbox(), collider)) {
-                if (self == oth_col->getHitbox()) {
-                    return false;
+                if (self != oth_col->getHitbox()) {
+                    return true;
                 }
-                return true;
             }
         }
     }

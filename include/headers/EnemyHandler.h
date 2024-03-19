@@ -19,7 +19,13 @@ class EnemyHandler {
     virtual void includeInRender(RenderHandler& render_handler) = 0;
     virtual void handle(std::shared_ptr<Player> player,
                         CollisionHandler& collision_handler,
-                        RenderHandler* render_handler) = 0;
+                        RenderHandler* render_handler, float delta_time) = 0;
+};
+
+class PlayerHandler {
+   public:
+    bool handlePlayer(std::shared_ptr<Player> player,
+                      RenderHandler* render_handler, float delta_time);
 };
 
 class LaboratoryHandler : public EnemyHandler {
@@ -35,7 +41,8 @@ class LaboratoryHandler : public EnemyHandler {
     virtual void includeInRender(RenderHandler& render_handler) override;
     virtual void handle(std::shared_ptr<Player> player,
                         CollisionHandler& collision_handler,
-                        RenderHandler* render_handler) override;
+                        RenderHandler* render_handler,
+                        float delta_time) override;
 };
 
 class PoacherHandler : public EnemyHandler {
@@ -50,5 +57,6 @@ class PoacherHandler : public EnemyHandler {
     virtual void includeInRender(RenderHandler& render_handler) override;
     virtual void handle(std::shared_ptr<Player> player,
                         CollisionHandler& collision_handler,
-                        RenderHandler* render_handler) override;
+                        RenderHandler* render_handler,
+                        float delta_time) override;
 };

@@ -1,33 +1,29 @@
 #include <TimeHandler.h>
 
-TimeHandler::TimeHandler() : _fps(60), _frames(0) {}
+TimeHandler::TimeHandler() : _last(0), _now(0) {}
 
 TimeHandler& TimeHandler::getInstance() {
     static TimeHandler timer;
     return timer;
 }
 
-void TimeHandler::setFramerate(int fps) { _fps = fps; }
-
-void TimeHandler::handleFramerate() {
-    int desiredDelta = 1000 / _fps;
-    int startLoop = SDL_GetTicks();
-    int delta = SDL_GetTicks() - startLoop;
-    if (delta < desiredDelta) {
-        SDL_Delay(desiredDelta - delta);
-    }
+float TimeHandler::deltaTime() {
+    return (float)((_now - _last) * 1000 /
+                   (double)SDL_GetPerformanceFrequency());
 }
 
-void TimeHandler::updateFrame() { _frames++; }
+void TimeHandler::tick() {
+    _last = _now;
+    _now = SDL_GetPerformanceCounter();
+}
 
-unsigned long TimeHandler::getTime() { return _frames; }
-
-void InternalTimer::startTimer(int frames) {
+// Internal Timer //
+InternalTimer::InternalTimer() : _exist(false), _start_time(0), _duration(0) {}
+void InternalTimer::startTimer(int ms) {
     _exist = true;
-    _frames = frames;
-    _start = TimeHandler::getInstance().getTime();
+    _duration = ms;
+    _start_time = SDL_GetTicks();
 }
-
 bool InternalTimer::exists() {
     if (finished()) {
         _exist = false;
@@ -36,14 +32,13 @@ bool InternalTimer::exists() {
 }
 
 bool InternalTimer::finished() {
-    if (TimeHandler::getInstance().getTime() >= _start + _frames) {
-        _start = 0;
-        _frames = -1;
+    if (!_exist) {
+        return true;
+    }
+    if (SDL_GetTicks() - _start_time >= _duration) {
         _exist = false;
         return true;
     } else {
         return false;
     }
 }
-
-float TimeHandler::deltaTime() { return (double)1 / (double)_fps; }

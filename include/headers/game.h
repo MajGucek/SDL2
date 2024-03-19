@@ -13,7 +13,7 @@
 #include <iostream>
 #include <memory>
 
-enum class GameState { PLAY, EXIT };
+enum class GameState { PLAY, DEATH, EXIT };
 
 class Game {
    private:
@@ -24,6 +24,7 @@ class Game {
     CollisionHandler _collision_handler;
     LaboratoryHandler _laboratory_handler;
     PoacherHandler _poacher_handler;
+    PlayerHandler _player_handler;
     // --Handlers-- //
 
     // UI //
@@ -41,18 +42,15 @@ class Game {
     GameState _game_state;
     // --Game constants-- //
 
-    // Timers //
-    int _fps;
-    // --Timers-- //
-
     // Core //
     void init();
     void gameLoop();
+    void startMenuLoop();
     // --Core-- //
 
     // Helper methods //
     void includeInRender();
-    void handleEnemies();
+    void handleEnemies(float deltaTime);
     // --Helper methods-- //
 
    public:

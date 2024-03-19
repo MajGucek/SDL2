@@ -43,6 +43,7 @@ enum class TextureType {
     laboratory,
     laboratory_hit,
     poacher,
+    poacher_hit,
     score_0,
     score_1,
     score_2,

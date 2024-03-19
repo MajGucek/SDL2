@@ -15,23 +15,18 @@ SDL_Rect* GameObject::getHitbox() { return &_hitbox; }
 
 Entity::Entity(SDL_Rect hitbox, int hp) : GameObject(hitbox), _hp(hp) {}
 
-void Entity::hit(int damage, SDL_Renderer* renderer, std::string audio) {
+void Entity::hit(int damage, RenderHandler* render_handler) {
     if (!_invincibility_timer.exists()) {
         // ne obstaja, apply damage
         _hp -= damage;
-        _invincibility_timer.startTimer(_invincibility_frames);
-        if (audio != "") {
-            AudioHandler::getInstance().playSFX(audio);
-        }
+        _invincibility_timer.startTimer(_invincibility_time);
     }
 }
 int Entity::getHP() { return _hp; }
 
 // Controlled Entity
-ControlledEntity::ControlledEntity(SDL_Rect hitbox, int hp, unsigned velocity)
-    : Entity(hitbox, hp), _collision_handler(nullptr) {
-    _velocity = velocity * TimeHandler::getInstance().deltaTime();
-}
+ControlledEntity::ControlledEntity(SDL_Rect hitbox, int hp, int velocity)
+    : Entity(hitbox, hp), _velocity(velocity), _collision_handler(nullptr) {}
 
 void ControlledEntity::addCollisionHandler(
     CollisionHandler* collision_handler) {
@@ -43,90 +38,112 @@ void ControlledEntity::attackLeft(RenderHandler* render_handler) {}
 void ControlledEntity::attackRight(RenderHandler* render_handler) {}
 int ControlledEntity::getDamage() { return _damage; }
 
-Player::Player(SDL_Rect hitbox, int hp, unsigned velocity)
+Player::Player(SDL_Rect hitbox, int hp, int velocity)
     : ControlledEntity(hitbox, hp, velocity) {}
 
-void Player::hit(int damage, SDL_Renderer* renderer, std::string audio) {
-    Entity::hit(damage, renderer, "damage");
+void Player::hit(int damage, RenderHandler* render_handler) {
+    Entity::hit(damage, render_handler);
+    AudioHandler::getInstance().playSFX("damage");
     if (!_animation_timer.exists()) {
-        _animation_timer.startTimer(_hit_animation_frames);
+        _animation_timer.startTimer(_hit_animation_time);
         setTexture(TextureType::player_hit);
     }
 }
 
-bool Player::handleInput(const std::string message,
-                         RenderHandler* render_handler) {
+void Player::handle(RenderHandler* render_handler, float delta_time) {
     if (!_animation_timer.exists()) {
         setTexture(TextureType::player);
     }
+    bool will_move = false;
     double move_X = 0.0, move_Y = 0.0;
-    if (message.find("W") != std::string::npos) {
+    if (_message.find("W") != std::string::npos) {
         move_Y -= 1.0;
+        will_move = true;
     }
-    if (message.find("S") != std::string::npos) {
+    if (_message.find("S") != std::string::npos) {
         move_Y += 1.0;
+        will_move = true;
     }
-    if (message.find("A") != std::string::npos) {
+    if (_message.find("A") != std::string::npos) {
         move_X -= 1.0;
+        will_move = true;
     }
-    if (message.find("D") != std::string::npos) {
+    if (_message.find("D") != std::string::npos) {
         move_X += 1.0;
+        will_move = true;
     }
     if (!_attack_timer.exists()) {
         // timer ne obstaja, lahko hit
         // starta timer v Player::handleHit();
-        if (message.find("→") != std::string::npos) {
+        if (_message.find("→") != std::string::npos) {
             hitRight(render_handler);
-        } else if (message.find("←") != std::string::npos) {
+        } else if (_message.find("←") != std::string::npos) {
             hitLeft(render_handler);
-        } else if (message.find("↑") != std::string::npos) {
+        } else if (_message.find("↑") != std::string::npos) {
             hitUp(render_handler);
-        } else if (message.find("↓") != std::string::npos) {
+        } else if (_message.find("↓") != std::string::npos) {
             hitDown(render_handler);
         }
     }
-
-    double magnitude = std::sqrt(move_X * move_X + move_Y * move_Y);
-    if (magnitude > 0.0) {
-        // zracuni mozne nove X, Y
-        int new_x = (_hitbox.x + ((double)_velocity * (move_X / magnitude)));
-        int new_y = (_hitbox.y + ((double)_velocity * (move_Y / magnitude)));
-
-        //  cekraj ce mas col_handler
-        if (_collision_handler) {
-            // cekiraj za X movement
-            SDL_Rect tempX = {new_x, _hitbox.y, _hitbox.w, _hitbox.h};
-
-            if (!_collision_handler->isColliding(&tempX).second) {
-                _hitbox.x = new_x;
-            }
-
-            // cekiraj za Y movement
-            SDL_Rect tempY = {_hitbox.x, new_y, _hitbox.w, _hitbox.h};
-
-            if (!_collision_handler->isColliding(&tempY).second) {
-                _hitbox.y = new_y;
-            }
-
-        } else {
-            // nimas collision_handler
-            _hitbox.x = new_x;
-            _hitbox.y = new_y;
+    if (will_move) {
+        if (!_movement_timer.exists()) {
+            AudioHandler::getInstance().playSFX("walking");
+            _movement_timer.startTimer(_movement_time);
         }
     }
+
+    if (_message != "") {
+        double magnitude = std::sqrt(move_X * move_X + move_Y * move_Y);
+        if (magnitude > 0.0) {
+            // zracuni mozne nove X, Y
+            int new_x =
+                (_hitbox.x + ((static_cast<float>(_velocity) * delta_time) *
+                              (move_X / magnitude)));
+            int new_y =
+                (_hitbox.y + ((static_cast<float>(_velocity) * delta_time) *
+                              (move_Y / magnitude)));
+
+            //  cekraj ce mas col_handler
+            if (_collision_handler) {
+                // cekiraj za X movement
+                SDL_Rect tempX = {new_x, _hitbox.y, _hitbox.w, _hitbox.h};
+
+                if (!_collision_handler->isColliding(&tempX).second) {
+                    _hitbox.x = new_x;
+                }
+
+                // cekiraj za Y movement
+                SDL_Rect tempY = {_hitbox.x, new_y, _hitbox.w, _hitbox.h};
+
+                if (!_collision_handler->isColliding(&tempY).second) {
+                    _hitbox.y = new_y;
+                }
+
+            } else {
+                // nimas collision_handler
+                _hitbox.x = new_x;
+                _hitbox.y = new_y;
+            }
+        }
+        _message = "";
+    }
+}
+
+bool Player::handleInput(const std::string message) {
+    _message = message;
     return true;
 }
 
 void Player::handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox) {
     //
-    _attack_timer.startTimer(_attack_frames);
+    _attack_timer.startTimer(_attack_delay_time);
     //
     if (_collision_handler) {
         auto hit = _collision_handler->isColliding(&attack_hitbox);
         if (hit.second) {
             if (auto entity = hit.first.lock()) {
                 // zadel entity
-                entity->hit(_damage, render_handler->getRenderer());
+                entity->hit(_damage, render_handler);
                 // std::cout << "zadel!" << std::endl;
             }
         } else {
@@ -136,7 +153,7 @@ void Player::handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox) {
     if (render_handler) {
         auto ent = EntityFactory::createGameObject(
             TextureType::hit, render_handler->getRenderer(), attack_hitbox);
-        render_handler->includeInRender(std::move(ent), _attack_frames);
+        render_handler->includeInRender(std::move(ent), _attack_animation_time);
     }
 }
 
@@ -171,10 +188,10 @@ SDL_Texture* Laboratory::getTexture() {
     return TextureHandler::getInstance().getTexture(_texture_type);
 }
 
-void Laboratory::hit(int damage, SDL_Renderer* renderer, std::string audio) {
-    Entity::hit(damage, renderer, "bonk");
-    // AudioHandler::getInstance().playSFX("bonk");
-    _animation_timer.startTimer(_hit_animation_frames);
+void Laboratory::hit(int damage, RenderHandler* render_handler) {
+    Entity::hit(damage, render_handler);
+    AudioHandler::getInstance().playSFX("bonk");
+    _animation_timer.startTimer(_hit_animation_time);
     setTexture(TextureType::laboratory_hit);
 }
 
@@ -246,13 +263,13 @@ SDL_Texture* Scoreboard::getDigitTexture(int digit, SDL_Renderer* ren) {
     return texture;
 }
 
-Poacher::Poacher(SDL_Rect hitbox, int hp, unsigned velocity)
+Poacher::Poacher(SDL_Rect hitbox, int hp, int velocity)
     : ControlledEntity(hitbox, hp, velocity) {}
 
 bool Poacher::attack(RenderHandler* render_handler) {
     if (!_attack_timer.exists()) {
         // lahko attacka
-        _attack_timer.startTimer(_attack_frames);
+        _attack_timer.startTimer(_attack_delay_time);
         return true;
     } else {
         // ne more attackat
@@ -270,7 +287,7 @@ bool Poacher::canSeePlayer(const SDL_Rect player, unsigned threshold) {
     return distance < threshold;
 }
 
-void Poacher::moveTowards(const SDL_Rect destination) {
+void Poacher::moveTowards(const SDL_Rect destination, float delta_time) {
     double move_X = 0.0, move_Y = 0.0;
 
     if (_hitbox.x < destination.x) {
@@ -303,6 +320,15 @@ void Poacher::moveTowards(const SDL_Rect destination) {
         }
     }
 }
+
+void Poacher::hit(int damage, RenderHandler* render_handler) {
+    Entity::hit(damage, render_handler);
+    AudioHandler::getInstance().playSFX("nerd");
+    auto ent = EntityFactory::createGameObject(
+        TextureType::poacher_hit, render_handler->getRenderer(), _hitbox);
+    render_handler->includeInRender(std::move(ent), _death_time);
+}
+
 void Poacher::handleCollisionHelper(int x, int y) {
     // Check for X movement
     SDL_Rect tempX = {x, _hitbox.y, _hitbox.w, _hitbox.h};
@@ -335,7 +361,7 @@ std::unique_ptr<Laboratory> EntityFactory::createLaboratory(
 
 std::unique_ptr<Player> EntityFactory::createPlayer(SDL_Renderer* ren,
                                                     SDL_Rect hitbox, int hp,
-                                                    unsigned velocity) {
+                                                    int velocity) {
     auto player = std::make_unique<Player>(hitbox, hp, velocity);
     player->setTexture(TextureType::player);
     return std::move(player);
@@ -343,7 +369,7 @@ std::unique_ptr<Player> EntityFactory::createPlayer(SDL_Renderer* ren,
 
 std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Renderer* ren,
                                                       SDL_Rect hitbox, int hp,
-                                                      unsigned velocity) {
+                                                      int velocity) {
     auto p = std::make_unique<Poacher>(hitbox, hp, velocity);
     p->setTexture(TextureType::poacher);
     return std::move(p);
@@ -351,10 +377,9 @@ std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Renderer* ren,
 
 InputHandler::InputHandler() { _subscribers = {}; }
 
-bool InputHandler::notifySubs(std::string message,
-                              RenderHandler* render_handler) {
+bool InputHandler::notifySubs(std::string message) {
     for (auto& sub : _subscribers) {
-        if (!sub->handleInput(message, render_handler)) {
+        if (!sub->handleInput(message)) {
             return false;
         }
     }
@@ -364,7 +389,7 @@ void InputHandler::subscribe(std::shared_ptr<InputListener> observer) {
     _subscribers.push_back(std::move(observer));
 }
 
-bool InputHandler::handleInput(RenderHandler* render_handler) {
+bool InputHandler::handleInput() {
     SDL_Event e;
     SDL_PollEvent(&e);
     const Uint8* state = SDL_GetKeyboardState(nullptr);
@@ -401,7 +426,7 @@ bool InputHandler::handleInput(RenderHandler* render_handler) {
         message.append("e");
     }
     if (message != "") {
-        if (!notifySubs(message, render_handler)) {
+        if (!notifySubs(message)) {
             return false;
         }
     }

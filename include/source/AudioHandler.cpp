@@ -24,6 +24,9 @@ AudioHandler::AudioHandler() {
     addAudio("you_died", "audio/you_died.mp3");
     addAudio("zombie_hit", "audio/zombie_hit.mp3");
     addAudio("damage", "audio/damage.mp3");
+    addAudio("yipee", "audio/yipee.mp3");
+    addAudio("twinkle", "audio/twinkle.mp3");
+    addAudio("walking", "audio/walking.mp3");
 }
 
 void AudioHandler::initAudio() {

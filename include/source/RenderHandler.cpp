@@ -1,8 +1,8 @@
+#include "RenderHandler.h"
+
 #include <headers/RenderHandler.h>
 
-RenderHandler::RenderHandler() : _window(nullptr), _renderer(nullptr) {
-    IMG_Init(IMG_INIT_PNG);
-}
+RenderHandler::RenderHandler() : _window(nullptr), _renderer(nullptr) {}
 RenderHandler::~RenderHandler() {
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
@@ -12,6 +12,7 @@ RenderHandler::~RenderHandler() {
 RenderHandler &RenderHandler::initSystem() {
     SDL_Init(SDL_INIT_EVERYTHING);
     Mix_Init(MIX_INIT_MP3);
+    IMG_Init(IMG_INIT_PNG);
     return *this;
 }
 RenderHandler &RenderHandler::createWindow(int screen_width,
@@ -90,7 +91,6 @@ void RenderHandler::render() {
     // ++++ //
     SDL_RenderPresent(_renderer);
     _entities.clear();
-    TimeHandler::getInstance().updateFrame();
 }
 
 void TextureHandler::init(SDL_Renderer *renderer) {
@@ -123,6 +123,8 @@ void TextureHandler::loadTextures() {
                       IMG_LoadTexture(_renderer, "res/laboratory_hit.png")});
     _textures.insert(
         {TextureType::poacher, IMG_LoadTexture(_renderer, "res/poacher.png")});
+    _textures.insert({TextureType::poacher_hit,
+                      IMG_LoadTexture(_renderer, "res/poacher_hit.png")});
     // SCORE //
     _textures.insert(
         {TextureType::score_0, IMG_LoadTexture(_renderer, "res/score/0.png")});

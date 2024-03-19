@@ -18,20 +18,22 @@ class UIHandler : public InputListener {
     virtual void init(int w, int h, SDL_Renderer* ren) = 0;
     virtual bool isFinished() = 0;
     virtual void includeInRender(RenderHandler& render_handler) = 0;
+    virtual void handleMenu(RenderHandler& render_handler) = 0;
 };
 
 class StartMenu : public UIHandler {
    private:
     InternalTimer _navigation_timer;
-    int _delay = 500;
+    int _delay = 5000;
     StartStates _state = Start;
+    bool _close_game = false;
 
    public:
     void init(int w, int h, SDL_Renderer* ren) override;
     bool isFinished() override;
-    bool handleInput(const std::string message,
-                     RenderHandler* render_handler) override;
+    bool handleInput(const std::string message) override;
     void includeInRender(RenderHandler& render_handler) override;
+    void handleMenu(RenderHandler& render_handler) override;
 };
 
 class UIFactory {

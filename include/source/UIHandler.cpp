@@ -17,12 +17,11 @@ void StartMenu::init(int w, int h, SDL_Renderer* ren) {
 
 bool StartMenu::isFinished() { return _finished; }
 
-bool StartMenu::handleInput(const std::string message,
-                            RenderHandler* render_handler) {
+void StartMenu::handleMenu(RenderHandler& render_handler) {
     _ui.at("start")->setTexture(TextureType::start);
     _ui.at("settings")->setTexture(TextureType::settings);
     _ui.at("exit")->setTexture(TextureType::exit);
-    if (message.find("e") != std::string::npos) {
+    if (_message.find("e") != std::string::npos) {
         // Enter pressed
         if (_state == StartStates::Start) {
             _finished = true;
@@ -30,17 +29,17 @@ bool StartMenu::handleInput(const std::string message,
             // open settings menu
         } else if (_state == StartStates::Exit) {
             // terminate program
-            return false;
+            _close_game = true;
         }
     }
     if (!_navigation_timer.exists()) {
-        if (message.find("↑") != std::string::npos) {
+        if (_message.find("↑") != std::string::npos) {
             if (_state != StartStates::Start) {
                 _state = static_cast<StartStates>(_state - 1);
             } else {
                 _state = StartStates::Exit;
             }
-        } else if (message.find("↓") != std::string::npos) {
+        } else if (_message.find("↓") != std::string::npos) {
             if (_state != StartStates::Exit) {
                 _state = static_cast<StartStates>(_state + 1);
             } else {
@@ -57,7 +56,12 @@ bool StartMenu::handleInput(const std::string message,
     } else if (_state == StartStates::Exit) {
         _ui.at("exit")->setTexture(TextureType::exit_hovered);
     }
-    return true;
+    _message = "";
+}
+
+bool StartMenu::handleInput(const std::string message) {
+    _message = message;
+    return !_close_game;
 }
 
 void StartMenu::includeInRender(RenderHandler& render_handler) {
