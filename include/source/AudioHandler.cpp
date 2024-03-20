@@ -27,6 +27,7 @@ AudioHandler::AudioHandler() {
     addAudio("yipee", "audio/yipee.mp3");
     addAudio("twinkle", "audio/twinkle.mp3");
     addAudio("walking", "audio/walking.mp3");
+    addSong("my_heart", "audio/my_heart.mp3");
 }
 
 void AudioHandler::initAudio() {
@@ -86,7 +87,7 @@ AudioHandler& AudioHandler::playSFX(std::string name) {
         // je song
         playSong(name);
     } else {
-        std::cout << "invalid name!" << std::endl;
+        std::cout << "invalid audio name!" << std::endl;
     }
     return *this;
 }

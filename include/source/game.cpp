@@ -94,6 +94,7 @@ void Game::deathMenuLoop() {
 }
 
 void Game::startMenuLoop() {
+    AudioHandler::getInstance().playSFX("my_heart");
     _start_menu = UIFactory::createStartMenu();
     _start_menu->init(_screen_width, _screen_height);
     _input_handler.subscribe(_start_menu);
