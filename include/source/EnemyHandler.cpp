@@ -1,10 +1,10 @@
 #include <EnemyHandler.h>
 
-void LaboratoryHandler::addLaboratory(SDL_Renderer* ren, int x, int y,
+void LaboratoryHandler::addLaboratory(int x, int y,
                                       CollisionHandler* collision_handler,
                                       int hp, unsigned animals_stored) {
-    std::shared_ptr<Laboratory> lab = EntityFactory::createLaboratory(
-        ren, {x, y, 200, 200}, hp, animals_stored);
+    std::shared_ptr<Laboratory> lab =
+        EntityFactory::createLaboratory({x, y, 200, 200}, hp, animals_stored);
     collision_handler->addCollider(lab);
     _laboratories.push_back({std::move(lab), false});
 }
@@ -42,11 +42,11 @@ void LaboratoryHandler::setVisibility(int seeing_distance) {
     _seeing_distance = seeing_distance;
 }
 
-void PoacherHandler::addPoacher(SDL_Renderer* ren, int x, int y,
+void PoacherHandler::addPoacher(int x, int y,
                                 CollisionHandler* collision_handler, int hp,
                                 unsigned velocity) {
     std::shared_ptr<Poacher> poacher =
-        EntityFactory::createPoacher(ren, {x, y, 100, 100}, hp, velocity);
+        EntityFactory::createPoacher({x, y, 100, 100}, hp, velocity);
     poacher->addCollisionHandler(collision_handler);
     collision_handler->addCollider(poacher);
     _poachers.push_back(std::move(poacher));

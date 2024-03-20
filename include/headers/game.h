@@ -29,6 +29,7 @@ class Game {
 
     // UI //
     std::shared_ptr<StartMenu> _start_menu;
+    std::shared_ptr<DeathMenu> _death_menu;
     // --UI--//
 
     // GameObjects //
@@ -46,6 +47,7 @@ class Game {
     void init();
     void gameLoop();
     void startMenuLoop();
+    void deathMenuLoop();
     // --Core-- //
 
     // Helper methods //
@@ -56,6 +58,5 @@ class Game {
    public:
     ~Game();
     void run();
-    void stop();
     static Game& getInstance();
 };

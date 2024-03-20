@@ -54,23 +54,23 @@ void Player::handle(RenderHandler* render_handler, float delta_time) {
     if (!_animation_timer.exists()) {
         setTexture(TextureType::player);
     }
-    bool will_move = false;
+    // bool will_move = false;
     double move_X = 0.0, move_Y = 0.0;
     if (_message.find("W") != std::string::npos) {
         move_Y -= 1.0;
-        will_move = true;
+        // will_move = true;
     }
     if (_message.find("S") != std::string::npos) {
         move_Y += 1.0;
-        will_move = true;
+        // will_move = true;
     }
     if (_message.find("A") != std::string::npos) {
         move_X -= 1.0;
-        will_move = true;
+        // will_move = true;
     }
     if (_message.find("D") != std::string::npos) {
         move_X += 1.0;
-        will_move = true;
+        // will_move = true;
     }
     if (!_attack_timer.exists()) {
         // timer ne obstaja, lahko hit
@@ -85,12 +85,14 @@ void Player::handle(RenderHandler* render_handler, float delta_time) {
             hitDown(render_handler);
         }
     }
+    /*
     if (will_move) {
         if (!_movement_timer.exists()) {
             AudioHandler::getInstance().playSFX("walking");
             _movement_timer.startTimer(_movement_time);
         }
     }
+    */
 
     if (_message != "") {
         double magnitude = std::sqrt(move_X * move_X + move_Y * move_Y);
@@ -151,8 +153,8 @@ void Player::handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox) {
         }
     }
     if (render_handler) {
-        auto ent = EntityFactory::createGameObject(
-            TextureType::hit, render_handler->getRenderer(), attack_hitbox);
+        auto ent =
+            EntityFactory::createGameObject(TextureType::hit, attack_hitbox);
         render_handler->includeInRender(std::move(ent), _attack_animation_time);
     }
 }
@@ -324,8 +326,8 @@ void Poacher::moveTowards(const SDL_Rect destination, float delta_time) {
 void Poacher::hit(int damage, RenderHandler* render_handler) {
     Entity::hit(damage, render_handler);
     AudioHandler::getInstance().playSFX("nerd");
-    auto ent = EntityFactory::createGameObject(
-        TextureType::poacher_hit, render_handler->getRenderer(), _hitbox);
+    auto ent =
+        EntityFactory::createGameObject(TextureType::poacher_hit, _hitbox);
     render_handler->includeInRender(std::move(ent), _death_time);
 }
 
@@ -346,29 +348,27 @@ int Poacher::getScore() { return _score; }
 
 // Factories
 std::unique_ptr<GameObject> EntityFactory::createGameObject(
-    TextureType texture_type, SDL_Renderer* ren, SDL_Rect hitbox) {
+    TextureType texture_type, SDL_Rect hitbox) {
     auto ent = std::make_unique<GameObject>(hitbox);
     ent->setTexture(texture_type);
     return std::move(ent);
 }
 
 std::unique_ptr<Laboratory> EntityFactory::createLaboratory(
-    SDL_Renderer* ren, SDL_Rect hitbox, int hp, unsigned animals_stored) {
+    SDL_Rect hitbox, int hp, unsigned animals_stored) {
     auto ent = std::make_unique<Laboratory>(hitbox, hp, animals_stored);
     ent->setTexture(TextureType::laboratory);
     return std::move(ent);
 }
 
-std::unique_ptr<Player> EntityFactory::createPlayer(SDL_Renderer* ren,
-                                                    SDL_Rect hitbox, int hp,
+std::unique_ptr<Player> EntityFactory::createPlayer(SDL_Rect hitbox, int hp,
                                                     int velocity) {
     auto player = std::make_unique<Player>(hitbox, hp, velocity);
     player->setTexture(TextureType::player);
     return std::move(player);
 }
 
-std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Renderer* ren,
-                                                      SDL_Rect hitbox, int hp,
+std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Rect hitbox, int hp,
                                                       int velocity) {
     auto p = std::make_unique<Poacher>(hitbox, hp, velocity);
     p->setTexture(TextureType::poacher);
@@ -378,15 +378,21 @@ std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Renderer* ren,
 InputHandler::InputHandler() { _subscribers = {}; }
 
 bool InputHandler::notifySubs(std::string message) {
-    for (auto& sub : _subscribers) {
-        if (!sub->handleInput(message)) {
-            return false;
+    for (auto& subscriber : _subscribers) {
+        if (auto sub = subscriber.lock()) {
+            if (!sub->handleInput(message)) {
+                return false;
+            }
+        } else {
+            // remove input sub
         }
     }
     return true;
 }
-void InputHandler::subscribe(std::shared_ptr<InputListener> observer) {
-    _subscribers.push_back(std::move(observer));
+void InputHandler::subscribe(std::weak_ptr<InputListener> observer) {
+    if (observer.lock()) {
+        _subscribers.push_back(std::move(observer));
+    }
 }
 
 bool InputHandler::handleInput() {

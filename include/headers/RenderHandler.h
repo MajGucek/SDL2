@@ -33,33 +33,38 @@ class RenderHandler {
     void includeInRender(std::weak_ptr<GameObject> entity);
     void includeInRender(std::unique_ptr<GameObject> entity, int frames);
     void render();
+    void clearRenderQueue();
 };
 
 enum class TextureType {
-    background,
-    player,
-    player_hit,
-    hit,
-    laboratory,
-    laboratory_hit,
-    poacher,
-    poacher_hit,
-    score_0,
-    score_1,
-    score_2,
-    score_3,
-    score_4,
-    score_5,
-    score_6,
-    score_7,
-    score_8,
-    score_9,
-    start,
-    start_hovered,
-    settings,
-    settings_hovered,
-    exit,
-    exit_hovered,
+    // width-height
+    background,        // 4000x4000
+    player,            // 100x100
+    player_hit,        // 100x100
+    hit,               // 100x100
+    laboratory,        // 200x200
+    laboratory_hit,    // 200x200
+    poacher,           // 100x100
+    poacher_hit,       // 100x100
+    score_0,           // 100x100
+    score_1,           // 100x100
+    score_2,           // 100x100
+    score_3,           // 100x100
+    score_4,           // 100x100
+    score_5,           // 100x100
+    score_6,           // 100x100
+    score_7,           // 100x100
+    score_8,           // 100x100
+    score_9,           // 100x100
+    start,             // 800x200
+    start_hovered,     // 800x200
+    settings,          // 1000x300
+    settings_hovered,  // 1000x300
+    exit,              // 800x200
+    exit_hovered,      // 800x200
+    restart,           // 1000x300
+    restart_hovered,   // 1000x300
+    death_screen,      // 1900x300
 };
 
 class TextureHandler {

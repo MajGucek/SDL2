@@ -43,12 +43,12 @@ class InputListener {
 };
 class InputHandler {
    private:
-    std::list<std::shared_ptr<InputListener>> _subscribers;
+    std::list<std::weak_ptr<InputListener>> _subscribers;
     bool notifySubs(std::string message);
 
    public:
     InputHandler();
-    void subscribe(std::shared_ptr<InputListener> observer);
+    void subscribe(std::weak_ptr<InputListener> observer);
     bool handleInput();
 };
 
@@ -154,15 +154,13 @@ class Laboratory : public Entity {
 class EntityFactory {
    public:
     static std::unique_ptr<GameObject> createGameObject(
-        TextureType texture_type, SDL_Renderer* ren, SDL_Rect hitbox);
+        TextureType texture_type, SDL_Rect hitbox);
 
-    static std::unique_ptr<Player> createPlayer(SDL_Renderer* ren,
-                                                SDL_Rect hitbox, int hp,
+    static std::unique_ptr<Player> createPlayer(SDL_Rect hitbox, int hp,
                                                 int velocity);
-    static std::unique_ptr<Poacher> createPoacher(SDL_Renderer* ren,
-                                                  SDL_Rect hitbox, int hp,
+    static std::unique_ptr<Poacher> createPoacher(SDL_Rect hitbox, int hp,
                                                   int velocity);
 
     static std::unique_ptr<Laboratory> createLaboratory(
-        SDL_Renderer* ren, SDL_Rect hitbox, int hp, unsigned animals_stored);
+        SDL_Rect hitbox, int hp, unsigned animals_stored);
 };

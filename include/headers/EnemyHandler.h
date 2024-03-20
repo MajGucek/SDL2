@@ -34,15 +34,13 @@ class LaboratoryHandler : public EnemyHandler {
 
    public:
     void setVisibility(int seeing_distance);
-    void addLaboratory(SDL_Renderer* ren, int x, int y,
-                       CollisionHandler* collision_handler, int hp,
-                       unsigned animals_stored);
+    void addLaboratory(int x, int y, CollisionHandler* collision_handler,
+                       int hp, unsigned animals_stored);
 
-    virtual void includeInRender(RenderHandler& render_handler) override;
-    virtual void handle(std::shared_ptr<Player> player,
-                        CollisionHandler& collision_handler,
-                        RenderHandler* render_handler,
-                        float delta_time) override;
+    void includeInRender(RenderHandler& render_handler) override;
+    void handle(std::shared_ptr<Player> player,
+                CollisionHandler& collision_handler,
+                RenderHandler* render_handler, float delta_time) override;
 };
 
 class PoacherHandler : public EnemyHandler {
@@ -51,12 +49,10 @@ class PoacherHandler : public EnemyHandler {
     const int _seeing_distance = 800;
 
    public:
-    void addPoacher(SDL_Renderer* ren, int x, int y,
-                    CollisionHandler* collision_handler, int hp,
+    void addPoacher(int x, int y, CollisionHandler* collision_handler, int hp,
                     unsigned velocity);
-    virtual void includeInRender(RenderHandler& render_handler) override;
-    virtual void handle(std::shared_ptr<Player> player,
-                        CollisionHandler& collision_handler,
-                        RenderHandler* render_handler,
-                        float delta_time) override;
+    void includeInRender(RenderHandler& render_handler) override;
+    void handle(std::shared_ptr<Player> player,
+                CollisionHandler& collision_handler,
+                RenderHandler* render_handler, float delta_time) override;
 };

@@ -93,6 +93,8 @@ void RenderHandler::render() {
     _entities.clear();
 }
 
+void RenderHandler::clearRenderQueue() { _entities.clear(); }
+
 void TextureHandler::init(SDL_Renderer *renderer) {
     _renderer = renderer;
     loadTextures();
@@ -160,6 +162,13 @@ void TextureHandler::loadTextures() {
         {TextureType::exit, IMG_LoadTexture(_renderer, "res/ui/exit.png")});
     _textures.insert({TextureType::exit_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/exit_hovered.png")});
+    _textures.insert({TextureType::restart,
+                      IMG_LoadTexture(_renderer, "res/ui/restart.png")});
+    _textures.insert(
+        {TextureType::restart_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/restart_hovered.png")});
+    _textures.insert({TextureType::death_screen,
+                      IMG_LoadTexture(_renderer, "res/ui/death_screen.png")});
 }
 
 SDL_Texture *TextureHandler::getTexture(TextureType texture_type) {
