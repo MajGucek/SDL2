@@ -34,6 +34,7 @@ class RenderHandler {
     void includeInRender(std::unique_ptr<GameObject> entity, int frames);
     void render();
     void clearRenderQueue();
+    void clearAnimationQueue();
 };
 
 enum class TextureType {

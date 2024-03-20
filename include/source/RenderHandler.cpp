@@ -94,6 +94,7 @@ void RenderHandler::render() {
 }
 
 void RenderHandler::clearRenderQueue() { _entities.clear(); }
+void RenderHandler::clearAnimationQueue() { _animation_entities.clear(); }
 
 void TextureHandler::init(SDL_Renderer *renderer) {
     _renderer = renderer;

@@ -3,8 +3,6 @@
 #include <Entity.h>
 #include <TimeHandler.h>
 
-class InternalTimer;
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -37,7 +35,7 @@ class StartMenu : public UIHandler {
 class DeathMenu : public UIHandler {
    private:
     InternalTimer _death_animation_timer;
-    const int _death_animation_lenght = 3000;
+    const int _death_animation_lenght = 4000;
     enum DeathStates { Restart, Exit } _state = DeathStates::Restart;
 
    public:

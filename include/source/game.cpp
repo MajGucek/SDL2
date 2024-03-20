@@ -89,6 +89,8 @@ void Game::deathMenuLoop() {
             _render_handler.render();
         }
     }
+
+    _game_state = GameState::EXIT;
 }
 
 void Game::startMenuLoop() {

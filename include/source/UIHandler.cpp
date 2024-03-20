@@ -122,12 +122,19 @@ void DeathMenu::init(int w, int h) {
 void DeathMenu::playDeathAnimation(int w, int h,
                                    RenderHandler& render_handler) {
     render_handler.clearRenderQueue();
+
     AudioHandler::getInstance().stopSFX();
     AudioHandler::getInstance().playSFX("you_died");
     render_handler.includeInRender(
         EntityFactory::createGameObject(TextureType::death_screen,
                                         {0, (h / 2) - 200, w, 300}),
         _death_animation_lenght);
+    _death_animation_timer.startTimer(_death_animation_lenght);
+    while (_death_animation_timer.exists()) {
+        // just waiting, ik stupid
+        render_handler.render();
+    }
+    render_handler.clearAnimationQueue();
 }
 
 std::unique_ptr<StartMenu> UIFactory::createStartMenu() {

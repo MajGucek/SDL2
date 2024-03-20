@@ -22,7 +22,7 @@ InternalTimer::InternalTimer() : _exist(false), _start_time(0), _duration(0) {}
 void InternalTimer::startTimer(int ms) {
     _exist = true;
     _duration = ms;
-    _start_time = SDL_GetTicks();
+    _start_time = SDL_GetTicks64();
 }
 bool InternalTimer::exists() {
     if (finished()) {
@@ -35,7 +35,7 @@ bool InternalTimer::finished() {
     if (!_exist) {
         return true;
     }
-    if (SDL_GetTicks() - _start_time >= _duration) {
+    if (SDL_GetTicks64() - _start_time >= _duration) {
         _exist = false;
         return true;
     } else {
