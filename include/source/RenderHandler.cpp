@@ -168,6 +168,22 @@ void TextureHandler::loadTextures() {
     _textures.insert(
         {TextureType::restart_hovered,
          IMG_LoadTexture(_renderer, "res/ui/restart_hovered.png")});
+    _textures.insert({TextureType::p2560x1440,
+                      IMG_LoadTexture(_renderer, "res/ui/p2560x1440.png")});
+    _textures.insert(
+        {TextureType::p2560x1440_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/p2560x1440_hovered.png")});
+    _textures.insert({TextureType::p1920x1080,
+                      IMG_LoadTexture(_renderer, "res/ui/p1920x1080.png")});
+    _textures.insert(
+        {TextureType::p1920x1080_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/p1920x1080_hovered.png")});
+    _textures.insert({TextureType::p1280x720,
+                      IMG_LoadTexture(_renderer, "res/ui/p1280x720.png")});
+    _textures.insert(
+        {TextureType::p1280x720_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/p1280x720_hovered.png")});
+
     _textures.insert({TextureType::death_screen,
                       IMG_LoadTexture(_renderer, "res/ui/death_screen.png")});
 }

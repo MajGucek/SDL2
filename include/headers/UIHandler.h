@@ -44,8 +44,24 @@ class DeathMenu : public UIHandler {
     void playDeathAnimation(int w, int h, RenderHandler& render_handler);
 };
 
+class SettingsMenu : public UIHandler {
+   private:
+    enum Resolutions {
+        p1280x720,
+        p1920x1080,
+        p2560x1440,
+    } _resolution = Resolutions::p1920x1080;
+    enum SettingsState { Resolution, Exit } _state = SettingsState::Resolution;
+    bool _changing_resolution = false;
+
+   public:
+    void init(int w, int h) override;
+    std::string handleMenu(RenderHandler& render_handler);
+};
+
 class UIFactory {
    public:
     static std::unique_ptr<StartMenu> createStartMenu();
     static std::unique_ptr<DeathMenu> createDeathMenu();
+    static std::unique_ptr<SettingsMenu> createSettingsMenu();
 };

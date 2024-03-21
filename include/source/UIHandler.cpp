@@ -137,10 +137,107 @@ void DeathMenu::playDeathAnimation(int w, int h,
     render_handler.clearAnimationQueue();
 }
 
+void SettingsMenu::init(int w, int h) {
+    std::shared_ptr<GameObject> resolution = EntityFactory::createGameObject(
+        TextureType::restart, {w / 2 - 400, h / 2 - 200, 800, 200});
+    _ui.insert({"resolution", std::move(resolution)});
+
+    std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
+        TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
+    _ui.insert({"exit", std::move(exit)});
+    _state = SettingsState::Resolution;
+}
+
+std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
+    switch (_resolution) {
+        case Resolutions::p2560x1440:
+            _ui.at("resolution")->setTexture(TextureType::p2560x1440);
+            break;
+        case Resolutions::p1920x1080:
+            _ui.at("resolution")->setTexture(TextureType::p1920x1080);
+            break;
+        case Resolutions::p1280x720:
+            _ui.at("resolution")->setTexture(TextureType::p1280x720);
+            break;
+    }
+    _ui.at("exit")->setTexture(TextureType::exit);
+    if (_message.find("e") != std::string::npos) {
+        // Enter pressed
+        if (_state == SettingsState::Resolution) {
+            // just confirmed resolution
+            _changing_resolution = !_changing_resolution;
+        } else if (_state == SettingsState::Exit) {
+            // close menu, return to main menu
+            return "exit";
+        }
+    }
+    if (!_navigation_timer.exists()) {
+        if (_message.find("↑") != std::string::npos) {
+            if (_state != SettingsState::Resolution) {
+                _state = static_cast<SettingsState>(_state - 1);
+            } else {
+                _state = SettingsState::Exit;
+            }
+        } else if (_message.find("↓") != std::string::npos) {
+            if (_state != SettingsState::Exit) {
+                _state = static_cast<SettingsState>(_state + 1);
+            } else {
+                _state = SettingsState::Resolution;
+            }
+        }
+        if (_state == SettingsState::Resolution && _changing_resolution) {
+            // handle increasing, decreasing resolution
+            if (_message.find("→") != std::string::npos) {
+                // increase resolution
+                if (_resolution != Resolutions::p2560x1440) {
+                    _resolution = static_cast<Resolutions>(_resolution + 1);
+                } else {
+                    // smo na 1440p in povecamo
+                    _resolution = Resolutions::p1280x720;
+                }
+            } else if (_message.find("←") != std::string::npos) {
+                // decrease resolution
+                if (_resolution != Resolutions::p1280x720) {
+                    _resolution = static_cast<Resolutions>(_resolution - 1);
+                } else {
+                    _resolution = Resolutions::p2560x1440;
+                }
+            }
+        }
+
+        _navigation_timer.startTimer(_input_delay);
+    }
+    if (_state == SettingsState::Resolution) {
+        switch (_resolution) {
+            case Resolutions::p2560x1440:
+                _ui.at("resolution")
+                    ->setTexture(TextureType::p2560x1440_hovered);
+                break;
+            case Resolutions::p1920x1080:
+                _ui.at("resolution")
+                    ->setTexture(TextureType::p1920x1080_hovered);
+                break;
+            case Resolutions::p1280x720:
+                _ui.at("resolution")
+                    ->setTexture(TextureType::p1280x720_hovered);
+                break;
+        }
+
+    } else if (_state == SettingsState::Exit) {
+        _ui.at("exit")->setTexture(TextureType::exit_hovered);
+    }
+    _message = "";
+    return "";
+}
+
 std::unique_ptr<StartMenu> UIFactory::createStartMenu() {
     return std::make_unique<StartMenu>();
 }
 
 std::unique_ptr<DeathMenu> UIFactory::createDeathMenu() {
     return std::make_unique<DeathMenu>();
+}
+
+std::unique_ptr<SettingsMenu> UIFactory::createSettingsMenu() {
+    return std::make_unique<SettingsMenu>();
 }

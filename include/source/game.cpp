@@ -1,3 +1,5 @@
+#include "game.h"
+
 #include <headers/game.h>
 
 Game::Game()
@@ -21,7 +23,8 @@ Game& Game::getInstance() {
 }
 
 void Game::init() {
-    // create background
+    // AudioHandler::getInstance().setMasterVolume(1);
+    //  create background
     _background = EntityFactory::createGameObject(
         TextureType::background, {0, 0, _screen_width, _screen_height});
 
@@ -93,15 +96,37 @@ void Game::deathMenuLoop() {
     _game_state = GameState::EXIT;
 }
 
+bool Game::SettingsMenuLoop() {
+    _settings_menu = UIFactory::createSettingsMenu();
+    _settings_menu->init(_screen_width, _screen_height);
+    _input_handler.subscribe(_settings_menu);
+
+    while (_input_handler.handleInput()) {
+        std::string settings_menu_state =
+            _settings_menu->handleMenu(_render_handler);
+        if (settings_menu_state == "exit") {
+            return true;
+        } else {
+            _render_handler.includeInRender(_background);
+            _settings_menu->includeInRender(_render_handler);
+            _render_handler.render();
+        }
+    }
+    return false;
+}
+
 void Game::startMenuLoop() {
     AudioHandler::getInstance().playSFX("my_heart");
     _start_menu = UIFactory::createStartMenu();
     _start_menu->init(_screen_width, _screen_height);
     _input_handler.subscribe(_start_menu);
-
+    std::string start_menu_state;
     while (_input_handler.handleInput()) {
         // while nismo exital programa
-        std::string start_menu_state = _start_menu->handleMenu(_render_handler);
+
+        start_menu_state = _start_menu->handleMenu(_render_handler);
+        std::cout << start_menu_state << std::endl;
+
         if (start_menu_state == "start") {
             // start game
             AudioHandler::getInstance().stopSFX();
@@ -113,6 +138,12 @@ void Game::startMenuLoop() {
             return;
         } else if (start_menu_state == "settings") {
             // open settings menu
+            if (!SettingsMenuLoop()) {
+                _game_state = GameState::EXIT;
+                return;
+            } else {
+                std::cout << "closed settings" << std::endl;
+            }
         } else {
             // just render, user has not pressed anything
             _render_handler.includeInRender(_background);

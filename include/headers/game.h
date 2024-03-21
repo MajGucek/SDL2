@@ -30,6 +30,7 @@ class Game {
     // UI //
     std::shared_ptr<StartMenu> _start_menu;
     std::shared_ptr<DeathMenu> _death_menu;
+    std::shared_ptr<SettingsMenu> _settings_menu;
     // --UI--//
 
     // GameObjects //
@@ -48,6 +49,7 @@ class Game {
     void gameLoop();
     void startMenuLoop();
     void deathMenuLoop();
+    bool SettingsMenuLoop();
     // --Core-- //
 
     // Helper methods //

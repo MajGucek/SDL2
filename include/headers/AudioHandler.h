@@ -22,4 +22,5 @@ class AudioHandler {
     static AudioHandler& getInstance();
     AudioHandler& playSFX(std::string name);
     AudioHandler& stopSFX();
+    AudioHandler& setMasterVolume(Uint8 volume_percentage);
 };
