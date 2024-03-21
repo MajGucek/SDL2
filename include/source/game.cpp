@@ -121,34 +121,37 @@ void Game::startMenuLoop() {
     _start_menu->init(_screen_width, _screen_height);
     _input_handler.subscribe(_start_menu);
     std::string start_menu_state;
+    bool in_settings = false;
     while (_input_handler.handleInput()) {
         // while nismo exital programa
+        if (!in_settings) {
+            std::cout << "opened main menu" << std::endl;
+            start_menu_state = _start_menu->handleMenu(_render_handler);
 
-        start_menu_state = _start_menu->handleMenu(_render_handler);
-        std::cout << start_menu_state << std::endl;
-
-        if (start_menu_state == "start") {
-            // start game
-            AudioHandler::getInstance().stopSFX();
-            AudioHandler::getInstance().playSFX("twinkle");
-            return;
-        } else if (start_menu_state == "exit") {
-            // exit game
-            _game_state = GameState::EXIT;
-            return;
-        } else if (start_menu_state == "settings") {
-            // open settings menu
+            if (start_menu_state == "start") {
+                // start game
+                return;
+            } else if (start_menu_state == "exit") {
+                // exit game
+                _game_state = GameState::EXIT;
+                return;
+            } else if (start_menu_state == "settings") {
+                // open settings menu
+                in_settings = true;
+            } else {
+                // just render, user has not pressed anything
+                _render_handler.includeInRender(_background);
+                _start_menu->includeInRender(_render_handler);
+                _render_handler.render();
+            }
+        } else {
             if (!SettingsMenuLoop()) {
                 _game_state = GameState::EXIT;
                 return;
             } else {
+                in_settings = false;
                 std::cout << "closed settings" << std::endl;
             }
-        } else {
-            // just render, user has not pressed anything
-            _render_handler.includeInRender(_background);
-            _start_menu->includeInRender(_render_handler);
-            _render_handler.render();
         }
     }
 }

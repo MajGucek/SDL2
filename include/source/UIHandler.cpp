@@ -30,6 +30,8 @@ std::string StartMenu::handleMenu(RenderHandler& render_handler) {
     if (_message.find("e") != std::string::npos) {
         // Enter pressed
         if (_state == StartStates::Start) {
+            AudioHandler::getInstance().stopSFX();
+            AudioHandler::getInstance().playSFX("twinkle");
             return "start";
             _finished = true;
         } else if (_state == StartStates::Settings) {
@@ -163,10 +165,7 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
     _ui.at("exit")->setTexture(TextureType::exit);
     if (_message.find("e") != std::string::npos) {
         // Enter pressed
-        if (_state == SettingsState::Resolution) {
-            // just confirmed resolution
-            _changing_resolution = !_changing_resolution;
-        } else if (_state == SettingsState::Exit) {
+        if (_state == SettingsState::Exit) {
             // close menu, return to main menu
             return "exit";
         }
@@ -185,7 +184,7 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
                 _state = SettingsState::Resolution;
             }
         }
-        if (_state == SettingsState::Resolution && _changing_resolution) {
+        if (_state == SettingsState::Resolution) {
             // handle increasing, decreasing resolution
             if (_message.find("→") != std::string::npos) {
                 // increase resolution

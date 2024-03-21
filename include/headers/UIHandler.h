@@ -52,7 +52,6 @@ class SettingsMenu : public UIHandler {
         p2560x1440,
     } _resolution = Resolutions::p1920x1080;
     enum SettingsState { Resolution, Exit } _state = SettingsState::Resolution;
-    bool _changing_resolution = false;
 
    public:
     void init(int w, int h) override;
