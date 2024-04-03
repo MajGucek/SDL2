@@ -16,11 +16,13 @@ class Scoreboard;
 
 class RenderHandler {
    private:
-    std::vector<std::weak_ptr<GameObject>> _entities;
+    std::vector<GameObject *> _entities;
     std::vector<std::pair<std::unique_ptr<GameObject>, int>>
         _animation_entities;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
+    int _w, _h;
+    SDL_Rect _background;
 
    public:
     RenderHandler();
@@ -30,11 +32,13 @@ class RenderHandler {
     RenderHandler &createRenderer(int index = -1, Uint32 flags = 0);
 
     SDL_Renderer *getRenderer();
-    void includeInRender(std::weak_ptr<GameObject> entity);
+    void includeInRender(GameObject *entity);
     void includeInRender(std::unique_ptr<GameObject> entity, int frames);
     void render();
     void clearRenderQueue();
     void clearAnimationQueue();
+    void setSize(int w, int h);
+    std::pair<int, int> getSize();
 };
 
 enum class TextureType {

@@ -45,11 +45,14 @@ class InputHandler {
    private:
     std::list<std::weak_ptr<InputListener>> _subscribers;
     bool notifySubs(std::string message);
+    InternalTimer _delay;
 
    public:
     InputHandler();
     void subscribe(std::weak_ptr<InputListener> observer);
+    void deleteSubs();
     bool handleInput();
+    void addDelay(int ms);
 };
 
 class GameObject {

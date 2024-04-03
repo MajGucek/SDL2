@@ -13,7 +13,7 @@
 #include <iostream>
 #include <memory>
 
-enum class GameState { PLAY, DEATH, EXIT };
+enum class GameState { MAIN_MENU, SETTINGS, PLAY, DEATH, EXIT };
 
 class Game {
    private:
@@ -28,14 +28,10 @@ class Game {
     // --Handlers-- //
 
     // UI //
-    std::shared_ptr<StartMenu> _start_menu;
-    std::shared_ptr<DeathMenu> _death_menu;
-    std::shared_ptr<SettingsMenu> _settings_menu;
     // --UI--//
 
     // GameObjects //
     std::shared_ptr<Player> _player;
-    std::shared_ptr<GameObject> _background;
     // --GameObjects-- //
 
     // Game constants //
@@ -49,13 +45,9 @@ class Game {
     void gameLoop();
     void startMenuLoop();
     void deathMenuLoop();
-    bool SettingsMenuLoop();
+    void settingsMenuLoop();
+    void gameplayLoop();
     // --Core-- //
-
-    // Helper methods //
-    void includeInRender();
-    void handleEnemies(float deltaTime);
-    // --Helper methods-- //
 
    public:
     ~Game();

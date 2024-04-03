@@ -2,7 +2,12 @@
 
 #include <headers/RenderHandler.h>
 
-RenderHandler::RenderHandler() : _window(nullptr), _renderer(nullptr) {}
+RenderHandler::RenderHandler()
+    : _window(nullptr),
+      _renderer(nullptr),
+      _w(1920),
+      _h(1080),
+      _background({0, 0, _w, _h}) {}
 RenderHandler::~RenderHandler() {
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
@@ -17,9 +22,8 @@ RenderHandler &RenderHandler::initSystem() {
 }
 RenderHandler &RenderHandler::createWindow(int screen_width,
                                            int screen_height) {
-    _window =
-        SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                         screen_width, screen_height, SDL_WINDOW_MOUSE_CAPTURE);
+    _window = SDL_CreateWindow("", 0, 0, screen_width, screen_height,
+                               SDL_WINDOW_MOUSE_CAPTURE);
 
     return *this;
 }
@@ -33,11 +37,10 @@ RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
 }
 SDL_Renderer *RenderHandler::getRenderer() { return _renderer; }
 
-void RenderHandler::includeInRender(std::weak_ptr<GameObject> entity) {
-    if (entity.lock()) {
-        _entities.push_back(std::move(entity));
-    }
+void RenderHandler::includeInRender(GameObject *entity) {
+    _entities.push_back(entity);
 }
+
 void RenderHandler::includeInRender(std::unique_ptr<GameObject> entity,
                                     int frames) {
     _animation_entities.push_back({std::move(entity), frames});
@@ -47,16 +50,14 @@ void RenderHandler::render() {
     // clear screen
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
+    SDL_RenderCopy(
+        _renderer,
+        TextureHandler::getInstance().getTexture(TextureType::background),
+        nullptr, &_background);
 
-    for (auto &ent : _entities) {
-        if (auto entity = ent.lock()) {
-            if (entity->getTexture()) {
-                SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
-                               entity->getHitbox());
-            } else {
-                std::cout << "invalid texture!" << std::endl;
-            }
-        }
+    for (auto &entity : _entities) {
+        SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
+                       entity->getHitbox());
     }
     for (auto &an_entity : _animation_entities) {
         if (an_entity.second > 0) {
@@ -95,6 +96,16 @@ void RenderHandler::render() {
 
 void RenderHandler::clearRenderQueue() { _entities.clear(); }
 void RenderHandler::clearAnimationQueue() { _animation_entities.clear(); }
+
+void RenderHandler::setSize(int w, int h) {
+    SDL_SetWindowSize(_window, w, h);
+    SDL_SetWindowPosition(_window, 0, 0);
+    _w = w;
+    _h = h;
+    _background.w = _w;
+    _background.h = _h;
+}
+std::pair<int, int> RenderHandler::getSize() { return {_w, _h}; }
 
 void TextureHandler::init(SDL_Renderer *renderer) {
     _renderer = renderer;

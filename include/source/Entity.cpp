@@ -432,8 +432,10 @@ bool InputHandler::handleInput() {
         message.append("e");
     }
     if (message != "") {
-        if (!notifySubs(message)) {
-            return false;
+        if (!_delay.exists()) {
+            if (!notifySubs(message)) {
+                return false;
+            }
         }
     }
 
@@ -445,3 +447,13 @@ bool InputHandler::handleInput() {
 
     return true;
 }
+
+void InputHandler::addDelay(int ms) {
+    if (_delay.exists()) {
+        std::cout << "too fast" << std::endl;
+    } else {
+        _delay.startTimer(ms);
+    }
+}
+
+void InputHandler::deleteSubs() { _subscribers.clear(); }

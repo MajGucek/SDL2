@@ -1,18 +1,18 @@
 #include <EnemyHandler.h>
 
 void LaboratoryHandler::addLaboratory(int x, int y,
-                                      CollisionHandler* collision_handler,
+                                      CollisionHandler& collision_handler,
                                       int hp, unsigned animals_stored) {
     std::shared_ptr<Laboratory> lab =
         EntityFactory::createLaboratory({x, y, 200, 200}, hp, animals_stored);
-    collision_handler->addCollider(lab);
+    collision_handler.addCollider(lab);
     _laboratories.push_back({std::move(lab), false});
 }
 
 void LaboratoryHandler::includeInRender(RenderHandler& render_handler) {
     for (auto& lab : _laboratories) {
         if (lab.second) {
-            render_handler.includeInRender(lab.first);
+            render_handler.includeInRender(lab.first.get());
         }
     }
 }
@@ -40,6 +40,15 @@ void LaboratoryHandler::handle(std::shared_ptr<Player> player,
 
 void LaboratoryHandler::setVisibility(int seeing_distance) {
     _seeing_distance = seeing_distance;
+}
+
+void LaboratoryHandler::init(CollisionHandler& collision_handler) {
+    addLaboratory(700, 100, collision_handler, 100, 700);
+    addLaboratory(300, 600, collision_handler, 70, 4340);
+}
+
+void PoacherHandler::init(CollisionHandler& collision_handler) {
+    addPoacher(900, 900, &collision_handler, 10, 2);
 }
 
 void PoacherHandler::addPoacher(int x, int y,
@@ -79,7 +88,7 @@ void PoacherHandler::handle(std::shared_ptr<Player> player,
 
 void PoacherHandler::includeInRender(RenderHandler& render_handler) {
     for (auto& poacher : _poachers) {
-        render_handler.includeInRender(poacher);
+        render_handler.includeInRender(poacher.get());
     }
 }
 

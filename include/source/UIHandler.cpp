@@ -2,7 +2,7 @@
 
 void UIHandler::includeInRender(RenderHandler& render_handler) {
     for (auto& x : _ui) {
-        render_handler.includeInRender(x.second);
+        render_handler.includeInRender(x.second.get());
     }
 }
 bool UIHandler::handleInput(const std::string message) {
@@ -32,8 +32,8 @@ std::string StartMenu::handleMenu(RenderHandler& render_handler) {
         if (_state == StartStates::Start) {
             AudioHandler::getInstance().stopSFX();
             AudioHandler::getInstance().playSFX("twinkle");
-            return "start";
             _finished = true;
+            return "start";
         } else if (_state == StartStates::Settings) {
             // open settings menu
             return "settings";
@@ -167,6 +167,13 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
         // Enter pressed
         if (_state == SettingsState::Exit) {
             // close menu, return to main menu
+            if (_resolution == Resolutions::p1280x720) {
+                render_handler.setSize(1280, 720);
+            } else if (_resolution == Resolutions::p1920x1080) {
+                render_handler.setSize(1920, 1080);
+            } else {
+                render_handler.setSize(2560, 1440);
+            }
             return "exit";
         }
     }
