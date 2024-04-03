@@ -7,7 +7,7 @@ Game::Game()
     _render_handler.initSystem()
         .createWindow(1920, 1080)
         .createRenderer(-1, SDL_RENDERER_PRESENTVSYNC);
-    _collision_handler.setSize(_screen_width, _screen_height);
+    _collision_handler.setSize({_screen_width, _screen_height});
     TextureHandler::getInstance().init(_render_handler.getRenderer());
 }
 Game::~Game() { SDL_Quit(); }
@@ -43,29 +43,24 @@ void Game::gameLoop() {
 }
 
 void Game::gameplayLoop() {
-    // create player
-    _player = EntityFactory::createPlayer({200, 200, 100, 100}, 1, 2);
-    _input_handler.subscribe(_player);
-    _player->addCollisionHandler(&_collision_handler);
-    _laboratory_handler.init(_collision_handler);
-    _poacher_handler.init(_collision_handler);
-
+    _entity_handler.init(_collision_handler, _input_handler);
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         float delta_time = TimeHandler::getInstance().deltaTime();
-        if (_player_handler.handlePlayer(_player, &_render_handler,
-                                         delta_time)) {
-            _laboratory_handler.handle(_player, _collision_handler,
-                                       &_render_handler, delta_time);
-            _poacher_handler.handle(_player, _collision_handler,
-                                    &_render_handler, delta_time);
-            _laboratory_handler.includeInRender(_render_handler);
-            _poacher_handler.includeInRender(_render_handler);
-            _render_handler.includeInRender(_player.get());
-            _render_handler.render();
-        } else {
+
+        auto resp = _entity_handler.handle(_collision_handler, &_render_handler,
+                                           delta_time);
+
+        if (resp == "death") {
             _game_state = GameState::DEATH;
             return;
+        } else if (resp == "next") {
+            // next level
+            _game_state = GameState::DEATH;
+            return;
+        } else {
+            _entity_handler.includeInRender(_render_handler);
+            _render_handler.render();
         }
     }
 
@@ -76,12 +71,13 @@ void Game::settingsMenuLoop() {
     std::shared_ptr<SettingsMenu> _settings_menu =
         UIFactory::createSettingsMenu();
     _settings_menu->init(_screen_width, _screen_height);
-    _input_handler.subscribe(_settings_menu);
+    _input_handler.subscribe(_settings_menu.get());
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         std::string settings_menu_state =
             _settings_menu->handleMenu(_render_handler);
+        _collision_handler.setSize(_render_handler.getSize());
         if (settings_menu_state == "exit") {
             // finished with menu
             _game_state = GameState::MAIN_MENU;
@@ -101,7 +97,7 @@ void Game::startMenuLoop() {
     // AudioHandler::getInstance().playSFX("my_heart");
     std::shared_ptr<StartMenu> _start_menu = UIFactory::createStartMenu();
     _start_menu->init(_screen_width, _screen_height);
-    _input_handler.subscribe(_start_menu);
+    _input_handler.subscribe(_start_menu.get());
     //
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
@@ -134,7 +130,7 @@ void Game::deathMenuLoop() {
     _death_menu->playDeathAnimation(_screen_width, _screen_height,
                                     _render_handler);
     _death_menu->init(_screen_width, _screen_height);
-    _input_handler.subscribe(_death_menu);
+    _input_handler.subscribe(_death_menu.get());
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();

@@ -16,7 +16,7 @@ class CollisionHandler {
     int _screen_height = 0;
 
    public:
-    void setSize(int w, int h);
+    void setSize(std::pair<int, int> size);
     void addCollider(std::weak_ptr<Entity> collider);
     std::pair<std::weak_ptr<Entity>, bool> isColliding(SDL_Rect* collider);
     bool isCollidingNotWithSelf(SDL_Rect* collider, SDL_Rect* self);

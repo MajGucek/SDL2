@@ -39,7 +39,9 @@ void ControlledEntity::attackRight(RenderHandler* render_handler) {}
 int ControlledEntity::getDamage() { return _damage; }
 
 Player::Player(SDL_Rect hitbox, int hp, int velocity)
-    : ControlledEntity(hitbox, hp, velocity) {}
+    : ControlledEntity(hitbox, hp, velocity) {
+    _texture_type = TextureType::player;
+}
 
 void Player::hit(int damage, RenderHandler* render_handler) {
     Entity::hit(damage, render_handler);
@@ -181,7 +183,9 @@ void Player::hitRight(RenderHandler* render_handler) {
 }
 
 Laboratory::Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored)
-    : Entity(hitbox, hp), _animals_stored(animals_stored) {}
+    : Entity(hitbox, hp), _animals_stored(animals_stored) {
+    _texture_type = TextureType::laboratory;
+}
 
 SDL_Texture* Laboratory::getTexture() {
     if (!_animation_timer.exists()) {
@@ -197,8 +201,7 @@ void Laboratory::hit(int damage, RenderHandler* render_handler) {
     setTexture(TextureType::laboratory_hit);
 }
 
-bool Laboratory::checkDistanceToPlayer(const SDL_Rect player,
-                                       unsigned threshold) {
+bool Laboratory::checkDistanceToPlayer(SDL_Rect player, unsigned threshold) {
     int cent_x = _hitbox.x + _hitbox.w / 2;
     int cent_y = _hitbox.y + _hitbox.h / 2;
     int p_cent_x = player.x + player.w / 2;
@@ -266,7 +269,9 @@ SDL_Texture* Scoreboard::getDigitTexture(int digit, SDL_Renderer* ren) {
 }
 
 Poacher::Poacher(SDL_Rect hitbox, int hp, int velocity)
-    : ControlledEntity(hitbox, hp, velocity) {}
+    : ControlledEntity(hitbox, hp, velocity) {
+    _texture_type = TextureType::poacher;
+}
 
 bool Poacher::attack(RenderHandler* render_handler) {
     if (!_attack_timer.exists()) {
@@ -357,21 +362,18 @@ std::unique_ptr<GameObject> EntityFactory::createGameObject(
 std::unique_ptr<Laboratory> EntityFactory::createLaboratory(
     SDL_Rect hitbox, int hp, unsigned animals_stored) {
     auto ent = std::make_unique<Laboratory>(hitbox, hp, animals_stored);
-    ent->setTexture(TextureType::laboratory);
     return std::move(ent);
 }
 
 std::unique_ptr<Player> EntityFactory::createPlayer(SDL_Rect hitbox, int hp,
                                                     int velocity) {
     auto player = std::make_unique<Player>(hitbox, hp, velocity);
-    player->setTexture(TextureType::player);
     return std::move(player);
 }
 
 std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Rect hitbox, int hp,
                                                       int velocity) {
     auto p = std::make_unique<Poacher>(hitbox, hp, velocity);
-    p->setTexture(TextureType::poacher);
     return std::move(p);
 }
 
@@ -379,20 +381,19 @@ InputHandler::InputHandler() { _subscribers = {}; }
 
 bool InputHandler::notifySubs(std::string message) {
     for (auto& subscriber : _subscribers) {
-        if (auto sub = subscriber.lock()) {
-            if (!sub->handleInput(message)) {
+        if (subscriber) {
+            if (!subscriber->handleInput(message)) {
                 return false;
             }
         } else {
             // remove input sub
+            _subscribers.remove(subscriber);
         }
     }
     return true;
 }
-void InputHandler::subscribe(std::weak_ptr<InputListener> observer) {
-    if (observer.lock()) {
-        _subscribers.push_back(std::move(observer));
-    }
+void InputHandler::subscribe(InputListener* observer) {
+    _subscribers.push_back(observer);
 }
 
 bool InputHandler::handleInput() {
@@ -432,10 +433,8 @@ bool InputHandler::handleInput() {
         message.append("e");
     }
     if (message != "") {
-        if (!_delay.exists()) {
-            if (!notifySubs(message)) {
-                return false;
-            }
+        if (!notifySubs(message)) {
+            return false;
         }
     }
 

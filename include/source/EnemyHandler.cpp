@@ -17,11 +17,14 @@ void LaboratoryHandler::includeInRender(RenderHandler& render_handler) {
     }
 }
 
-void LaboratoryHandler::handle(std::shared_ptr<Player> player,
+bool LaboratoryHandler::handle(Player* player,
                                CollisionHandler& collision_handler,
                                RenderHandler* render_handler,
                                float delta_time) {
     for (auto& lab : _laboratories) {
+        if (!lab.first) {
+            std::cout << "lab does not exist!" << std::endl;
+        }
         if (lab.first->getHP() < 0) {
             // std::cout << "unicil laboratorij!" << std::endl;
             Scoreboard::getInstance() += lab.first->getAnimalCount();
@@ -29,13 +32,17 @@ void LaboratoryHandler::handle(std::shared_ptr<Player> player,
 
             continue;
         }
-        if (lab.first->checkDistanceToPlayer(*player->getHitbox(),
+        if (lab.first->checkDistanceToPlayer(*(player->getHitbox()),
                                              _seeing_distance)) {
             lab.second = true;
         } else {
             lab.second = false;
         }
     }
+    if (_laboratories.size() == 0) {
+        return false;
+    }
+    return true;
 }
 
 void LaboratoryHandler::setVisibility(int seeing_distance) {
@@ -61,15 +68,13 @@ void PoacherHandler::addPoacher(int x, int y,
     _poachers.push_back(std::move(poacher));
 }
 
-void PoacherHandler::handle(std::shared_ptr<Player> player,
-                            CollisionHandler& collision_handler,
+bool PoacherHandler::handle(Player* player, CollisionHandler& collision_handler,
                             RenderHandler* render_handler, float delta_time) {
     for (auto& poacher : _poachers) {
         if (poacher->getHP() < 0) {
             // std::cout << "ubil poacherja!" << std::endl;
             Scoreboard::getInstance() += poacher->getScore();
             _poachers.remove(poacher);
-
             continue;
         }
         if (poacher->canSeePlayer(*player->getHitbox(), _seeing_distance)) {
@@ -84,6 +89,10 @@ void PoacherHandler::handle(std::shared_ptr<Player> player,
             }
         }
     }
+    if (_poachers.size() == 0) {
+        return false;
+    }
+    return true;
 }
 
 void PoacherHandler::includeInRender(RenderHandler& render_handler) {
@@ -92,13 +101,63 @@ void PoacherHandler::includeInRender(RenderHandler& render_handler) {
     }
 }
 
-bool PlayerHandler::handlePlayer(std::shared_ptr<Player> player,
-                                 RenderHandler* render_handler,
-                                 float delta_time) {
-    if (player->getHP() <= 0) {
+EntityHandler::EntityHandler() : _level(0), _over(false) {}
+
+void EntityHandler::includeInRender(RenderHandler& render_handler) {
+    _lab_handler.includeInRender(render_handler);
+    _poacher_handler.includeInRender(render_handler);
+    _player_handler.includeInRender(render_handler);
+}
+
+std::string EntityHandler::handle(CollisionHandler& collision_handler,
+                                  RenderHandler* render_handler,
+                                  float delta_time) {
+    bool pl =
+        _player_handler.handle(collision_handler, render_handler, delta_time);
+
+    if (!pl) {
+        return "death";
+    }
+
+    bool l = _lab_handler.handle(_player_handler.getPlayer(), collision_handler,
+                                 render_handler, delta_time);
+
+    bool p =
+        _poacher_handler.handle(_player_handler.getPlayer(), collision_handler,
+                                render_handler, delta_time);
+    if (!l && !p) {
+        return "next";
+    }
+
+    return "";
+}
+
+void EntityHandler::init(CollisionHandler& collision_handler,
+                         InputHandler& input_handler) {
+    _player_handler.init(collision_handler, input_handler);
+    _lab_handler.init(collision_handler);
+    _poacher_handler.init(collision_handler);
+}
+
+void PlayerHandler::init(CollisionHandler& collision_handler,
+                         InputHandler& input_handler) {
+    _player = EntityFactory::createPlayer({500, 500, 100, 100}, 100, 2);
+    input_handler.subscribe(_player.get());
+    _player->addCollisionHandler(&collision_handler);
+}
+
+Player* PlayerHandler::getPlayer() { return _player.get(); }
+
+void PlayerHandler::includeInRender(RenderHandler& render_handler) {
+    render_handler.includeInRender(_player.get());
+}
+bool PlayerHandler::handle(CollisionHandler& collision_handler,
+                           RenderHandler* render_handler, float delta_time) {
+    if (_player->getHP() <= 0) {
+        _player.release();
         return false;
     } else {
-        player->handle(render_handler, delta_time);
+        _player->handle(render_handler, delta_time);
         return true;
     }
 }

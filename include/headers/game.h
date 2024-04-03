@@ -22,9 +22,7 @@ class Game {
     RenderHandler _render_handler;
     InputHandler _input_handler;
     CollisionHandler _collision_handler;
-    LaboratoryHandler _laboratory_handler;
-    PoacherHandler _poacher_handler;
-    PlayerHandler _player_handler;
+    EntityHandler _entity_handler;
     // --Handlers-- //
 
     // UI //

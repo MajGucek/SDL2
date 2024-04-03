@@ -1,8 +1,8 @@
 #include <CollisionHandler.h>
 
-void CollisionHandler::setSize(int w, int h) {
-    _screen_width = w;
-    _screen_height = h;
+void CollisionHandler::setSize(std::pair<int, int> size) {
+    _screen_width = size.first;
+    _screen_height = size.second;
 }
 
 void CollisionHandler::addCollider(std::weak_ptr<Entity> collider) {

@@ -11,25 +11,18 @@ class Poacher;
 #include <list>
 #include <memory>
 
-class EnemyHandler {
+class IEnemyHandler {
    protected:
     int _seeing_distance = 200;
 
    public:
     virtual void includeInRender(RenderHandler& render_handler) = 0;
-    virtual void handle(std::shared_ptr<Player> player,
-                        CollisionHandler& collision_handler,
+    virtual bool handle(Player* player, CollisionHandler& collision_handler,
                         RenderHandler* render_handler, float delta_time) = 0;
     virtual void init(CollisionHandler& collision_handler) = 0;
 };
 
-class PlayerHandler {
-   public:
-    bool handlePlayer(std::shared_ptr<Player> player,
-                      RenderHandler* render_handler, float delta_time);
-};
-
-class LaboratoryHandler : public EnemyHandler {
+class LaboratoryHandler : public IEnemyHandler {
    private:
     int _seeing_distance = 400;
     std::list<std::pair<std::shared_ptr<Laboratory>, bool>> _laboratories;
@@ -39,13 +32,12 @@ class LaboratoryHandler : public EnemyHandler {
 
    public:
     void includeInRender(RenderHandler& render_handler) override;
-    void handle(std::shared_ptr<Player> player,
-                CollisionHandler& collision_handler,
+    bool handle(Player* player, CollisionHandler& collision_handler,
                 RenderHandler* render_handler, float delta_time) override;
     void init(CollisionHandler& collision_handler) override;
 };
 
-class PoacherHandler : public EnemyHandler {
+class PoacherHandler : public IEnemyHandler {
    private:
     int _seeing_distance = 800;
     std::list<std::shared_ptr<Poacher>> _poachers;
@@ -54,8 +46,34 @@ class PoacherHandler : public EnemyHandler {
 
    public:
     void includeInRender(RenderHandler& render_handler) override;
-    void handle(std::shared_ptr<Player> player,
-                CollisionHandler& collision_handler,
+    bool handle(Player* player, CollisionHandler& collision_handler,
                 RenderHandler* render_handler, float delta_time) override;
     void init(CollisionHandler& collision_handler) override;
+};
+class PlayerHandler {
+   private:
+    std::unique_ptr<Player> _player;
+
+   public:
+    void includeInRender(RenderHandler& render_handler);
+    bool handle(CollisionHandler& collision_handler,
+                RenderHandler* render_handler, float delta_time);
+    void init(CollisionHandler& collision_handler, InputHandler& input_handler);
+    Player* getPlayer();
+};
+
+class EntityHandler {
+   private:
+    LaboratoryHandler _lab_handler;
+    PoacherHandler _poacher_handler;
+    PlayerHandler _player_handler;
+    int _level;
+    bool _over;
+
+   public:
+    EntityHandler();
+    void includeInRender(RenderHandler& render_handler);
+    std::string handle(CollisionHandler& collision_handler,
+                       RenderHandler* render_handler, float delta_time);
+    void init(CollisionHandler& collision_handler, InputHandler& input_handler);
 };

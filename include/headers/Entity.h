@@ -43,13 +43,13 @@ class InputListener {
 };
 class InputHandler {
    private:
-    std::list<std::weak_ptr<InputListener>> _subscribers;
+    std::list<InputListener*> _subscribers;
     bool notifySubs(std::string message);
     InternalTimer _delay;
 
    public:
     InputHandler();
-    void subscribe(std::weak_ptr<InputListener> observer);
+    void subscribe(InputListener* observer);
     void deleteSubs();
     bool handleInput();
     void addDelay(int ms);
@@ -151,7 +151,7 @@ class Laboratory : public Entity {
     void hit(int damage, RenderHandler* render_handler) override;
     SDL_Texture* getTexture() override;
     Laboratory(SDL_Rect hitbox, int hp, unsigned animals_stored);
-    bool checkDistanceToPlayer(const SDL_Rect player, unsigned threshold);
+    bool checkDistanceToPlayer(SDL_Rect player, unsigned threshold);
     unsigned getAnimalCount();
 };
 class EntityFactory {
