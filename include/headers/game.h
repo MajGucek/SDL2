@@ -25,13 +25,6 @@ class Game {
     EntityHandler _entity_handler;
     // --Handlers-- //
 
-    // UI //
-    // --UI--//
-
-    // GameObjects //
-    std::shared_ptr<Player> _player;
-    // --GameObjects-- //
-
     // Game constants //
     int _screen_width;
     int _screen_height;
@@ -45,6 +38,7 @@ class Game {
     void deathMenuLoop();
     void settingsMenuLoop();
     void gameplayLoop();
+    void pauseMenuLoop();
     // --Core-- //
 
    public:

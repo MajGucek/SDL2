@@ -1,10 +1,6 @@
 #include <Entity.h>
 
 GameObject::GameObject(SDL_Rect hitbox) : _hitbox(hitbox) {}
-GameObject::~GameObject() {
-    SDL_DestroyTexture(_texture);
-    _texture = nullptr;
-}
 void GameObject::setTexture(TextureType texture_type) {
     _texture_type = texture_type;
 }
@@ -377,8 +373,6 @@ std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Rect hitbox, int hp,
     return std::move(p);
 }
 
-InputHandler::InputHandler() { _subscribers = {}; }
-
 bool InputHandler::notifySubs(std::string message) {
     for (auto& subscriber : _subscribers) {
         if (subscriber) {
@@ -386,7 +380,6 @@ bool InputHandler::notifySubs(std::string message) {
                 return false;
             }
         } else {
-            // remove input sub
             _subscribers.remove(subscriber);
         }
     }
@@ -400,40 +393,41 @@ bool InputHandler::handleInput() {
     SDL_Event e;
     SDL_PollEvent(&e);
     const Uint8* state = SDL_GetKeyboardState(nullptr);
-    std::string message = "";
+    _message = "";
 
     if (state[SDL_SCANCODE_ESCAPE]) {
-        message.append("x");
+        _message.append("x");
     }
     if (state[SDL_SCANCODE_A]) {
-        message.append("A");
+        _message.append("A");
     }
     if (state[SDL_SCANCODE_D]) {
-        message.append("D");
+        _message.append("D");
     }
     if (state[SDL_SCANCODE_W]) {
-        message.append("W");
+        _message.append("W");
     }
     if (state[SDL_SCANCODE_S]) {
-        message.append("S");
+        _message.append("S");
     }
     if (state[SDL_SCANCODE_RIGHT]) {
-        message.append("→");
+        _message.append("→");
     }
     if (state[SDL_SCANCODE_LEFT]) {
-        message.append("←");
+        _message.append("←");
     }
     if (state[SDL_SCANCODE_UP]) {
-        message.append("↑");
+        _message.append("↑");
     }
     if (state[SDL_SCANCODE_DOWN]) {
-        message.append("↓");
+        _message.append("↓");
     }
     if (state[SDL_SCANCODE_RETURN]) {
-        message.append("e");
+        _message.append("e");
     }
-    if (message != "") {
-        if (!notifySubs(message)) {
+
+    if (_message != "") {
+        if (!notifySubs(_message)) {
             return false;
         }
     }
@@ -442,6 +436,10 @@ bool InputHandler::handleInput() {
         case SDL_QUIT:
             return false;
             break;
+    }
+
+    if (_subscribers.size() == 0) {
+        return false;
     }
 
     return true;
@@ -454,5 +452,7 @@ void InputHandler::addDelay(int ms) {
         _delay.startTimer(ms);
     }
 }
+
+std::string InputHandler::getInput() { return _message; }
 
 void InputHandler::deleteSubs() { _subscribers.clear(); }

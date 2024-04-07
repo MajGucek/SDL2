@@ -1,3 +1,5 @@
+#include "game.h"
+
 #include <headers/game.h>
 
 Game::Game()
@@ -47,19 +49,49 @@ void Game::gameplayLoop() {
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         float delta_time = TimeHandler::getInstance().deltaTime();
-
         auto resp = _entity_handler.handle(_collision_handler, &_render_handler,
-                                           delta_time);
+                                           delta_time, _input_handler);
+        /*
+        if (resp == "pause") {
+            pauseMenuLoop();
+            if (_game_state != GameState::PLAY) {
+                return;
+            }
+        }
+        */
 
         if (resp == "death") {
             _game_state = GameState::DEATH;
             return;
         } else if (resp == "next") {
-            // next level
-            _game_state = GameState::DEATH;
+            _entity_handler.increaseDifficulty();
             return;
         } else {
             _entity_handler.includeInRender(_render_handler);
+            _render_handler.render();
+        }
+    }
+    _game_state = GameState::EXIT;
+}
+
+void Game::pauseMenuLoop() {
+    std::shared_ptr<PauseMenu> _pause_menu = UIFactory::createPauseMenu();
+    _pause_menu->init(_screen_width, _screen_height);
+    _input_handler.subscribe(_pause_menu.get());
+
+    while (_input_handler.handleInput()) {
+        TimeHandler::getInstance().tick();
+        auto pause_menu_state = _pause_menu->handleMenu(_render_handler);
+        if (pause_menu_state == "play") {
+            return;
+        } else if (pause_menu_state == "save") {
+            // save to file
+        } else if (pause_menu_state == "exit") {
+            _game_state = GameState::MAIN_MENU;
+            _input_handler.addDelay(100);
+            return;
+        } else {
+            _pause_menu->includeInRender(_render_handler);
             _render_handler.render();
         }
     }
@@ -75,8 +107,7 @@ void Game::settingsMenuLoop() {
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
-        std::string settings_menu_state =
-            _settings_menu->handleMenu(_render_handler);
+        auto settings_menu_state = _settings_menu->handleMenu(_render_handler);
         _collision_handler.setSize(_render_handler.getSize());
         if (settings_menu_state == "exit") {
             // finished with menu
@@ -93,16 +124,13 @@ void Game::settingsMenuLoop() {
 }
 
 void Game::startMenuLoop() {
-    AudioHandler::getInstance().stopSFX();
-    // AudioHandler::getInstance().playSFX("my_heart");
     std::shared_ptr<StartMenu> _start_menu = UIFactory::createStartMenu();
     _start_menu->init(_screen_width, _screen_height);
     _input_handler.subscribe(_start_menu.get());
-    //
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         // while nismo exital programa
-        std::string start_menu_state = _start_menu->handleMenu(_render_handler);
+        auto start_menu_state = _start_menu->handleMenu(_render_handler);
         if (start_menu_state == "start") {
             // start game
             _game_state = GameState::PLAY;

@@ -67,6 +67,8 @@ class EntityHandler {
     LaboratoryHandler _lab_handler;
     PoacherHandler _poacher_handler;
     PlayerHandler _player_handler;
+    InternalTimer _pause_delay;
+    int _pause_time_delay;
     int _level;
     bool _over;
 
@@ -74,6 +76,8 @@ class EntityHandler {
     EntityHandler();
     void includeInRender(RenderHandler& render_handler);
     std::string handle(CollisionHandler& collision_handler,
-                       RenderHandler* render_handler, float delta_time);
+                       RenderHandler* render_handler, float delta_time,
+                       InputHandler& input_handler);
     void init(CollisionHandler& collision_handler, InputHandler& input_handler);
+    void increaseDifficulty();
 };

@@ -101,7 +101,8 @@ void PoacherHandler::includeInRender(RenderHandler& render_handler) {
     }
 }
 
-EntityHandler::EntityHandler() : _level(0), _over(false) {}
+EntityHandler::EntityHandler()
+    : _pause_time_delay(200), _level(0), _over(false) {}
 
 void EntityHandler::includeInRender(RenderHandler& render_handler) {
     _lab_handler.includeInRender(render_handler);
@@ -111,7 +112,8 @@ void EntityHandler::includeInRender(RenderHandler& render_handler) {
 
 std::string EntityHandler::handle(CollisionHandler& collision_handler,
                                   RenderHandler* render_handler,
-                                  float delta_time) {
+                                  float delta_time,
+                                  InputHandler& input_handler) {
     bool pl =
         _player_handler.handle(collision_handler, render_handler, delta_time);
 
@@ -138,6 +140,8 @@ void EntityHandler::init(CollisionHandler& collision_handler,
     _lab_handler.init(collision_handler);
     _poacher_handler.init(collision_handler);
 }
+
+void EntityHandler::increaseDifficulty() { _level++; }
 
 void PlayerHandler::init(CollisionHandler& collision_handler,
                          InputHandler& input_handler) {

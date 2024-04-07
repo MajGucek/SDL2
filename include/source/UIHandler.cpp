@@ -236,6 +236,65 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
     return "";
 }
 
+void PauseMenu::init(int w, int h) {
+    std::shared_ptr<GameObject> play = EntityFactory::createGameObject(
+        TextureType::play, {w / 2 - 400, h / 2 - 400, 800, 200});
+    _ui.insert({"play", std::move(play)});
+
+    std::shared_ptr<GameObject> save = EntityFactory::createGameObject(
+        TextureType::save, {w / 2 - 400, h / 2, 800, 200});
+    _ui.insert({"save", std::move(save)});
+    std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
+        TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
+    _ui.insert({"exit", std::move(exit)});
+}
+
+std::string PauseMenu::handleMenu(RenderHandler& render_handler) {
+    _ui.at("play")->setTexture(TextureType::play);
+    _ui.at("save")->setTexture(TextureType::save);
+    _ui.at("exit")->setTexture(TextureType::exit);
+    if (_message.find("e") != std::string::npos) {
+        // Enter pressed
+        if (_state == PauseState::Play) {
+            _finished = true;
+            return "play";
+        } else if (_state == PauseState::Save) {
+            // open settings menu
+            return "save";
+        } else if (_state == PauseState::Exit) {
+            // terminate program
+            _close_game = true;
+            return "exit";
+        }
+    }
+    if (!_navigation_timer.exists()) {
+        if (_message.find("↑") != std::string::npos) {
+            if (_state != PauseState::Play) {
+                _state = static_cast<PauseState>(_state - 1);
+            } else {
+                _state = PauseState::Exit;
+            }
+        } else if (_message.find("↓") != std::string::npos) {
+            if (_state != PauseState::Exit) {
+                _state = static_cast<PauseState>(_state + 1);
+            } else {
+                _state = PauseState::Play;
+            }
+        }
+        _navigation_timer.startTimer(_input_delay);
+    }
+
+    if (_state == PauseState::Play) {
+        _ui.at("play")->setTexture(TextureType::play_hovered);
+    } else if (_state == PauseState::Save) {
+        _ui.at("save")->setTexture(TextureType::save_hovered);
+    } else if (_state == PauseState::Exit) {
+        _ui.at("exit")->setTexture(TextureType::exit_hovered);
+    }
+    _message = "";
+    return "";
+}
+
 std::unique_ptr<StartMenu> UIFactory::createStartMenu() {
     return std::make_unique<StartMenu>();
 }
@@ -246,4 +305,8 @@ std::unique_ptr<DeathMenu> UIFactory::createDeathMenu() {
 
 std::unique_ptr<SettingsMenu> UIFactory::createSettingsMenu() {
     return std::make_unique<SettingsMenu>();
+}
+
+std::unique_ptr<PauseMenu> UIFactory::createPauseMenu() {
+    return std::make_unique<PauseMenu>();
 }

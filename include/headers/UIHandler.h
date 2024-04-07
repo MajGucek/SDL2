@@ -36,7 +36,12 @@ class DeathMenu : public UIHandler {
    private:
     InternalTimer _death_animation_timer;
     const int _death_animation_lenght = 4000;
-    enum DeathStates { Restart, Exit } _state = DeathStates::Restart;
+    enum DeathStates {
+        Restart,
+        Exit,
+        Save,
+        Replay
+    } _state = DeathStates::Restart;
 
    public:
     void init(int w, int h) override;
@@ -55,7 +60,16 @@ class SettingsMenu : public UIHandler {
 
    public:
     void init(int w, int h) override;
-    std::string handleMenu(RenderHandler& render_handler);
+    std::string handleMenu(RenderHandler& render_handler) override;
+};
+
+class PauseMenu : public UIHandler {
+   private:
+    enum PauseState { Play, Save, Exit } _state = PauseState::Play;
+
+   public:
+    void init(int w, int h) override;
+    std::string handleMenu(RenderHandler& render_handler) override;
 };
 
 class UIFactory {
@@ -63,4 +77,5 @@ class UIFactory {
     static std::unique_ptr<StartMenu> createStartMenu();
     static std::unique_ptr<DeathMenu> createDeathMenu();
     static std::unique_ptr<SettingsMenu> createSettingsMenu();
+    static std::unique_ptr<PauseMenu> createPauseMenu();
 };

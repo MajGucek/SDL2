@@ -46,24 +46,23 @@ class InputHandler {
     std::list<InputListener*> _subscribers;
     bool notifySubs(std::string message);
     InternalTimer _delay;
+    std::string _message;
 
    public:
-    InputHandler();
     void subscribe(InputListener* observer);
     void deleteSubs();
     bool handleInput();
     void addDelay(int ms);
+    std::string getInput();
 };
 
 class GameObject {
    protected:
     SDL_Rect _hitbox;
     TextureType _texture_type;
-    SDL_Texture* _texture = nullptr;
 
    public:
     GameObject(SDL_Rect hitbox);
-    virtual ~GameObject();
     virtual SDL_Texture* getTexture();
     virtual SDL_Rect* getHitbox();
     virtual void setTexture(TextureType texture_type);
@@ -75,7 +74,6 @@ class Entity : public GameObject {
     InternalTimer _animation_timer;
     int _invincibility_time = 5;
     const int _hit_animation_time = 10;
-
     int _hp = 100;
 
    public:
@@ -119,6 +117,7 @@ class Player : public ControlledEntity, public InputListener {
 
    public:
     void hit(int damage, RenderHandler* render_handler) override;
+    Player() = default;
     Player(SDL_Rect hitbox, int hp, int velocity);
     bool handleInput(const std::string message) override;
     void handle(RenderHandler* render_handler, float delta_time) override;

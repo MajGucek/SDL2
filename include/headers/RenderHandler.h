@@ -63,6 +63,10 @@ enum class TextureType {
     score_9,             // 100x100
     start,               // 800x200
     start_hovered,       // 800x200
+    play,                // 800x200
+    play_hovered,        // 800x200
+    save,                // 800x200
+    save_hovered,        // 800x200
     settings,            // 1000x300
     settings_hovered,    // 1000x300
     exit,                // 800x200
