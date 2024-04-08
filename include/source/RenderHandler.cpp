@@ -152,6 +152,12 @@ void TextureHandler::loadTextures() {
         {TextureType::poacher, IMG_LoadTexture(_renderer, "res/poacher.png")});
     _textures.insert({TextureType::poacher_hit,
                       IMG_LoadTexture(_renderer, "res/poacher_hit.png")});
+    _textures.insert({TextureType::pangolin,
+                      IMG_LoadTexture(_renderer, "res/pangolin_inactive.png")});
+    _textures.insert({TextureType::pangolin_active,
+                      IMG_LoadTexture(_renderer, "res/pangolin_active.png")});
+    _textures.insert({TextureType::ground_rune,
+                      IMG_LoadTexture(_renderer, "res/ground_rune.png")});
     // SCORE //
     _textures.insert(
         {TextureType::score_0, IMG_LoadTexture(_renderer, "res/score/0.png")});

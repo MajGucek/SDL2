@@ -129,16 +129,30 @@ class Poacher : public ControlledEntity {
     const int _score = 100;
     const int _attack_time = 30;
     const int _death_time = 5;
+    const int _hp = 1;
 
     void handleCollisionHelper(int x, int y);
 
    public:
-    bool attack(RenderHandler* render_handler);
+    bool canAttack(RenderHandler* render_handler);
     Poacher(SDL_Rect hitbox, int hp, int velocity);
     bool canSeePlayer(const SDL_Rect player, unsigned threshold);
     void moveTowards(const SDL_Rect destination, float delta_time);
     int getScore();
     void hit(int damage, RenderHandler* render_handler) override;
+};
+
+class Pangolin : public ControlledEntity {
+   private:
+    InternalTimer _slam;
+    const int _damage = 30;
+    const int _slam_delay = 500;
+    const int _rune_time = 400;
+    const int _score = 500;
+
+   public:
+    Pangolin(SDL_Rect hitbox, int hp, int velocity, int damage);
+    void attack(RenderHandler* render_handler);
 };
 
 class Laboratory : public Entity {

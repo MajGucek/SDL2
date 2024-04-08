@@ -269,7 +269,7 @@ Poacher::Poacher(SDL_Rect hitbox, int hp, int velocity)
     _texture_type = TextureType::poacher;
 }
 
-bool Poacher::attack(RenderHandler* render_handler) {
+bool Poacher::canAttack(RenderHandler* render_handler) {
     if (!_attack_timer.exists()) {
         // lahko attacka
         _attack_timer.startTimer(_attack_delay_time);
@@ -346,6 +346,19 @@ void Poacher::handleCollisionHelper(int x, int y) {
     }
 }
 int Poacher::getScore() { return _score; }
+
+Pangolin::Pangolin(SDL_Rect hitbox, int hp, int velocity, int damage)
+    : ControlledEntity(hitbox, hp, velocity), _damage(damage) {
+    _texture_type = TextureType::pangolin;
+}
+
+void Pangolin::attack(RenderHandler* render_handler) {
+    SDL_Rect rune_hb = {_hitbox.x - 500, _hitbox.y - 500, 1000, 1000};
+
+    auto damage_circle =
+        EntityFactory::createGameObject(TextureType::ground_rune, rune_hb);
+    render_handler->includeInRender(std::move(damage_circle), _rune_time);
+}
 
 // Factories
 std::unique_ptr<GameObject> EntityFactory::createGameObject(

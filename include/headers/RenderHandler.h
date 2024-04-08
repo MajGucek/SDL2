@@ -53,6 +53,9 @@ enum class TextureType {
     laboratory_hit,      // 200x200
     poacher,             // 100x100
     poacher_hit,         // 100x100
+    pangolin,            // 300x300
+    pangolin_active,     // 300x300
+    ground_rune,         // 1000x1000
     score_0,             // 100x100
     score_1,             // 100x100
     score_2,             // 100x100

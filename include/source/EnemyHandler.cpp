@@ -82,7 +82,7 @@ bool PoacherHandler::handle(Player* player, CollisionHandler& collision_handler,
             if (collision_handler.areColliding(*player->getHitbox(),
                                                *poacher->getHitbox())) {
                 // player take damage
-                if (poacher->attack(render_handler)) {
+                if (poacher->canAttack(render_handler)) {
                     player->hit(poacher->getDamage(), render_handler);
                     _poachers.remove(poacher);
                 }
