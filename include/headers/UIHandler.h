@@ -17,7 +17,7 @@ class UIHandler : public InputListener {
 
    public:
     bool handleInput(const std::string message) override;
-    virtual void init(int w, int h) = 0;
+    virtual void init() = 0;
     virtual std::string handleMenu(RenderHandler& render_handler) = 0;
     virtual void includeInRender(RenderHandler& render_handler);
 };
@@ -28,7 +28,7 @@ class StartMenu : public UIHandler {
     StartStates _state = StartStates::Start;
 
    public:
-    void init(int w, int h) override;
+    void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
 };
 
@@ -44,9 +44,9 @@ class DeathMenu : public UIHandler {
     } _state = DeathStates::Restart;
 
    public:
-    void init(int w, int h) override;
+    void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
-    void playDeathAnimation(int w, int h, RenderHandler& render_handler);
+    void playDeathAnimation(RenderHandler& render_handler);
 };
 
 class SettingsMenu : public UIHandler {
@@ -59,7 +59,7 @@ class SettingsMenu : public UIHandler {
     enum SettingsState { Resolution, Exit } _state = SettingsState::Resolution;
 
    public:
-    void init(int w, int h) override;
+    void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
 };
 
@@ -68,7 +68,7 @@ class PauseMenu : public UIHandler {
     enum PauseState { Play, Save, Exit } _state = PauseState::Play;
 
    public:
-    void init(int w, int h) override;
+    void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
 };
 

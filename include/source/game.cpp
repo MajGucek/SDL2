@@ -7,9 +7,9 @@ Game::Game()
       _screen_height(1080),
       _game_state(GameState::MAIN_MENU) {
     _render_handler.initSystem()
-        .createWindow(1920, 1080)
+        .createWindow(_screen_width, _screen_height)
         .createRenderer(-1, SDL_RENDERER_PRESENTVSYNC);
-    _collision_handler.setSize({_screen_width, _screen_height});
+    _collision_handler.setSize(RenderHandler::getSize());
     TextureHandler::getInstance().init(_render_handler.getRenderer());
 }
 Game::~Game() { SDL_Quit(); }
@@ -24,13 +24,18 @@ Game& Game::getInstance() {
     return game;
 }
 
-void Game::init() {}
+void Game::init() {
+    auto res = FileHandler::getInstance().loadResolution();
+    _screen_width = res.first;
+    _screen_height = res.second;
+    _render_handler.setRenderingSize(_screen_width, _screen_height);
+}
 
 void Game::gameLoop() {
     while (_game_state != GameState::EXIT) {
-        auto size = _render_handler.getSize();
-        _screen_width = size.first;
-        _screen_height = size.second;
+        // auto size = RenderHandler::getSize();
+        //_screen_width = size.first;
+        //_screen_height = size.second;
         if (_game_state == GameState::PLAY) {
             gameplayLoop();
         } else if (_game_state == GameState::MAIN_MENU) {
@@ -41,6 +46,7 @@ void Game::gameLoop() {
             settingsMenuLoop();
         }
         _input_handler.deleteSubs();
+        _input_handler.addDelay(100);
     }
 }
 
@@ -51,14 +57,6 @@ void Game::gameplayLoop() {
         float delta_time = TimeHandler::getInstance().deltaTime();
         auto resp = _entity_handler.handle(_collision_handler, &_render_handler,
                                            delta_time, _input_handler);
-        /*
-        if (resp == "pause") {
-            pauseMenuLoop();
-            if (_game_state != GameState::PLAY) {
-                return;
-            }
-        }
-        */
 
         if (resp == "death") {
             _game_state = GameState::DEATH;
@@ -74,45 +72,19 @@ void Game::gameplayLoop() {
     _game_state = GameState::EXIT;
 }
 
-void Game::pauseMenuLoop() {
-    std::shared_ptr<PauseMenu> _pause_menu = UIFactory::createPauseMenu();
-    _pause_menu->init(_screen_width, _screen_height);
-    _input_handler.subscribe(_pause_menu.get());
-
-    while (_input_handler.handleInput()) {
-        TimeHandler::getInstance().tick();
-        auto pause_menu_state = _pause_menu->handleMenu(_render_handler);
-        if (pause_menu_state == "play") {
-            return;
-        } else if (pause_menu_state == "save") {
-            // save to file
-        } else if (pause_menu_state == "exit") {
-            _game_state = GameState::MAIN_MENU;
-            _input_handler.addDelay(100);
-            return;
-        } else {
-            _pause_menu->includeInRender(_render_handler);
-            _render_handler.render();
-        }
-    }
-
-    _game_state = GameState::EXIT;
-}
-
 void Game::settingsMenuLoop() {
     std::shared_ptr<SettingsMenu> _settings_menu =
         UIFactory::createSettingsMenu();
-    _settings_menu->init(_screen_width, _screen_height);
+    _settings_menu->init();
     _input_handler.subscribe(_settings_menu.get());
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         auto settings_menu_state = _settings_menu->handleMenu(_render_handler);
-        _collision_handler.setSize(_render_handler.getSize());
         if (settings_menu_state == "exit") {
             // finished with menu
             _game_state = GameState::MAIN_MENU;
-            _input_handler.addDelay(100);
+
             return;
         } else {
             _settings_menu->includeInRender(_render_handler);
@@ -125,7 +97,7 @@ void Game::settingsMenuLoop() {
 
 void Game::startMenuLoop() {
     std::shared_ptr<StartMenu> _start_menu = UIFactory::createStartMenu();
-    _start_menu->init(_screen_width, _screen_height);
+    _start_menu->init();
     _input_handler.subscribe(_start_menu.get());
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
@@ -155,9 +127,8 @@ void Game::startMenuLoop() {
 void Game::deathMenuLoop() {
     AudioHandler::getInstance().stopSFX();
     std::shared_ptr<DeathMenu> _death_menu = UIFactory::createDeathMenu();
-    _death_menu->playDeathAnimation(_screen_width, _screen_height,
-                                    _render_handler);
-    _death_menu->init(_screen_width, _screen_height);
+    _death_menu->playDeathAnimation(_render_handler);
+    _death_menu->init();
     _input_handler.subscribe(_death_menu.get());
 
     while (_input_handler.handleInput()) {
@@ -167,7 +138,6 @@ void Game::deathMenuLoop() {
         if (death_menu_state == "restart") {
             // restart game
             _game_state = GameState::MAIN_MENU;
-            _input_handler.addDelay(100);
             return;
         } else if (death_menu_state == "exit") {
             // exit game
@@ -180,5 +150,30 @@ void Game::deathMenuLoop() {
         }
     }
     // closed by input handler
+    _game_state = GameState::EXIT;
+}
+
+void Game::pauseMenuLoop() {
+    std::shared_ptr<PauseMenu> _pause_menu = UIFactory::createPauseMenu();
+    _pause_menu->init();
+    _input_handler.subscribe(_pause_menu.get());
+
+    while (_input_handler.handleInput()) {
+        TimeHandler::getInstance().tick();
+        auto pause_menu_state = _pause_menu->handleMenu(_render_handler);
+        if (pause_menu_state == "play") {
+            return;
+        } else if (pause_menu_state == "save") {
+            // save to file
+        } else if (pause_menu_state == "exit") {
+            _game_state = GameState::MAIN_MENU;
+            _input_handler.addDelay(100);
+            return;
+        } else {
+            _pause_menu->includeInRender(_render_handler);
+            _render_handler.render();
+        }
+    }
+
     _game_state = GameState::EXIT;
 }

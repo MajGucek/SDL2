@@ -1,6 +1,7 @@
-#include "RenderHandler.h"
-
 #include <headers/RenderHandler.h>
+
+int RenderHandler::_r_w = 3200;
+int RenderHandler::_r_h = 1800;
 
 RenderHandler::RenderHandler()
     : _window(nullptr),
@@ -24,7 +25,7 @@ RenderHandler &RenderHandler::createWindow(int screen_width,
                                            int screen_height) {
     _window = SDL_CreateWindow("", 0, 0, screen_width, screen_height,
                                SDL_WINDOW_MOUSE_CAPTURE);
-
+    setRenderingSize(screen_width, screen_height);
     return *this;
 }
 RenderHandler &RenderHandler::createRenderer(int index, Uint32 flags) {
@@ -47,6 +48,7 @@ void RenderHandler::includeInRender(std::unique_ptr<GameObject> entity,
 }
 
 void RenderHandler::render() {
+    float scale_factor = static_cast<float>(_h) / static_cast<float>(_r_h);
     // clear screen
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
@@ -56,14 +58,23 @@ void RenderHandler::render() {
         nullptr, &_background);
 
     for (auto &entity : _entities) {
-        SDL_RenderCopy(_renderer, entity->getTexture(), nullptr,
-                       entity->getHitbox());
+        auto hb = *entity->getHitbox();
+        hb.x *= scale_factor;
+        hb.y *= scale_factor;
+        hb.w *= scale_factor;
+        hb.h *= scale_factor;
+        SDL_RenderCopy(_renderer, entity->getTexture(), nullptr, &hb);
     }
     for (auto &an_entity : _animation_entities) {
         if (an_entity.second > 0) {
             if (an_entity.first->getTexture()) {
+                auto hb = *an_entity.first->getHitbox();
+                hb.x *= scale_factor;
+                hb.y *= scale_factor;
+                hb.w *= scale_factor;
+                hb.h *= scale_factor;
                 SDL_RenderCopy(_renderer, an_entity.first->getTexture(),
-                               nullptr, an_entity.first->getHitbox());
+                               nullptr, &hb);
                 an_entity.second--;
             } else {
                 std::cout << "invalid animation texture!" << std::endl;
@@ -97,7 +108,7 @@ void RenderHandler::render() {
 void RenderHandler::clearRenderQueue() { _entities.clear(); }
 void RenderHandler::clearAnimationQueue() { _animation_entities.clear(); }
 
-void RenderHandler::setSize(int w, int h) {
+void RenderHandler::setRenderingSize(int w, int h) {
     SDL_SetWindowSize(_window, w, h);
     SDL_SetWindowPosition(_window, 0, 0);
     _w = w;
@@ -105,7 +116,9 @@ void RenderHandler::setSize(int w, int h) {
     _background.w = _w;
     _background.h = _h;
 }
-std::pair<int, int> RenderHandler::getSize() { return {_w, _h}; }
+
+std::pair<int, int> RenderHandler::getRenderingSize() { return {_w, _h}; }
+std::pair<int, int> RenderHandler::getSize() { return {_r_w, _r_h}; }
 
 void TextureHandler::init(SDL_Renderer *renderer) {
     _renderer = renderer;

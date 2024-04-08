@@ -426,7 +426,7 @@ bool InputHandler::handleInput() {
         _message.append("e");
     }
 
-    if (_message != "") {
+    if (_message != "" && !_delay.exists()) {
         if (!notifySubs(_message)) {
             return false;
         }

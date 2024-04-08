@@ -9,7 +9,10 @@ bool UIHandler::handleInput(const std::string message) {
     _message = message;
     return !_close_game;
 }
-void StartMenu::init(int w, int h) {
+void StartMenu::init() {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
     std::shared_ptr<GameObject> start = EntityFactory::createGameObject(
         TextureType::start, {w / 2 - 400, h / 2 - 200, 800, 200});
 
@@ -110,19 +113,29 @@ std::string DeathMenu::handleMenu(RenderHandler& render_handler) {
     return "";
 }
 
-void DeathMenu::init(int w, int h) {
+void DeathMenu::init() {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
     std::shared_ptr<GameObject> restart = EntityFactory::createGameObject(
         TextureType::restart, {w / 2 - 400, h / 2 - 200, 800, 200});
     _ui.insert({"restart", std::move(restart)});
 
+    std::shared_ptr<GameObject> replay = EntityFactory::createGameObject(
+        TextureType::replay, {w / 2 - 400, h / 2, 800, 200});
+    _ui.insert({"replay", std::move(replay)});
+
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
         TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
+
     _state = DeathStates::Restart;
 }
 
-void DeathMenu::playDeathAnimation(int w, int h,
-                                   RenderHandler& render_handler) {
+void DeathMenu::playDeathAnimation(RenderHandler& render_handler) {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
     render_handler.clearRenderQueue();
 
     AudioHandler::getInstance().stopSFX();
@@ -139,7 +152,10 @@ void DeathMenu::playDeathAnimation(int w, int h,
     render_handler.clearAnimationQueue();
 }
 
-void SettingsMenu::init(int w, int h) {
+void SettingsMenu::init() {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
     std::shared_ptr<GameObject> resolution = EntityFactory::createGameObject(
         TextureType::restart, {w / 2 - 400, h / 2 - 200, 800, 200});
     _ui.insert({"resolution", std::move(resolution)});
@@ -168,11 +184,11 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
         if (_state == SettingsState::Exit) {
             // close menu, return to main menu
             if (_resolution == Resolutions::p1280x720) {
-                render_handler.setSize(1280, 720);
+                render_handler.setRenderingSize(1280, 720);
             } else if (_resolution == Resolutions::p1920x1080) {
-                render_handler.setSize(1920, 1080);
+                render_handler.setRenderingSize(1920, 1080);
             } else {
-                render_handler.setSize(2560, 1440);
+                render_handler.setRenderingSize(2560, 1440);
             }
             return "exit";
         }
@@ -236,7 +252,10 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
     return "";
 }
 
-void PauseMenu::init(int w, int h) {
+void PauseMenu::init() {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
     std::shared_ptr<GameObject> play = EntityFactory::createGameObject(
         TextureType::play, {w / 2 - 400, h / 2 - 400, 800, 200});
     _ui.insert({"play", std::move(play)});

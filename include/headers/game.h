@@ -5,6 +5,7 @@
 #include <CollisionHandler.h>
 #include <EnemyHandler.h>
 #include <Entity.h>
+#include <FileHandler.h>
 #include <RenderHandler.h>
 #include <TimeHandler.h>
 #include <UIHandler.h>

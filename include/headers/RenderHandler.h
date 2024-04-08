@@ -22,6 +22,7 @@ class RenderHandler {
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     int _w, _h;
+    static int _r_w, _r_h;
     SDL_Rect _background;
 
    public:
@@ -37,8 +38,9 @@ class RenderHandler {
     void render();
     void clearRenderQueue();
     void clearAnimationQueue();
-    void setSize(int w, int h);
-    std::pair<int, int> getSize();
+    void setRenderingSize(int w, int h);
+    std::pair<int, int> getRenderingSize();
+    static std::pair<int, int> getSize();
 };
 
 enum class TextureType {
@@ -67,6 +69,8 @@ enum class TextureType {
     play_hovered,        // 800x200
     save,                // 800x200
     save_hovered,        // 800x200
+    replay,              // 800x200
+    replay_hovered,      // 800x200
     settings,            // 1000x300
     settings_hovered,    // 1000x300
     exit,                // 800x200
