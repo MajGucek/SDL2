@@ -5,50 +5,46 @@ FileHandler& FileHandler::getInstance() {
     return f;
 }
 
-void FileHandler::saveGame(int player_hp, int level) {
-    _save.open("Save.bin", std::ios::binary | std::ios::app | std::ios::out);
-    if (!_save.is_open()) {
-        std::cout << "error opening Save.bin!" << std::endl;
+void FileHandler::saveGame(char player_name[21], int player_hp, int level) {
+    std::ofstream save("Save.bin", std::ios::binary | std::ios::app);
+    if (!save.is_open()) {
+        std::cout << "error opening Save.bin!, write" << std::endl;
         return;
     }
-    _save.write((char*)&player_hp, sizeof(player_hp));
-    _save.write((char*)&level, sizeof(level));
-    _save.close();
+
+    GameSave game_save = {player_name, player_hp, level};
+    save.write((char*)&game_save, sizeof(game_save));
 }
 
-std::pair<int, int> FileHandler::loadGame() {
-    _save.open("Save.bin", std::ios::binary | std::ios::in);
-    std::pair<int, int> ret = {100, 0};
-    if (!_save.is_open()) {
-        std::cout << "error opening Save.bin!" << std::endl;
+GameSave FileHandler::loadGame() {
+    std::ifstream save("Save.bin", std::ios::binary);
+    GameSave ret = {"", 100, 0};
+    if (!save.is_open()) {
+        std::cout << "error opening Save.bin!, read" << std::endl;
         return ret;
     }
-    _save.read((char*)&ret.first, sizeof(ret.first));
-    _save.read((char*)&ret.second, sizeof(ret.second));
-    _save.close();
+    save.read((char*)&ret, sizeof(ret));
     return ret;
 }
 
 void FileHandler::saveResolution(int width, int height) {
-    _qol.open("QOL.bin", std::ios::binary | std::ios::app);
-    if (!_qol.is_open()) {
-        std::cout << "error opening QOL.bin" << std::endl;
+    std::ofstream qol("QOL.bin", std::ios::binary | std::ios::app);
+    if (!qol.is_open()) {
+        std::cout << "error opening QOL.bin, write mode" << std::endl;
         return;
     }
-    _qol.write((char*)&width, sizeof(width));
-    _qol.write((char*)&height, sizeof(height));
-    _qol.close();
+    qol.write((char*)&width, sizeof(width));
+    qol.write((char*)&height, sizeof(height));
 }
 
 std::pair<int, int> FileHandler::loadResolution() {
     std::pair<int, int> res = {1920, 1080};
-    _qol.open("QOL.bin", std::ios::binary | std::ios::in);
-    if (!_qol.is_open()) {
-        std::cout << "error opening QOL.bin" << std::endl;
+    std::ifstream qol("QOL.bin", std::ios::binary);
+    if (!qol.is_open()) {
+        std::cout << "error opening QOL.bin, read mode" << std::endl;
         return res;
     }
-    _qol.read((char*)&res.first, sizeof(res.first));
-    _qol.read((char*)&res.second, sizeof(res.second));
-    _qol.close();
+    qol.read((char*)&res.first, sizeof(res.first));
+    qol.read((char*)&res.second, sizeof(res.second));
     return res;
 }

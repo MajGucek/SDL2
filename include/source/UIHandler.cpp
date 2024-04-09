@@ -14,9 +14,13 @@ void StartMenu::init() {
     int w = size.first;
     int h = size.second;
     std::shared_ptr<GameObject> start = EntityFactory::createGameObject(
-        TextureType::start, {w / 2 - 400, h / 2 - 200, 800, 200});
-
+        TextureType::start, {w / 2 - 400, h / 2 - 400, 800, 200});
     _ui.insert({"start", std::move(start)});
+
+    std::shared_ptr<GameObject> load = EntityFactory::createGameObject(
+        TextureType::load, {w / 2 - 400, h / 2 - 200, 800, 200});
+    _ui.insert({"load", std::move(load)});
+
     std::shared_ptr<GameObject> settings = EntityFactory::createGameObject(
         TextureType::settings, {w / 2 - 500, h / 2, 1000, 300});
     _ui.insert({"settings", std::move(settings)});
@@ -27,6 +31,7 @@ void StartMenu::init() {
 }
 std::string StartMenu::handleMenu(RenderHandler& render_handler) {
     _ui.at("start")->setTexture(TextureType::start);
+    _ui.at("load")->setTexture(TextureType::load);
     _ui.at("settings")->setTexture(TextureType::settings);
     _ui.at("exit")->setTexture(TextureType::exit);
     if (_message.find("e") != std::string::npos) {
@@ -36,6 +41,8 @@ std::string StartMenu::handleMenu(RenderHandler& render_handler) {
             AudioHandler::getInstance().playSFX("twinkle");
             _finished = true;
             return "start";
+        } else if (_state == StartStates::Load) {
+            return "load";
         } else if (_state == StartStates::Settings) {
             // open settings menu
             return "settings";
@@ -64,6 +71,8 @@ std::string StartMenu::handleMenu(RenderHandler& render_handler) {
 
     if (_state == StartStates::Start) {
         _ui.at("start")->setTexture(TextureType::start_hovered);
+    } else if (_state == StartStates::Load) {
+        _ui.at("load")->setTexture(TextureType::load_hovered);
     } else if (_state == StartStates::Settings) {
         _ui.at("settings")->setTexture(TextureType::settings_hovered);
     } else if (_state == StartStates::Exit) {
@@ -360,7 +369,6 @@ std::string LoginMenu::handleMenu(RenderHandler& render_handler) {
                 _name.pop_back();
             }
         }
-        std::cout << _name << std::endl;
         _char_input_timer.startTimer(_char_input_delay);
     }
 
@@ -494,6 +502,12 @@ void LoginMenu::includeInRender(RenderHandler& render_handler) {
         auto let = EntityFactory::createGameObject(tex, hb);
         render_handler.includeInRender(std::move(let), 1);
     }
+}
+
+char* LoginMenu::getName() {
+    char* name = new char[_name_size];
+    strncpy(name, _name.c_str(), _name_size);
+    return name;
 }
 
 std::shared_ptr<StartMenu> UIFactory::createStartMenu() {

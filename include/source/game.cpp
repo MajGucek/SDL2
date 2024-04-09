@@ -25,9 +25,9 @@ Game& Game::getInstance() {
 }
 
 void Game::init() {
-    auto res = FileHandler::getInstance().loadResolution();
-    _screen_width = res.first;
-    _screen_height = res.second;
+    // auto res = FileHandler::getInstance().loadResolution();
+    //_screen_width = res.first;
+    //_screen_height = res.second;
     _render_handler.setRenderingSize(_screen_width, _screen_height);
 }
 
@@ -80,6 +80,9 @@ void Game::loginMenuLoop() {
         TimeHandler::getInstance().tick();
         auto login_menu_state = login_menu->handleMenu(_render_handler);
         if (login_menu_state == "confirm") {
+            char* player_name = login_menu->getName();
+            FileHandler::getInstance().saveGame(player_name, 100, 0);
+            delete[] player_name;
             _game_state = GameState::PLAY;
             return;
         } else if (login_menu_state == "exit") {
@@ -103,16 +106,13 @@ void Game::settingsMenuLoop() {
         TimeHandler::getInstance().tick();
         auto settings_menu_state = _settings_menu->handleMenu(_render_handler);
         if (settings_menu_state == "exit") {
-            // finished with menu
             _game_state = GameState::MAIN_MENU;
-
             return;
         } else {
             _settings_menu->includeInRender(_render_handler);
             _render_handler.render();
         }
     }
-    // input handler close
     _game_state = GameState::EXIT;
 }
 
@@ -128,6 +128,13 @@ void Game::startMenuLoop() {
             // start game
             _game_state = GameState::LOGIN;
             return;
+        } else if (start_menu_state == "load") {
+            auto save = FileHandler::getInstance().loadGame();
+            if (strcmp(save.name, "")) {
+                // load does not exist
+                std::cout << "No previous player!" << std::endl;
+            } else {
+            }
         } else if (start_menu_state == "exit") {
             // exit game
             _game_state = GameState::EXIT;

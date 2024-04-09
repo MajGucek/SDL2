@@ -4,16 +4,19 @@
 #include <iostream>
 #include <string>
 
+struct GameSave {
+    char* name;
+    int hp, level;
+};
+
 class FileHandler {
    private:
     FileHandler() = default;
-    std::fstream _save;
-    std::fstream _qol;
 
    public:
     static FileHandler& getInstance();
-    void saveGame(int player_hp, int level);
+    void saveGame(char player_name[21], int player_hp, int level);
     void saveResolution(int width, int height);
     std::pair<int, int> loadResolution();
-    std::pair<int, int> loadGame();
+    GameSave loadGame();
 };

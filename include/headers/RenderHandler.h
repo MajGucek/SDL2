@@ -99,6 +99,8 @@ enum class TextureType {
     play_hovered,        // 800x200
     save,                // 800x200
     save_hovered,        // 800x200
+    load,                // 800x200
+    load_hovered,        // 800x200
     replay,              // 800x200
     replay_hovered,      // 800x200
     settings,            // 1000x300

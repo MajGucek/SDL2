@@ -11,6 +11,7 @@
 #include <UIHandler.h>
 // ---- //
 
+#include <cstring>
 #include <iostream>
 #include <memory>
 

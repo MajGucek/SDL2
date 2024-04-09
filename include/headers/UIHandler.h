@@ -3,6 +3,7 @@
 #include <Entity.h>
 #include <TimeHandler.h>
 
+#include <cstring>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -24,7 +25,7 @@ class UIHandler : public InputListener {
 
 class StartMenu : public UIHandler {
    private:
-    enum StartStates { Start, Settings, Exit };
+    enum StartStates { Start, Load, Settings, Exit };
     StartStates _state = StartStates::Start;
 
    public:
@@ -86,6 +87,7 @@ class LoginMenu : public UIHandler {
     void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
     void includeInRender(RenderHandler& render_handler) override;
+    char* getName();
 };
 
 class UIFactory {

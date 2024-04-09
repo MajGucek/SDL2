@@ -1,3 +1,3 @@
 all:
-	g++ -Iinclude -ISDL2 -Iinclude/headers -Iinclude/source -Llib\libx64 -o game include/source/*.cpp main/main.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -Wall -Wno-sign-compare
+	g++ -Iinclude -ISDL2 -Iinclude/headers -Iinclude/source -Llib\libx64 -o game include/source/*.cpp main/main.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -Wall -Wno-sign-compare -Wno-write-strings
 	./game

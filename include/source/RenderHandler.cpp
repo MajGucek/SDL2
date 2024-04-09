@@ -259,6 +259,11 @@ void TextureHandler::loadTextures() {
     _textures.insert({TextureType::save_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/save_hovered.png")});
     _textures.insert(
+        {TextureType::load, IMG_LoadTexture(_renderer, "res/ui/load.png")});
+    _textures.insert({TextureType::load_hovered,
+                      IMG_LoadTexture(_renderer, "res/ui/load_hovered.png")});
+
+    _textures.insert(
         {TextureType::input, IMG_LoadTexture(_renderer, "res/ui/input.png")});
     _textures.insert({TextureType::input_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/input_hovered.png")});
