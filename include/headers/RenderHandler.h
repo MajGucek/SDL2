@@ -66,6 +66,33 @@ enum class TextureType {
     score_7,             // 100x100
     score_8,             // 100x100
     score_9,             // 100x100
+    A,                   // 100x100
+    B,                   // 100x100
+    C,                   // 100x100
+    D,                   // 100x100
+    E,                   // 100x100
+    F,                   // 100x100
+    G,                   // 100x100
+    H,                   // 100x100
+    I,                   // 100x100
+    J,                   // 100x100
+    K,                   // 100x100
+    L,                   // 100x100
+    M,                   // 100x100
+    N,                   // 100x100
+    O,                   // 100x100
+    P,                   // 100x100
+    Q,                   // 100x100
+    R,                   // 100x100
+    S,                   // 100x100
+    T,                   // 100x100
+    U,                   // 100x100
+    V,                   // 100x100
+    W,                   // 100x100
+    X,                   // 100x100
+    Y,                   // 100x100
+    Z,                   // 100x100
+    Unknown,             // 100x100
     start,               // 800x200
     start_hovered,       // 800x200
     play,                // 800x200
@@ -80,6 +107,11 @@ enum class TextureType {
     exit_hovered,        // 800x200
     restart,             // 1000x300
     restart_hovered,     // 1000x300
+    confirm,             // 1000x300
+    confirm_hovered,     // 1000x300
+    input,               // 1000x100
+    input_hovered,       // 1000x100
+    input_inputing,      // 1000x100
     p2560x1440,          // 1200x200
     p2560x1440_hovered,  // 1200x200
     p1920x1080,          // 1200x200

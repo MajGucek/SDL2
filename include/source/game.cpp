@@ -33,9 +33,6 @@ void Game::init() {
 
 void Game::gameLoop() {
     while (_game_state != GameState::EXIT) {
-        // auto size = RenderHandler::getSize();
-        //_screen_width = size.first;
-        //_screen_height = size.second;
         if (_game_state == GameState::PLAY) {
             gameplayLoop();
         } else if (_game_state == GameState::MAIN_MENU) {
@@ -44,6 +41,8 @@ void Game::gameLoop() {
             deathMenuLoop();
         } else if (_game_state == GameState::SETTINGS) {
             settingsMenuLoop();
+        } else if (_game_state == GameState::LOGIN) {
+            loginMenuLoop();
         }
         _input_handler.deleteSubs();
         _input_handler.addDelay(100);
@@ -72,11 +71,33 @@ void Game::gameplayLoop() {
     _game_state = GameState::EXIT;
 }
 
+void Game::loginMenuLoop() {
+    auto login_menu = UIFactory::createLoginMenu();
+    login_menu->init();
+    _input_handler.subscribe(login_menu);
+
+    while (_input_handler.handleInput()) {
+        TimeHandler::getInstance().tick();
+        auto login_menu_state = login_menu->handleMenu(_render_handler);
+        if (login_menu_state == "confirm") {
+            _game_state = GameState::PLAY;
+            return;
+        } else if (login_menu_state == "exit") {
+            _game_state = GameState::MAIN_MENU;
+            return;
+        } else {
+            login_menu->includeInRender(_render_handler);
+            _render_handler.render();
+        }
+    }
+
+    _game_state = GameState::EXIT;
+}
+
 void Game::settingsMenuLoop() {
-    std::shared_ptr<SettingsMenu> _settings_menu =
-        UIFactory::createSettingsMenu();
+    auto _settings_menu = UIFactory::createSettingsMenu();
     _settings_menu->init();
-    _input_handler.subscribe(_settings_menu.get());
+    _input_handler.subscribe(_settings_menu);
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
@@ -96,16 +117,16 @@ void Game::settingsMenuLoop() {
 }
 
 void Game::startMenuLoop() {
-    std::shared_ptr<StartMenu> _start_menu = UIFactory::createStartMenu();
+    auto _start_menu = UIFactory::createStartMenu();
     _start_menu->init();
-    _input_handler.subscribe(_start_menu.get());
+    _input_handler.subscribe(_start_menu);
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         // while nismo exital programa
         auto start_menu_state = _start_menu->handleMenu(_render_handler);
         if (start_menu_state == "start") {
             // start game
-            _game_state = GameState::PLAY;
+            _game_state = GameState::LOGIN;
             return;
         } else if (start_menu_state == "exit") {
             // exit game
@@ -126,10 +147,10 @@ void Game::startMenuLoop() {
 
 void Game::deathMenuLoop() {
     AudioHandler::getInstance().stopSFX();
-    std::shared_ptr<DeathMenu> _death_menu = UIFactory::createDeathMenu();
+    auto _death_menu = UIFactory::createDeathMenu();
     _death_menu->playDeathAnimation(_render_handler);
     _death_menu->init();
-    _input_handler.subscribe(_death_menu.get());
+    _input_handler.subscribe(_death_menu);
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
@@ -154,9 +175,9 @@ void Game::deathMenuLoop() {
 }
 
 void Game::pauseMenuLoop() {
-    std::shared_ptr<PauseMenu> _pause_menu = UIFactory::createPauseMenu();
+    auto _pause_menu = UIFactory::createPauseMenu();
     _pause_menu->init();
-    _input_handler.subscribe(_pause_menu.get());
+    _input_handler.subscribe(_pause_menu);
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();

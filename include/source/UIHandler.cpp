@@ -24,7 +24,6 @@ void StartMenu::init() {
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
         TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
-    _state = StartStates::Start;
 }
 std::string StartMenu::handleMenu(RenderHandler& render_handler) {
     _ui.at("start")->setTexture(TextureType::start);
@@ -128,8 +127,6 @@ void DeathMenu::init() {
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
         TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
-
-    _state = DeathStates::Restart;
 }
 
 void DeathMenu::playDeathAnimation(RenderHandler& render_handler) {
@@ -163,7 +160,6 @@ void SettingsMenu::init() {
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
         TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
-    _state = SettingsState::Resolution;
 }
 
 std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
@@ -256,7 +252,7 @@ void PauseMenu::init() {
     auto size = RenderHandler::getSize();
     int w = size.first;
     int h = size.second;
-    std::shared_ptr<GameObject> play = EntityFactory::createGameObject(
+    auto play = EntityFactory::createGameObject(
         TextureType::play, {w / 2 - 400, h / 2 - 400, 800, 200});
     _ui.insert({"play", std::move(play)});
 
@@ -314,18 +310,208 @@ std::string PauseMenu::handleMenu(RenderHandler& render_handler) {
     return "";
 }
 
-std::unique_ptr<StartMenu> UIFactory::createStartMenu() {
-    return std::make_unique<StartMenu>();
+void LoginMenu::init() {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
+
+    std::shared_ptr<GameObject> input = EntityFactory::createGameObject(
+        TextureType::input, {w / 2 - 1000, h / 2 - 400, 2000, 100});
+    _ui.insert({"input", std::move(input)});
+
+    std::shared_ptr<GameObject> confirm = EntityFactory::createGameObject(
+        TextureType::confirm, {w / 2 - 400, h / 2, 800, 200});
+    _ui.insert({"confirm", std::move(confirm)});
+    std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
+        TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
+    _ui.insert({"exit", std::move(exit)});
 }
 
-std::unique_ptr<DeathMenu> UIFactory::createDeathMenu() {
-    return std::make_unique<DeathMenu>();
+std::string LoginMenu::handleMenu(RenderHandler& render_handler) {
+    _ui.at("input")->setTexture(TextureType::input);
+    _ui.at("confirm")->setTexture(TextureType::confirm);
+    _ui.at("exit")->setTexture(TextureType::exit);
+
+    if (_message.find("e") != std::string::npos) {
+        // Enter pressed
+        if (_state == LoginState::Input && !_enter_timer.exists()) {
+            is_inputing = !is_inputing;
+            _enter_timer.startTimer(_input_delay);
+        } else if (_state == LoginState::Confirm) {
+            return "confirm";
+        } else if (_state == LoginState::Exit) {
+            _close_game = true;
+            return "exit";
+        }
+    }
+
+    if (!_char_input_timer.exists() && is_inputing && _message.size() != 0) {
+        char input_letter = _message.at(0);
+        if (input_letter >= 'A' and input_letter <= 'Z') {
+            if (_name.size() < _name_size) {
+                _name.push_back(input_letter);
+            }
+        } else if (input_letter == 's') {
+            if (_name.size() < _name_size) {
+                _name.push_back(' ');
+            }
+        } else if (input_letter == 'b') {
+            if (_name.size() > 0) {
+                _name.pop_back();
+            }
+        }
+        std::cout << _name << std::endl;
+        _char_input_timer.startTimer(_char_input_delay);
+    }
+
+    if (!_navigation_timer.exists() && !is_inputing) {
+        if (_message.find("↑") != std::string::npos) {
+            if (_state != LoginState::Input) {
+                _state = static_cast<LoginState>(_state - 1);
+            } else {
+                _state = LoginState::Exit;
+            }
+        } else if (_message.find("↓") != std::string::npos) {
+            if (_state != LoginState::Exit) {
+                _state = static_cast<LoginState>(_state + 1);
+            } else {
+                _state = LoginState::Input;
+            }
+        }
+        _navigation_timer.startTimer(_input_delay);
+    }
+    if (_state == LoginState::Input) {
+        if (is_inputing) {
+            _ui.at("input")->setTexture(TextureType::input_inputing);
+        } else {
+            _ui.at("input")->setTexture(TextureType::input_hovered);
+        }
+    } else if (_state == LoginState::Confirm) {
+        _ui.at("confirm")->setTexture(TextureType::confirm_hovered);
+    } else if (_state == LoginState::Exit) {
+        _ui.at("exit")->setTexture(TextureType::exit_hovered);
+    }
+
+    _message = "";
+    return "";
 }
 
-std::unique_ptr<SettingsMenu> UIFactory::createSettingsMenu() {
-    return std::make_unique<SettingsMenu>();
+void LoginMenu::includeInRender(RenderHandler& render_handler) {
+    UIHandler::includeInRender(render_handler);
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
+    // h / 2 - 400
+    // w / 2 - 1000
+    for (int i = 0; i < _name.size(); ++i) {
+        // std::cout << "inc" << std::endl;
+        char letter = _name.at(i);
+        SDL_Rect hb = {(w / 2 - 1000) + i * 100, h / 2 - 400, 100, 100};
+        TextureType tex;
+        switch (letter) {
+            case 'A':
+                tex = TextureType::A;
+                break;
+            case 'B':
+                tex = TextureType::B;
+                break;
+            case 'C':
+                tex = TextureType::C;
+                break;
+            case 'D':
+                tex = TextureType::D;
+                break;
+            case 'E':
+                tex = TextureType::E;
+                break;
+            case 'F':
+                tex = TextureType::F;
+                break;
+            case 'G':
+                tex = TextureType::G;
+                break;
+            case 'H':
+                tex = TextureType::H;
+                break;
+            case 'I':
+                tex = TextureType::I;
+                break;
+            case 'J':
+                tex = TextureType::J;
+                break;
+            case 'K':
+                tex = TextureType::K;
+                break;
+            case 'L':
+                tex = TextureType::L;
+                break;
+            case 'M':
+                tex = TextureType::M;
+                break;
+            case 'N':
+                tex = TextureType::N;
+                break;
+            case 'O':
+                tex = TextureType::O;
+                break;
+            case 'P':
+                tex = TextureType::P;
+                break;
+            case 'Q':
+                tex = TextureType::Q;
+                break;
+            case 'R':
+                tex = TextureType::R;
+                break;
+            case 'S':
+                tex = TextureType::S;
+                break;
+            case 'T':
+                tex = TextureType::T;
+                break;
+            case 'U':
+                tex = TextureType::U;
+                break;
+            case 'V':
+                tex = TextureType::V;
+                break;
+            case 'W':
+                tex = TextureType::W;
+                break;
+            case 'X':
+                tex = TextureType::X;
+                break;
+            case 'Y':
+                tex = TextureType::Y;
+                break;
+            case 'Z':
+                tex = TextureType::Z;
+                break;
+            default:
+                tex = TextureType::Unknown;
+                break;
+        }
+        auto let = EntityFactory::createGameObject(tex, hb);
+        render_handler.includeInRender(std::move(let), 1);
+    }
 }
 
-std::unique_ptr<PauseMenu> UIFactory::createPauseMenu() {
-    return std::make_unique<PauseMenu>();
+std::shared_ptr<StartMenu> UIFactory::createStartMenu() {
+    return std::make_shared<StartMenu>();
+}
+
+std::shared_ptr<DeathMenu> UIFactory::createDeathMenu() {
+    return std::make_shared<DeathMenu>();
+}
+
+std::shared_ptr<SettingsMenu> UIFactory::createSettingsMenu() {
+    return std::make_shared<SettingsMenu>();
+}
+
+std::shared_ptr<PauseMenu> UIFactory::createPauseMenu() {
+    return std::make_shared<PauseMenu>();
+}
+
+std::shared_ptr<LoginMenu> UIFactory::createLoginMenu() {
+    return std::make_shared<LoginMenu>();
 }

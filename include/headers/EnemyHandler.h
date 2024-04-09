@@ -52,7 +52,7 @@ class PoacherHandler : public IEnemyHandler {
 };
 class PlayerHandler {
    private:
-    std::unique_ptr<Player> _player;
+    std::shared_ptr<Player> _player;
 
    public:
     void includeInRender(RenderHandler& render_handler);

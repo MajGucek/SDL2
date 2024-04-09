@@ -387,19 +387,19 @@ std::unique_ptr<Poacher> EntityFactory::createPoacher(SDL_Rect hitbox, int hp,
 }
 
 bool InputHandler::notifySubs(std::string message) {
-    for (auto& subscriber : _subscribers) {
-        if (subscriber) {
+    for (auto sub : _subscribers) {
+        if (auto subscriber = sub.lock()) {
             if (!subscriber->handleInput(message)) {
                 return false;
             }
         } else {
-            _subscribers.remove(subscriber);
+            //_subscribers.remove(sub);
         }
     }
     return true;
 }
-void InputHandler::subscribe(InputListener* observer) {
-    _subscribers.push_back(observer);
+void InputHandler::subscribe(std::weak_ptr<InputListener> observer) {
+    _subscribers.push_back(std::move(observer));
 }
 
 bool InputHandler::handleInput() {
@@ -408,20 +408,13 @@ bool InputHandler::handleInput() {
     const Uint8* state = SDL_GetKeyboardState(nullptr);
     _message = "";
 
+    for (int code = SDL_SCANCODE_A; code <= SDL_SCANCODE_Z; ++code) {
+        if (state[code]) {
+            _message += 'A' + (code - SDL_SCANCODE_A);
+        }
+    }
     if (state[SDL_SCANCODE_ESCAPE]) {
         _message.append("x");
-    }
-    if (state[SDL_SCANCODE_A]) {
-        _message.append("A");
-    }
-    if (state[SDL_SCANCODE_D]) {
-        _message.append("D");
-    }
-    if (state[SDL_SCANCODE_W]) {
-        _message.append("W");
-    }
-    if (state[SDL_SCANCODE_S]) {
-        _message.append("S");
     }
     if (state[SDL_SCANCODE_RIGHT]) {
         _message.append("→");
@@ -437,6 +430,12 @@ bool InputHandler::handleInput() {
     }
     if (state[SDL_SCANCODE_RETURN]) {
         _message.append("e");
+    }
+    if (state[SDL_SCANCODE_BACKSPACE]) {
+        _message.append("b");
+    }
+    if (state[SDL_SCANCODE_SPACE]) {
+        _message.append("s");
     }
 
     if (_message != "" && !_delay.exists()) {

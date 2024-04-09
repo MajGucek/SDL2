@@ -43,13 +43,13 @@ class InputListener {
 };
 class InputHandler {
    private:
-    std::list<InputListener*> _subscribers;
+    std::list<std::weak_ptr<InputListener>> _subscribers;
     bool notifySubs(std::string message);
     InternalTimer _delay;
     std::string _message;
 
    public:
-    void subscribe(InputListener* observer);
+    void subscribe(std::weak_ptr<InputListener> observer);
     void deleteSubs();
     bool handleInput();
     void addDelay(int ms);

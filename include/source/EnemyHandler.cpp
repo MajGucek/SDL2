@@ -146,7 +146,7 @@ void EntityHandler::increaseDifficulty() { _level++; }
 void PlayerHandler::init(CollisionHandler& collision_handler,
                          InputHandler& input_handler) {
     _player = EntityFactory::createPlayer({500, 500, 100, 100}, 100, 2);
-    input_handler.subscribe(_player.get());
+    input_handler.subscribe(_player);
     _player->addCollisionHandler(&collision_handler);
 }
 
@@ -158,7 +158,7 @@ void PlayerHandler::includeInRender(RenderHandler& render_handler) {
 bool PlayerHandler::handle(CollisionHandler& collision_handler,
                            RenderHandler* render_handler, float delta_time) {
     if (_player->getHP() <= 0) {
-        _player.release();
+        _player.~shared_ptr();
         return false;
     } else {
         _player->handle(render_handler, delta_time);

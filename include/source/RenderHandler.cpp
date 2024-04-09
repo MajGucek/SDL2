@@ -67,23 +67,20 @@ void RenderHandler::render() {
     }
     for (auto &an_entity : _animation_entities) {
         if (an_entity.second > 0) {
-            if (an_entity.first->getTexture()) {
-                auto hb = *an_entity.first->getHitbox();
-                hb.x *= scale_factor;
-                hb.y *= scale_factor;
-                hb.w *= scale_factor;
-                hb.h *= scale_factor;
-                SDL_RenderCopy(_renderer, an_entity.first->getTexture(),
-                               nullptr, &hb);
-                an_entity.second--;
-            } else {
-                std::cout << "invalid animation texture!" << std::endl;
-            }
+            auto hb = *an_entity.first->getHitbox();
+            hb.x *= scale_factor;
+            hb.y *= scale_factor;
+            hb.w *= scale_factor;
+            hb.h *= scale_factor;
+            SDL_RenderCopy(_renderer, an_entity.first->getTexture(), nullptr,
+                           &hb);
+            an_entity.second--;
+        } else {
+            // remove an_entity
         }
     }
 
     // render scoreboard
-
     int score = Scoreboard::getInstance().getScore();
     std::vector<int> nums;
     while (score > 0) {
@@ -179,6 +176,61 @@ void TextureHandler::loadTextures() {
         {TextureType::score_8, IMG_LoadTexture(_renderer, "res/score/8.png")});
     _textures.insert(
         {TextureType::score_9, IMG_LoadTexture(_renderer, "res/score/9.png")});
+
+    _textures.insert(
+        {TextureType::A, IMG_LoadTexture(_renderer, "res/letters/A.png")});
+    _textures.insert(
+        {TextureType::B, IMG_LoadTexture(_renderer, "res/letters/B.png")});
+    _textures.insert(
+        {TextureType::C, IMG_LoadTexture(_renderer, "res/letters/C.png")});
+    _textures.insert(
+        {TextureType::D, IMG_LoadTexture(_renderer, "res/letters/D.png")});
+    _textures.insert(
+        {TextureType::E, IMG_LoadTexture(_renderer, "res/letters/E.png")});
+    _textures.insert(
+        {TextureType::F, IMG_LoadTexture(_renderer, "res/letters/F.png")});
+    _textures.insert(
+        {TextureType::G, IMG_LoadTexture(_renderer, "res/letters/G.png")});
+    _textures.insert(
+        {TextureType::H, IMG_LoadTexture(_renderer, "res/letters/H.png")});
+    _textures.insert(
+        {TextureType::I, IMG_LoadTexture(_renderer, "res/letters/I.png")});
+    _textures.insert(
+        {TextureType::J, IMG_LoadTexture(_renderer, "res/letters/J.png")});
+    _textures.insert(
+        {TextureType::K, IMG_LoadTexture(_renderer, "res/letters/K.png")});
+    _textures.insert(
+        {TextureType::L, IMG_LoadTexture(_renderer, "res/letters/L.png")});
+    _textures.insert(
+        {TextureType::M, IMG_LoadTexture(_renderer, "res/letters/M.png")});
+    _textures.insert(
+        {TextureType::N, IMG_LoadTexture(_renderer, "res/letters/N.png")});
+    _textures.insert(
+        {TextureType::O, IMG_LoadTexture(_renderer, "res/letters/O.png")});
+    _textures.insert(
+        {TextureType::P, IMG_LoadTexture(_renderer, "res/letters/P.png")});
+    _textures.insert(
+        {TextureType::Q, IMG_LoadTexture(_renderer, "res/letters/Q.png")});
+    _textures.insert(
+        {TextureType::R, IMG_LoadTexture(_renderer, "res/letters/R.png")});
+    _textures.insert(
+        {TextureType::S, IMG_LoadTexture(_renderer, "res/letters/S.png")});
+    _textures.insert(
+        {TextureType::T, IMG_LoadTexture(_renderer, "res/letters/T.png")});
+    _textures.insert(
+        {TextureType::U, IMG_LoadTexture(_renderer, "res/letters/U.png")});
+    _textures.insert(
+        {TextureType::V, IMG_LoadTexture(_renderer, "res/letters/V.png")});
+    _textures.insert(
+        {TextureType::W, IMG_LoadTexture(_renderer, "res/letters/W.png")});
+    _textures.insert(
+        {TextureType::X, IMG_LoadTexture(_renderer, "res/letters/X.png")});
+    _textures.insert(
+        {TextureType::Y, IMG_LoadTexture(_renderer, "res/letters/Y.png")});
+    _textures.insert(
+        {TextureType::Z, IMG_LoadTexture(_renderer, "res/letters/Z.png")});
+    _textures.insert({TextureType::Unknown,
+                      IMG_LoadTexture(_renderer, "res/letters/Unknown.png")});
     // UI //
     _textures.insert(
         {TextureType::start, IMG_LoadTexture(_renderer, "res/ui/start.png")});
@@ -206,6 +258,17 @@ void TextureHandler::loadTextures() {
         {TextureType::save, IMG_LoadTexture(_renderer, "res/ui/save.png")});
     _textures.insert({TextureType::save_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/save_hovered.png")});
+    _textures.insert(
+        {TextureType::input, IMG_LoadTexture(_renderer, "res/ui/input.png")});
+    _textures.insert({TextureType::input_hovered,
+                      IMG_LoadTexture(_renderer, "res/ui/input_hovered.png")});
+    _textures.insert({TextureType::input_inputing,
+                      IMG_LoadTexture(_renderer, "res/ui/input_inputing.png")});
+    _textures.insert({TextureType::confirm,
+                      IMG_LoadTexture(_renderer, "res/ui/confirm.png")});
+    _textures.insert(
+        {TextureType::confirm_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/confirm_hovered.png")});
 
     _textures.insert({TextureType::p2560x1440,
                       IMG_LoadTexture(_renderer, "res/ui/p2560x1440.png")});

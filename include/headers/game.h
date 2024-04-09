@@ -14,7 +14,7 @@
 #include <iostream>
 #include <memory>
 
-enum class GameState { MAIN_MENU, SETTINGS, PLAY, DEATH, EXIT };
+enum class GameState { MAIN_MENU, SETTINGS, PLAY, DEATH, EXIT, LOGIN };
 
 class Game {
    private:
@@ -39,6 +39,7 @@ class Game {
     void deathMenuLoop();
     void settingsMenuLoop();
     void gameplayLoop();
+    void loginMenuLoop();
     void pauseMenuLoop();
     // --Core-- //
 

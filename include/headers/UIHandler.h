@@ -4,13 +4,13 @@
 #include <TimeHandler.h>
 
 #include <memory>
+#include <string>
 #include <unordered_map>
-#include <vector>
 
 class UIHandler : public InputListener {
    protected:
     InternalTimer _navigation_timer;
-    int _input_delay = 100;
+    int _input_delay = 50;
     std::unordered_map<std::string, std::shared_ptr<GameObject>> _ui;
     bool _finished = false;
     bool _close_game = false;
@@ -72,10 +72,27 @@ class PauseMenu : public UIHandler {
     std::string handleMenu(RenderHandler& render_handler) override;
 };
 
+class LoginMenu : public UIHandler {
+   private:
+    const int _name_size = 20;
+    std::string _name;
+    enum LoginState { Input, Confirm, Exit } _state = LoginState::Input;
+    bool is_inputing = false;
+    const int _char_input_delay = 100;
+    InternalTimer _char_input_timer;
+    InternalTimer _enter_timer;
+
+   public:
+    void init() override;
+    std::string handleMenu(RenderHandler& render_handler) override;
+    void includeInRender(RenderHandler& render_handler) override;
+};
+
 class UIFactory {
    public:
-    static std::unique_ptr<StartMenu> createStartMenu();
-    static std::unique_ptr<DeathMenu> createDeathMenu();
-    static std::unique_ptr<SettingsMenu> createSettingsMenu();
-    static std::unique_ptr<PauseMenu> createPauseMenu();
+    static std::shared_ptr<StartMenu> createStartMenu();
+    static std::shared_ptr<DeathMenu> createDeathMenu();
+    static std::shared_ptr<SettingsMenu> createSettingsMenu();
+    static std::shared_ptr<PauseMenu> createPauseMenu();
+    static std::shared_ptr<LoginMenu> createLoginMenu();
 };
