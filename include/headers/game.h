@@ -31,6 +31,7 @@ class Game {
     int _screen_width;
     int _screen_height;
     GameState _game_state;
+    std::string _player;
     // --Game constants-- //
 
     // Core //

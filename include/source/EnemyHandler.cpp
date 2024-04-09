@@ -114,6 +114,11 @@ std::string EntityHandler::handle(CollisionHandler& collision_handler,
                                   RenderHandler* render_handler,
                                   float delta_time,
                                   InputHandler& input_handler) {
+    if (_message.find("x") != std::string::npos) {
+        // ESC
+        return "save";
+    }
+
     bool pl =
         _player_handler.handle(collision_handler, render_handler, delta_time);
 
@@ -142,6 +147,18 @@ void EntityHandler::init(CollisionHandler& collision_handler,
 }
 
 void EntityHandler::increaseDifficulty() { _level++; }
+
+bool EntityHandler::handleInput(const std::string message) {
+    _message = message;
+    return true;
+}
+
+std::pair<int, int> EntityHandler::getGameInfo() {
+    std::pair<int, int> info;
+    info.first = _level;
+    info.second = _player_handler.getPlayer()->getHP();
+    return info;
+}
 
 void PlayerHandler::init(CollisionHandler& collision_handler,
                          InputHandler& input_handler) {

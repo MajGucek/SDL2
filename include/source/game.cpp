@@ -56,8 +56,13 @@ void Game::gameplayLoop() {
         float delta_time = TimeHandler::getInstance().deltaTime();
         auto resp = _entity_handler.handle(_collision_handler, &_render_handler,
                                            delta_time, _input_handler);
-
-        if (resp == "death") {
+        if (resp == "save") {
+            // savamo playerja
+            auto player_info = _entity_handler.getGameInfo();
+            FileHandler::getInstance().saveGame(
+                _player.c_str(), player_info.first, player_info.second);
+            _game_state = GameState::MAIN_MENU;
+        } else if (resp == "death") {
             _game_state = GameState::DEATH;
             return;
         } else if (resp == "next") {
@@ -80,9 +85,8 @@ void Game::loginMenuLoop() {
         TimeHandler::getInstance().tick();
         auto login_menu_state = login_menu->handleMenu(_render_handler);
         if (login_menu_state == "confirm") {
-            char* player_name = login_menu->getName();
-            FileHandler::getInstance().saveGame(player_name, 100, 0);
-            delete[] player_name;
+            auto player_name = login_menu->getName();
+            FileHandler::getInstance().saveGame(player_name.c_str(), 100, 0);
             _game_state = GameState::PLAY;
             return;
         } else if (login_menu_state == "exit") {
@@ -130,10 +134,11 @@ void Game::startMenuLoop() {
             return;
         } else if (start_menu_state == "load") {
             auto save = FileHandler::getInstance().loadGame();
-            if (strcmp(save.name, "")) {
-                // load does not exist
+            auto name = std::string(save.name);
+            if (name == "") {
                 std::cout << "No previous player!" << std::endl;
             } else {
+                //
             }
         } else if (start_menu_state == "exit") {
             // exit game

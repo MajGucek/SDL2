@@ -504,11 +504,7 @@ void LoginMenu::includeInRender(RenderHandler& render_handler) {
     }
 }
 
-char* LoginMenu::getName() {
-    char* name = new char[_name_size];
-    strncpy(name, _name.c_str(), _name_size);
-    return name;
-}
+std::string LoginMenu::getName() { return _name; }
 
 std::shared_ptr<StartMenu> UIFactory::createStartMenu() {
     return std::make_shared<StartMenu>();

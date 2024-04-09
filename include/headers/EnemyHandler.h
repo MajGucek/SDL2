@@ -62,7 +62,7 @@ class PlayerHandler {
     Player* getPlayer();
 };
 
-class EntityHandler {
+class EntityHandler : public InputListener {
    private:
     LaboratoryHandler _lab_handler;
     PoacherHandler _poacher_handler;
@@ -80,4 +80,6 @@ class EntityHandler {
                        InputHandler& input_handler);
     void init(CollisionHandler& collision_handler, InputHandler& input_handler);
     void increaseDifficulty();
+    bool handleInput(const std::string message) override;
+    std::pair<int, int> getGameInfo();
 };

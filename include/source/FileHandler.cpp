@@ -5,15 +5,17 @@ FileHandler& FileHandler::getInstance() {
     return f;
 }
 
-void FileHandler::saveGame(char player_name[21], int player_hp, int level) {
+void FileHandler::saveGame(const char* player_name, int player_hp, int level) {
     std::ofstream save("Save.bin", std::ios::binary | std::ios::app);
     if (!save.is_open()) {
         std::cout << "error opening Save.bin!, write" << std::endl;
         return;
     }
-
-    GameSave game_save = {player_name, player_hp, level};
+    char* name = new char[21];
+    strncpy(name, player_name, 21);
+    GameSave game_save = {name, player_hp, level};
     save.write((char*)&game_save, sizeof(game_save));
+    delete[] name;
 }
 
 GameSave FileHandler::loadGame() {

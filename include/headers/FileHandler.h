@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -15,7 +16,7 @@ class FileHandler {
 
    public:
     static FileHandler& getInstance();
-    void saveGame(char player_name[21], int player_hp, int level);
+    void saveGame(const char* player_name, int player_hp, int level);
     void saveResolution(int width, int height);
     std::pair<int, int> loadResolution();
     GameSave loadGame();

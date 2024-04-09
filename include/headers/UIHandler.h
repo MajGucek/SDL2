@@ -87,7 +87,7 @@ class LoginMenu : public UIHandler {
     void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
     void includeInRender(RenderHandler& render_handler) override;
-    char* getName();
+    std::string getName();
 };
 
 class UIFactory {
