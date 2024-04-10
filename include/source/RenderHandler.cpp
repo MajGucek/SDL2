@@ -255,6 +255,10 @@ void TextureHandler::loadTextures() {
     _textures.insert({TextureType::play_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/play_hovered.png")});
     _textures.insert(
+        {TextureType::replay, IMG_LoadTexture(_renderer, "res/ui/replay.png")});
+    _textures.insert({TextureType::replay_hovered,
+                      IMG_LoadTexture(_renderer, "res/ui/replay_hovered.png")});
+    _textures.insert(
         {TextureType::save, IMG_LoadTexture(_renderer, "res/ui/save.png")});
     _textures.insert({TextureType::save_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/save_hovered.png")});
@@ -262,6 +266,11 @@ void TextureHandler::loadTextures() {
         {TextureType::load, IMG_LoadTexture(_renderer, "res/ui/load.png")});
     _textures.insert({TextureType::load_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/load_hovered.png")});
+    _textures.insert({TextureType::leaderboard,
+                      IMG_LoadTexture(_renderer, "res/ui/leaderboard.png")});
+    _textures.insert(
+        {TextureType::leaderboard_hovered,
+         IMG_LoadTexture(_renderer, "res/ui/leaderboard_hovered.png")});
 
     _textures.insert(
         {TextureType::input, IMG_LoadTexture(_renderer, "res/ui/input.png")});

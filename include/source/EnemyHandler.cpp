@@ -26,7 +26,6 @@ bool LaboratoryHandler::handle(Player* player,
             std::cout << "lab does not exist!" << std::endl;
         }
         if (lab.first->getHP() < 0) {
-            // std::cout << "unicil laboratorij!" << std::endl;
             Scoreboard::getInstance() += lab.first->getAnimalCount();
             _laboratories.remove(lab);
 
@@ -72,7 +71,6 @@ bool PoacherHandler::handle(Player* player, CollisionHandler& collision_handler,
                             RenderHandler* render_handler, float delta_time) {
     for (auto& poacher : _poachers) {
         if (poacher->getHP() < 0) {
-            // std::cout << "ubil poacherja!" << std::endl;
             Scoreboard::getInstance() += poacher->getScore();
             _poachers.remove(poacher);
             continue;
@@ -114,7 +112,8 @@ std::string EntityHandler::handle(CollisionHandler& collision_handler,
                                   RenderHandler* render_handler,
                                   float delta_time,
                                   InputHandler& input_handler) {
-    if (_message.find("x") != std::string::npos) {
+    auto message = input_handler.getInput();
+    if (message.find("x") != std::string::npos) {
         // ESC
         return "save";
     }
@@ -140,29 +139,25 @@ std::string EntityHandler::handle(CollisionHandler& collision_handler,
 }
 
 void EntityHandler::init(CollisionHandler& collision_handler,
-                         InputHandler& input_handler) {
-    _player_handler.init(collision_handler, input_handler);
+                         InputHandler& input_handler, int hp, int level) {
+    _level = level;
+    _player_handler.init(collision_handler, input_handler, hp);
     _lab_handler.init(collision_handler);
     _poacher_handler.init(collision_handler);
 }
 
 void EntityHandler::increaseDifficulty() { _level++; }
 
-bool EntityHandler::handleInput(const std::string message) {
-    _message = message;
-    return true;
-}
-
 std::pair<int, int> EntityHandler::getGameInfo() {
     std::pair<int, int> info;
-    info.first = _level;
-    info.second = _player_handler.getPlayer()->getHP();
+    info.first = _player_handler.getPlayer()->getHP();
+    info.second = _level;
     return info;
 }
 
 void PlayerHandler::init(CollisionHandler& collision_handler,
-                         InputHandler& input_handler) {
-    _player = EntityFactory::createPlayer({500, 500, 100, 100}, 100, 2);
+                         InputHandler& input_handler, int hp) {
+    _player = EntityFactory::createPlayer({500, 500, 100, 100}, hp, 2);
     input_handler.subscribe(_player);
     _player->addCollisionHandler(&collision_handler);
 }

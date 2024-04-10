@@ -129,6 +129,8 @@ void Player::handle(RenderHandler* render_handler, float delta_time) {
     }
 }
 
+void Player::setHP(int hp) { _hp = hp; }
+
 bool Player::handleInput(const std::string message) {
     _message = message;
     return true;
@@ -256,6 +258,8 @@ void Scoreboard::operator++(int x) { _score++; }
 void Scoreboard::operator++() { _score++; }
 void Scoreboard::operator+=(unsigned inc) { _score += inc; }
 void Scoreboard::operator-=(unsigned dec) { _score -= dec; }
+void Scoreboard::resetScore() { _score = 0; }
+void Scoreboard::setScore(int score) { _score = score; }
 int Scoreboard::getScore() { return _score; }
 SDL_Texture* Scoreboard::getDigitTexture(int digit, SDL_Renderer* ren) {
     SDL_Surface* temp = IMG_Load(getDigitPath(digit).c_str());
@@ -468,3 +472,8 @@ void InputHandler::addDelay(int ms) {
 std::string InputHandler::getInput() { return _message; }
 
 void InputHandler::deleteSubs() { _subscribers.clear(); }
+
+bool InputListener::handleInput(const std::string message) {
+    _message = message;
+    return true;
+}

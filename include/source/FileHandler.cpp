@@ -5,28 +5,76 @@ FileHandler& FileHandler::getInstance() {
     return f;
 }
 
-void FileHandler::saveGame(const char* player_name, int player_hp, int level) {
-    std::ofstream save("Save.bin", std::ios::binary | std::ios::app);
+void FileHandler::saveGame(const char* player_name, int player_hp, int level,
+                           int score) {
+    std::ofstream save("Save.bin", std::ios::binary);
     if (!save.is_open()) {
         std::cout << "error opening Save.bin!, write" << std::endl;
+        save.close();
         return;
     }
-    char* name = new char[21];
-    strncpy(name, player_name, 21);
-    GameSave game_save = {name, player_hp, level};
+    GameSave game_save;
+    strcpy(game_save.name, player_name);
+    game_save.hp = player_hp;
+    game_save.level = level;
+    game_save.score = score;
+
     save.write((char*)&game_save, sizeof(game_save));
-    delete[] name;
+    save.close();
 }
 
-GameSave FileHandler::loadGame() {
+GameLoad FileHandler::loadGame() {
     std::ifstream save("Save.bin", std::ios::binary);
-    GameSave ret = {"", 100, 0};
+    GameLoad load;
+    GameSave game_save;
     if (!save.is_open()) {
-        std::cout << "error opening Save.bin!, read" << std::endl;
-        return ret;
+        save.close();
+        return load;
     }
-    save.read((char*)&ret, sizeof(ret));
-    return ret;
+    save.read((char*)&game_save, sizeof(game_save));
+
+    std::string player_name;
+    for (int i = 0; i < strlen(game_save.name); ++i) {
+        player_name.push_back(game_save.name[i]);
+    }
+
+    load = {player_name, game_save.hp, game_save.level, game_save.score};
+    save.close();
+    return load;
+}
+
+void FileHandler::saveScore(const char* player_name, int score) {
+    std::ofstream leaderboard("Leaderboard.bin",
+                              std::ios::binary | std::ios::app | std::ios::in);
+    if (!leaderboard.is_open()) {
+        std::cout << "error opening Leaderboard.bin!, write" << std::endl;
+        leaderboard.close();
+        return;
+    }
+    ScoreWrite s;
+    strcpy(s.name, player_name);
+    s.score = score;
+    leaderboard.write((char*)&s, sizeof(s));
+    leaderboard.close();
+}
+
+std::vector<Score> FileHandler::loadScores() {
+    std::ifstream leaderboard("Leaderboard.bin", std::ios::binary);
+    std::vector<Score> scores;
+    if (!leaderboard.is_open()) {
+        std::cout << "error opening Leaderboard.bin!, read" << std::endl;
+        leaderboard.close();
+        return scores;
+    }
+    ScoreWrite current;
+    int count = 0;
+    while (leaderboard.read((char*)&current, sizeof(current)) and count <= 5) {
+        auto name = std::string(current.name);
+        scores.push_back({name, current.score});
+        ++count;
+    }
+    leaderboard.close();
+    return scores;
 }
 
 void FileHandler::saveResolution(int width, int height) {

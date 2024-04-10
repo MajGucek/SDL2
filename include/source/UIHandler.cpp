@@ -1,11 +1,133 @@
 #include <UIHandler.h>
 
-void UIHandler::includeInRender(RenderHandler& render_handler) {
+TextureType getTextureType(char x) {
+    switch (x) {
+        case 'A':
+            return TextureType::A;
+            break;
+        case 'B':
+            return TextureType::B;
+            break;
+        case 'C':
+            return TextureType::C;
+            break;
+        case 'D':
+            return TextureType::D;
+            break;
+        case 'E':
+            return TextureType::E;
+            break;
+        case 'F':
+            return TextureType::F;
+            break;
+        case 'G':
+            return TextureType::G;
+            break;
+        case 'H':
+            return TextureType::H;
+            break;
+        case 'I':
+            return TextureType::I;
+            break;
+        case 'J':
+            return TextureType::J;
+            break;
+        case 'K':
+            return TextureType::K;
+            break;
+        case 'L':
+            return TextureType::L;
+            break;
+        case 'M':
+            return TextureType::M;
+            break;
+        case 'N':
+            return TextureType::N;
+            break;
+        case 'O':
+            return TextureType::O;
+            break;
+        case 'P':
+            return TextureType::P;
+            break;
+        case 'Q':
+            return TextureType::Q;
+            break;
+        case 'R':
+            return TextureType::R;
+            break;
+        case 'S':
+            return TextureType::S;
+            break;
+        case 'T':
+            return TextureType::T;
+            break;
+        case 'U':
+            return TextureType::U;
+            break;
+        case 'V':
+            return TextureType::V;
+            break;
+        case 'W':
+            return TextureType::W;
+            break;
+        case 'X':
+            return TextureType::X;
+            break;
+        case 'Y':
+            return TextureType::Y;
+            break;
+        case 'Z':
+            return TextureType::Z;
+            break;
+        default:
+            return TextureType::Unknown;
+            break;
+    }
+}
+TextureType getTextureType(int x) {
+    switch (x) {
+        case 0:
+            return TextureType::score_0;
+            break;
+        case 1:
+            return TextureType::score_1;
+            break;
+        case 2:
+            return TextureType::score_2;
+            break;
+        case 3:
+            return TextureType::score_3;
+            break;
+        case 4:
+            return TextureType::score_4;
+            break;
+        case 5:
+            return TextureType::score_5;
+            break;
+        case 6:
+            return TextureType::score_6;
+            break;
+        case 7:
+            return TextureType::score_7;
+            break;
+        case 8:
+            return TextureType::score_8;
+            break;
+        case 9:
+            return TextureType::score_9;
+            break;
+        default:
+            return TextureType::Unknown;
+    }
+}
+
+void Menu::includeInRender(RenderHandler& render_handler) {
     for (auto& x : _ui) {
         render_handler.includeInRender(x.second.get());
     }
 }
-bool UIHandler::handleInput(const std::string message) {
+bool Menu::handleInput(const std::string message) {
     _message = message;
     return !_close_game;
 }
@@ -21,17 +143,25 @@ void StartMenu::init() {
         TextureType::load, {w / 2 - 400, h / 2 - 200, 800, 200});
     _ui.insert({"load", std::move(load)});
 
+    std::shared_ptr<GameObject> leaderboard = EntityFactory::createGameObject(
+        TextureType::leaderboard, {w / 2 - 200, h / 2, 400, 400});
+    _ui.insert({"leaderboard", std::move(leaderboard)});
+
     std::shared_ptr<GameObject> settings = EntityFactory::createGameObject(
-        TextureType::settings, {w / 2 - 500, h / 2, 1000, 300});
+        TextureType::settings, {w / 2 - 500, h / 2 + 400, 1000, 300});
     _ui.insert({"settings", std::move(settings)});
 
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
-        TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
+        TextureType::exit, {w / 2 - 400, h / 2 + 700, 800, 200});
     _ui.insert({"exit", std::move(exit)});
 }
+StartMenu::StartMenu() : _hp(-1), _level(-1) {}
+
 std::string StartMenu::handleMenu(RenderHandler& render_handler) {
+    bool load = false;
     _ui.at("start")->setTexture(TextureType::start);
     _ui.at("load")->setTexture(TextureType::load);
+    _ui.at("leaderboard")->setTexture(TextureType::leaderboard);
     _ui.at("settings")->setTexture(TextureType::settings);
     _ui.at("exit")->setTexture(TextureType::exit);
     if (_message.find("e") != std::string::npos) {
@@ -42,7 +172,9 @@ std::string StartMenu::handleMenu(RenderHandler& render_handler) {
             _finished = true;
             return "start";
         } else if (_state == StartStates::Load) {
-            return "load";
+            load = true;
+        } else if (_state == StartStates::Leaderboard) {
+            return "leaderboard";
         } else if (_state == StartStates::Settings) {
             // open settings menu
             return "settings";
@@ -73,13 +205,83 @@ std::string StartMenu::handleMenu(RenderHandler& render_handler) {
         _ui.at("start")->setTexture(TextureType::start_hovered);
     } else if (_state == StartStates::Load) {
         _ui.at("load")->setTexture(TextureType::load_hovered);
+    } else if (_state == StartStates::Leaderboard) {
+        _ui.at("leaderboard")->setTexture(TextureType::leaderboard_hovered);
     } else if (_state == StartStates::Settings) {
         _ui.at("settings")->setTexture(TextureType::settings_hovered);
     } else if (_state == StartStates::Exit) {
         _ui.at("exit")->setTexture(TextureType::exit_hovered);
     }
     _message = "";
+    if (load) {
+        return "load";
+    }
     return "";
+}
+
+void StartMenu::setPlayerDisplay(std::string player_name, int hp, int level) {
+    _nametag = player_name;
+    _hp = hp;
+    _level = level;
+}
+
+void StartMenu::includeInRender(RenderHandler& render_handler) {
+    Menu::includeInRender(render_handler);
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
+    // h / 2 - 600
+    // w / 2 - 1000
+    int offset = (_nametag.size() / 2.0) * 100;
+    for (int i = 0; i < _nametag.size(); ++i) {
+        char letter = _nametag.at(i);
+        SDL_Rect hb = {(w / 2 - offset) + (i * 100), h / 2 - 800, 100, 100};
+        TextureType tex;
+        tex = getTextureType(letter);
+        auto let = EntityFactory::createGameObject(tex, hb);
+        render_handler.includeInRender(std::move(let), 1);
+    }
+    if (_hp > -1 and _level > -1) {
+        std::vector<int> hp_digits;
+        int hp = _hp;
+        while (hp > 0) {
+            hp_digits.push_back(hp % 10);
+            hp /= 10;
+        }
+        std::reverse(hp_digits.begin(), hp_digits.end());
+        if (hp_digits.size() == 0) {
+            hp_digits.push_back(0);
+        }
+        offset = (hp_digits.size() / 2.0) * 100;
+        for (int i = 0; i < hp_digits.size(); ++i) {
+            int x = hp_digits.at(i);
+            SDL_Rect hb = {(w / 2 - offset) + (i * 100), h / 2 - 700, 100, 100};
+            TextureType tex;
+            tex = getTextureType(x);
+            auto digit = EntityFactory::createGameObject(tex, hb);
+            render_handler.includeInRender(std::move(digit), 1);
+        }
+
+        std::vector<int> level_digits;
+        int level = _level;
+        while (level > 0) {
+            level_digits.push_back(level % 10);
+            level /= 10;
+        }
+        std::reverse(level_digits.begin(), level_digits.end());
+        if (level_digits.size() == 0) {
+            level_digits.push_back(0);
+        }
+        offset = (level_digits.size() / 2.0) * 100;
+        for (int i = 0; i < level_digits.size(); ++i) {
+            int x = level_digits.at(i);
+            SDL_Rect hb = {(w / 2 - offset) + (i * 100), h / 2 - 600, 100, 100};
+            TextureType tex;
+            tex = getTextureType(x);
+            auto digit = EntityFactory::createGameObject(tex, hb);
+            render_handler.includeInRender(std::move(digit), 1);
+        }
+    }
 }
 
 std::string DeathMenu::handleMenu(RenderHandler& render_handler) {
@@ -405,7 +607,7 @@ std::string LoginMenu::handleMenu(RenderHandler& render_handler) {
 }
 
 void LoginMenu::includeInRender(RenderHandler& render_handler) {
-    UIHandler::includeInRender(render_handler);
+    Menu::includeInRender(render_handler);
     auto size = RenderHandler::getSize();
     int w = size.first;
     int h = size.second;
@@ -416,95 +618,71 @@ void LoginMenu::includeInRender(RenderHandler& render_handler) {
         char letter = _name.at(i);
         SDL_Rect hb = {(w / 2 - 1000) + i * 100, h / 2 - 400, 100, 100};
         TextureType tex;
-        switch (letter) {
-            case 'A':
-                tex = TextureType::A;
-                break;
-            case 'B':
-                tex = TextureType::B;
-                break;
-            case 'C':
-                tex = TextureType::C;
-                break;
-            case 'D':
-                tex = TextureType::D;
-                break;
-            case 'E':
-                tex = TextureType::E;
-                break;
-            case 'F':
-                tex = TextureType::F;
-                break;
-            case 'G':
-                tex = TextureType::G;
-                break;
-            case 'H':
-                tex = TextureType::H;
-                break;
-            case 'I':
-                tex = TextureType::I;
-                break;
-            case 'J':
-                tex = TextureType::J;
-                break;
-            case 'K':
-                tex = TextureType::K;
-                break;
-            case 'L':
-                tex = TextureType::L;
-                break;
-            case 'M':
-                tex = TextureType::M;
-                break;
-            case 'N':
-                tex = TextureType::N;
-                break;
-            case 'O':
-                tex = TextureType::O;
-                break;
-            case 'P':
-                tex = TextureType::P;
-                break;
-            case 'Q':
-                tex = TextureType::Q;
-                break;
-            case 'R':
-                tex = TextureType::R;
-                break;
-            case 'S':
-                tex = TextureType::S;
-                break;
-            case 'T':
-                tex = TextureType::T;
-                break;
-            case 'U':
-                tex = TextureType::U;
-                break;
-            case 'V':
-                tex = TextureType::V;
-                break;
-            case 'W':
-                tex = TextureType::W;
-                break;
-            case 'X':
-                tex = TextureType::X;
-                break;
-            case 'Y':
-                tex = TextureType::Y;
-                break;
-            case 'Z':
-                tex = TextureType::Z;
-                break;
-            default:
-                tex = TextureType::Unknown;
-                break;
-        }
+        tex = getTextureType(letter);
         auto let = EntityFactory::createGameObject(tex, hb);
         render_handler.includeInRender(std::move(let), 1);
     }
 }
-
 std::string LoginMenu::getName() { return _name; }
+
+void LeaderboardMenu::init() {
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
+    std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
+        TextureType::exit_hovered, {w / 2 - 400, h / 2 + 400, 800, 200});
+    _ui.insert({"exit", std::move(exit)});
+    _leaderboard = FileHandler::getInstance().loadScores();
+}
+
+std::string LeaderboardMenu::handleMenu(RenderHandler& render_handler) {
+    _ui.at("exit")->setTexture(TextureType::exit_hovered);
+    if (_message.find("e") != std::string::npos) {
+        return "exit";
+    }
+    _message = "";
+    return "";
+}
+
+void LeaderboardMenu::includeInRender(RenderHandler& render_handler) {
+    Menu::includeInRender(render_handler);
+    auto size = RenderHandler::getSize();
+    int w = size.first;
+    int h = size.second;
+    for (int i = 0; i < _leaderboard.size(); ++i) {
+        auto score = _leaderboard.at(i);
+        int offset = (score.name.size() / 2.0) * 100;
+        for (int j = 0; j < score.name.size(); ++j) {
+            char letter = score.name.at(j);
+            SDL_Rect hb = {(w / 2 - offset) + (j * 100),
+                           (h / 2 - 900) + (j * 200), 100, 100};
+            TextureType tex;
+            tex = getTextureType(letter);
+            auto let = EntityFactory::createGameObject(tex, hb);
+            render_handler.includeInRender(std::move(let), 1);
+        }
+        std::vector<int> score_digits;
+        int score_int = score.score;
+        while (score_int > 0) {
+            score_digits.push_back(score_int % 10);
+            score_int /= 10;
+        }
+        std::reverse(score_digits.begin(), score_digits.end());
+        if (score_digits.size() == 0) {
+            score_digits.push_back(0);
+        }
+        offset = (score_digits.size() / 2.0) * 100;
+        for (int j = 0; i < score_digits.size(); ++j) {
+            int x = score_digits.at(j);
+            SDL_Rect hb = {(w / 2 - offset) + (j * 100),
+                           (h / 2 - 800) + (j * 200), 100, 100};
+            TextureType tex;
+            tex = getTextureType(x);
+            auto digit = EntityFactory::createGameObject(tex, hb);
+            render_handler.includeInRender(std::move(digit), 1);
+        }
+    }
+}
 
 std::shared_ptr<StartMenu> UIFactory::createStartMenu() {
     return std::make_shared<StartMenu>();
@@ -524,4 +702,8 @@ std::shared_ptr<PauseMenu> UIFactory::createPauseMenu() {
 
 std::shared_ptr<LoginMenu> UIFactory::createLoginMenu() {
     return std::make_shared<LoginMenu>();
+}
+
+std::shared_ptr<LeaderboardMenu> UIFactory::createLeaderboardMenu() {
+    return std::make_shared<LeaderboardMenu>();
 }

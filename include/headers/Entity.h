@@ -31,6 +31,8 @@ class Scoreboard {
     void operator++();
     void operator+=(unsigned inc);
     void operator-=(unsigned dec);
+    void resetScore();
+    void setScore(int score);
     int getScore();
     SDL_Texture* getDigitTexture(int digit, SDL_Renderer* ren);
 };
@@ -39,7 +41,7 @@ class InputListener {
     std::string _message;
 
    public:
-    virtual bool handleInput(const std::string message) = 0;
+    virtual bool handleInput(const std::string message);
 };
 class InputHandler {
    private:
@@ -88,7 +90,7 @@ class ControlledEntity : public Entity {
     InternalTimer _movement_timer;
     const int _movement_time = 5000;
     const int _attack_delay_time = 5;
-    const int _damage = 5;
+    int _damage = 25;
     int _velocity = 5;
     CollisionHandler* _collision_handler;
     virtual void attackLeft(RenderHandler* render_handler);
@@ -108,6 +110,7 @@ class Player : public ControlledEntity, public InputListener {
     const int _movement_time = 3800;
     const int _attack_delay_time = 400;
     const int _attack_animation_time = 25;
+    int _damage = 50;
     int _invincibility_time = 70;
     void handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox);
     void hitLeft(RenderHandler* render_handler);
@@ -121,15 +124,16 @@ class Player : public ControlledEntity, public InputListener {
     Player(SDL_Rect hitbox, int hp, int velocity);
     bool handleInput(const std::string message) override;
     void handle(RenderHandler* render_handler, float delta_time) override;
+    void setHP(int hp);
 };
 
 class Poacher : public ControlledEntity {
    private:
-    const int _damage = 10;
     const int _score = 100;
     const int _attack_time = 30;
     const int _death_time = 5;
-    const int _hp = 1;
+    int _damage = 25;
+    int _hp = 1;
 
     void handleCollisionHelper(int x, int y);
 

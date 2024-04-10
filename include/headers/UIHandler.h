@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Entity.h>
+#include <FileHandler.h>
 #include <TimeHandler.h>
 
 #include <cstring>
@@ -8,10 +9,13 @@
 #include <string>
 #include <unordered_map>
 
-class UIHandler : public InputListener {
+TextureType getTextureType(char);
+TextureType getTextureType(int);
+
+class Menu : public InputListener {
    protected:
     InternalTimer _navigation_timer;
-    int _input_delay = 50;
+    int _input_delay = 100;
     std::unordered_map<std::string, std::shared_ptr<GameObject>> _ui;
     bool _finished = false;
     bool _close_game = false;
@@ -23,17 +27,22 @@ class UIHandler : public InputListener {
     virtual void includeInRender(RenderHandler& render_handler);
 };
 
-class StartMenu : public UIHandler {
+class StartMenu : public Menu {
    private:
-    enum StartStates { Start, Load, Settings, Exit };
+    enum StartStates { Start, Load, Leaderboard, Settings, Exit };
     StartStates _state = StartStates::Start;
+    std::string _nametag;
+    int _hp, _level;
 
    public:
+    StartMenu();
     void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
+    void setPlayerDisplay(std::string player_name, int hp, int level);
+    void includeInRender(RenderHandler& render_handler) override;
 };
 
-class DeathMenu : public UIHandler {
+class DeathMenu : public Menu {
    private:
     InternalTimer _death_animation_timer;
     const int _death_animation_lenght = 4000;
@@ -50,7 +59,7 @@ class DeathMenu : public UIHandler {
     void playDeathAnimation(RenderHandler& render_handler);
 };
 
-class SettingsMenu : public UIHandler {
+class SettingsMenu : public Menu {
    private:
     enum Resolutions {
         p1280x720,
@@ -64,7 +73,7 @@ class SettingsMenu : public UIHandler {
     std::string handleMenu(RenderHandler& render_handler) override;
 };
 
-class PauseMenu : public UIHandler {
+class PauseMenu : public Menu {
    private:
     enum PauseState { Play, Save, Exit } _state = PauseState::Play;
 
@@ -73,7 +82,7 @@ class PauseMenu : public UIHandler {
     std::string handleMenu(RenderHandler& render_handler) override;
 };
 
-class LoginMenu : public UIHandler {
+class LoginMenu : public Menu {
    private:
     const int _name_size = 20;
     std::string _name;
@@ -82,12 +91,23 @@ class LoginMenu : public UIHandler {
     const int _char_input_delay = 100;
     InternalTimer _char_input_timer;
     InternalTimer _enter_timer;
+    const int _input_delay = 150;
 
    public:
     void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
     void includeInRender(RenderHandler& render_handler) override;
     std::string getName();
+};
+
+class LeaderboardMenu : public Menu {
+   private:
+    std::vector<Score> _leaderboard;
+
+   public:
+    void init() override;
+    std::string handleMenu(RenderHandler& render_handler) override;
+    void includeInRender(RenderHandler& render_handler) override;
 };
 
 class UIFactory {
@@ -97,4 +117,5 @@ class UIFactory {
     static std::shared_ptr<SettingsMenu> createSettingsMenu();
     static std::shared_ptr<PauseMenu> createPauseMenu();
     static std::shared_ptr<LoginMenu> createLoginMenu();
+    static std::shared_ptr<LeaderboardMenu> createLeaderboardMenu();
 };

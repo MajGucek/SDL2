@@ -15,7 +15,15 @@
 #include <iostream>
 #include <memory>
 
-enum class GameState { MAIN_MENU, SETTINGS, PLAY, DEATH, EXIT, LOGIN };
+enum class GameState {
+    MAIN_MENU,
+    LEADERBOARD,
+    SETTINGS,
+    PLAY,
+    DEATH,
+    EXIT,
+    LOGIN
+};
 
 class Game {
    private:
@@ -24,14 +32,18 @@ class Game {
     RenderHandler _render_handler;
     InputHandler _input_handler;
     CollisionHandler _collision_handler;
-    EntityHandler _entity_handler;
     // --Handlers-- //
+
+    // Timers //
+    InternalTimer _load_timer;
+    // --Timers-- //
 
     // Game constants //
     int _screen_width;
     int _screen_height;
     GameState _game_state;
-    std::string _player;
+    std::string _player_name;
+    int _hp, _level, _score;
     // --Game constants-- //
 
     // Core //
@@ -42,6 +54,7 @@ class Game {
     void settingsMenuLoop();
     void gameplayLoop();
     void loginMenuLoop();
+    void leaderboardMenuLoop();
     void pauseMenuLoop();
     // --Core-- //
 

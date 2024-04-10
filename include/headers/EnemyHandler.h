@@ -58,11 +58,12 @@ class PlayerHandler {
     void includeInRender(RenderHandler& render_handler);
     bool handle(CollisionHandler& collision_handler,
                 RenderHandler* render_handler, float delta_time);
-    void init(CollisionHandler& collision_handler, InputHandler& input_handler);
+    void init(CollisionHandler& collision_handler, InputHandler& input_handler,
+              int hp);
     Player* getPlayer();
 };
 
-class EntityHandler : public InputListener {
+class EntityHandler {
    private:
     LaboratoryHandler _lab_handler;
     PoacherHandler _poacher_handler;
@@ -78,8 +79,9 @@ class EntityHandler : public InputListener {
     std::string handle(CollisionHandler& collision_handler,
                        RenderHandler* render_handler, float delta_time,
                        InputHandler& input_handler);
-    void init(CollisionHandler& collision_handler, InputHandler& input_handler);
+    void init(CollisionHandler& collision_handler, InputHandler& input_handler,
+              int hp, int level);
     void increaseDifficulty();
-    bool handleInput(const std::string message) override;
+    void setPlayer(int hp, int level);
     std::pair<int, int> getGameInfo();
 };
