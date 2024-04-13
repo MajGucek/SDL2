@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Entity.h>
+#include <FileHandler.h>
 #include <RenderHandler.h>
 
 class Player;
@@ -61,6 +62,7 @@ class PlayerHandler {
     void init(CollisionHandler& collision_handler, InputHandler& input_handler,
               int hp);
     Player* getPlayer();
+    static int getSpeed();
 };
 
 class EntityHandler {

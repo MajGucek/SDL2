@@ -43,9 +43,13 @@ void Game::gameLoop() {
             loginMenuLoop();
         } else if (_game_state == GameState::LEADERBOARD) {
             leaderboardMenuLoop();
+        } else if (_game_state == GameState::REPLAY) {
+            replayLoop();
         }
         _input_handler.deleteSubs();
         _input_handler.addDelay(100);
+        _render_handler.clearAnimationQueue();
+        _render_handler.clearRenderQueue();
     }
 }
 
@@ -85,11 +89,41 @@ void Game::gameplayLoop() {
     _game_state = GameState::EXIT;
 }
 
+void Game::replayLoop() {
+    auto player_pos = FileHandler::getInstance().loadPlayerPos();
+    int ind = 0;
+    std::shared_ptr<Player> player = EntityFactory::createPlayer(
+        {0, 0, 100, 100}, 100, PlayerHandler::getSpeed());
+    _input_handler.subscribe(player);
+    SDL_Delay(500);
+    while (_input_handler.handleInput()) {
+        TimeHandler::getInstance().tick();
+        auto state = _input_handler.getInput();
+        if (state.find("x") != std::string::npos or
+            ind > player_pos.size() - 1) {
+            _game_state = GameState::MAIN_MENU;
+            return;
+        } else {
+            player->setPos(player_pos.at(ind));
+            ++ind;
+            _render_handler.includeInRender(player.get());
+            _render_handler.render();
+        }
+        SDL_Delay(10);
+    }
+
+    _game_state = GameState::EXIT;
+}
+
 void Game::startMenuLoop() {
     auto _start_menu = UIFactory::createStartMenu();
     _start_menu->init();
     _input_handler.subscribe(_start_menu);
     Scoreboard::getInstance().resetScore();
+    auto res = FileHandler::getInstance().loadResolution();
+    _screen_width = res.first;
+    _screen_height = res.second;
+    _render_handler.setRenderingSize(_screen_width, _screen_height);
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         // while nismo exital programa
@@ -106,8 +140,11 @@ void Game::startMenuLoop() {
             return;
         } else if (start_menu_state == "load" && !_load_timer.exists()) {
             auto save = FileHandler::getInstance().loadGame();
-            if (save.name == "") {
-                std::cout << "No previous player!" << std::endl;
+            if (save.name == "" or save.hp == 0) {
+                _render_handler.includeInRender(
+                    EntityFactory::createGameObject(TextureType::empty,
+                                                    {0, 0, 800, 200}),
+                    1000);
             } else {
                 _player_name = save.name;
                 _hp = save.hp;
@@ -159,7 +196,7 @@ void Game::loginMenuLoop() {
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
         auto login_menu_state = login_menu->handleMenu(_render_handler);
-        if (login_menu_state == "confirm") {
+        if (login_menu_state == "confirm" and login_menu->getName() != "") {
             auto player_name = login_menu->getName();
             _player_name = player_name;
             _level = 0;
@@ -209,9 +246,13 @@ void Game::deathMenuLoop() {
     FileHandler::getInstance().saveScore(_player_name.c_str(),
                                          Scoreboard::getInstance().getScore());
     Scoreboard::getInstance().resetScore();
+    FileHandler::getInstance().saveGame(_player_name.c_str(), 0, _level,
+                                        Scoreboard::getInstance().getScore());
+
     _hp = -1;
     _level = -1;
     _player_name = "";
+    _score = 0;
 
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
@@ -220,6 +261,9 @@ void Game::deathMenuLoop() {
         if (death_menu_state == "restart") {
             // restart game
             _game_state = GameState::MAIN_MENU;
+            return;
+        } else if (death_menu_state == "replay") {
+            _game_state = GameState::REPLAY;
             return;
         } else if (death_menu_state == "exit") {
             // exit game

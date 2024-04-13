@@ -28,11 +28,13 @@ void ControlledEntity::addCollisionHandler(
     CollisionHandler* collision_handler) {
     _collision_handler = collision_handler;
 }
-void ControlledEntity::attackUp(RenderHandler* render_handler) {}
-void ControlledEntity::attackDown(RenderHandler* render_handler) {}
-void ControlledEntity::attackLeft(RenderHandler* render_handler) {}
-void ControlledEntity::attackRight(RenderHandler* render_handler) {}
+
 int ControlledEntity::getDamage() { return _damage; }
+
+void ControlledEntity::setPos(std::pair<int, int> pos) {
+    _hitbox.x = pos.first;
+    _hitbox.y = pos.second;
+}
 
 Player::Player(SDL_Rect hitbox, int hp, int velocity)
     : ControlledEntity(hitbox, hp, velocity) {
@@ -368,6 +370,13 @@ void Pangolin::attack(RenderHandler* render_handler) {
 std::unique_ptr<GameObject> EntityFactory::createGameObject(
     TextureType texture_type, SDL_Rect hitbox) {
     auto ent = std::make_unique<GameObject>(hitbox);
+    ent->setTexture(texture_type);
+    return std::move(ent);
+}
+
+std::unique_ptr<ControlledEntity> EntityFactory::createGameControlledEntity(
+    TextureType texture_type, SDL_Rect hitbox, int velocity) {
+    auto ent = std::make_unique<ControlledEntity>(hitbox, 1, velocity);
     ent->setTexture(texture_type);
     return std::move(ent);
 }

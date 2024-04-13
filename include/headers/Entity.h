@@ -93,13 +93,10 @@ class ControlledEntity : public Entity {
     int _damage = 25;
     int _velocity = 5;
     CollisionHandler* _collision_handler;
-    virtual void attackLeft(RenderHandler* render_handler);
-    virtual void attackRight(RenderHandler* render_handler);
-    virtual void attackUp(RenderHandler* render_handler);
-    virtual void attackDown(RenderHandler* render_handler);
 
    public:
     int getDamage();
+    void setPos(std::pair<int, int> pos);
     ControlledEntity(SDL_Rect hitbox, int hp, int velocity);
     void addCollisionHandler(CollisionHandler* collision_handler);
     virtual void handle(RenderHandler* render_handler, float delta_time) {}
@@ -171,10 +168,13 @@ class Laboratory : public Entity {
     bool checkDistanceToPlayer(SDL_Rect player, unsigned threshold);
     unsigned getAnimalCount();
 };
+
 class EntityFactory {
    public:
     static std::unique_ptr<GameObject> createGameObject(
         TextureType texture_type, SDL_Rect hitbox);
+    static std::unique_ptr<ControlledEntity> createGameControlledEntity(
+        TextureType texture_type, SDL_Rect hitbox, int velocity);
 
     static std::unique_ptr<Player> createPlayer(SDL_Rect hitbox, int hp,
                                                 int velocity);

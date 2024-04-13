@@ -164,15 +164,20 @@ void PlayerHandler::init(CollisionHandler& collision_handler,
 
 Player* PlayerHandler::getPlayer() { return _player.get(); }
 
+int PlayerHandler::getSpeed() { return 2; }
+
 void PlayerHandler::includeInRender(RenderHandler& render_handler) {
     render_handler.includeInRender(_player.get());
 }
 bool PlayerHandler::handle(CollisionHandler& collision_handler,
                            RenderHandler* render_handler, float delta_time) {
     if (_player->getHP() <= 0) {
+        FileHandler::getInstance().writePlayerPos();
         _player.~shared_ptr();
         return false;
     } else {
+        SDL_Rect p_pos = *_player->getHitbox();
+        FileHandler::getInstance().savePlayerPos(p_pos.x, p_pos.y);
         _player->handle(render_handler, delta_time);
         return true;
     }

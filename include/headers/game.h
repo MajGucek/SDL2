@@ -22,7 +22,8 @@ enum class GameState {
     PLAY,
     DEATH,
     EXIT,
-    LOGIN
+    LOGIN,
+    REPLAY,
 };
 
 class Game {
@@ -56,6 +57,7 @@ class Game {
     void loginMenuLoop();
     void leaderboardMenuLoop();
     void pauseMenuLoop();
+    void replayLoop();
     // --Core-- //
 
    public:

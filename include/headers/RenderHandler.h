@@ -10,6 +10,7 @@ class Scoreboard;
 
 #include <algorithm>
 #include <iostream>
+#include <list>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -17,8 +18,7 @@ class Scoreboard;
 class RenderHandler {
    private:
     std::vector<GameObject *> _entities;
-    std::vector<std::pair<std::unique_ptr<GameObject>, int>>
-        _animation_entities;
+    std::list<std::pair<std::unique_ptr<GameObject>, int>> _animation_entities;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     int _w, _h;
@@ -116,6 +116,7 @@ enum class TextureType {
     input,                // 1000x100
     input_hovered,        // 1000x100
     input_inputing,       // 1000x100
+    empty,                // 800x200
     p2560x1440,           // 1200x200
     p2560x1440_hovered,   // 1200x200
     p1920x1080,           // 1200x200

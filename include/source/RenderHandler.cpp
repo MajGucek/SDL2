@@ -65,18 +65,19 @@ void RenderHandler::render() {
         hb.h *= scale_factor;
         SDL_RenderCopy(_renderer, entity->getTexture(), nullptr, &hb);
     }
-    for (auto &an_entity : _animation_entities) {
-        if (an_entity.second > 0) {
-            auto hb = *an_entity.first->getHitbox();
+
+    for (auto it = _animation_entities.begin(); it != _animation_entities.end();
+         it++) {
+        if ((*it).second > 0) {
+            auto hb = *(*it).first->getHitbox();
             hb.x *= scale_factor;
             hb.y *= scale_factor;
             hb.w *= scale_factor;
             hb.h *= scale_factor;
-            SDL_RenderCopy(_renderer, an_entity.first->getTexture(), nullptr,
-                           &hb);
-            an_entity.second--;
+            SDL_RenderCopy(_renderer, (*it).first->getTexture(), nullptr, &hb);
+            (*it).second--;
         } else {
-            // remove an_entity
+            _animation_entities.erase(it);
         }
     }
 
@@ -283,6 +284,8 @@ void TextureHandler::loadTextures() {
     _textures.insert(
         {TextureType::confirm_hovered,
          IMG_LoadTexture(_renderer, "res/ui/confirm_hovered.png")});
+    _textures.insert(
+        {TextureType::empty, IMG_LoadTexture(_renderer, "res/ui/empty.png")});
 
     _textures.insert({TextureType::p2560x1440,
                       IMG_LoadTexture(_renderer, "res/ui/p2560x1440.png")});

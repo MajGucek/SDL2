@@ -48,9 +48,8 @@ class DeathMenu : public Menu {
     const int _death_animation_lenght = 4000;
     enum DeathStates {
         Restart,
+        Replay,
         Exit,
-        Save,
-        Replay
     } _state = DeathStates::Restart;
 
    public:

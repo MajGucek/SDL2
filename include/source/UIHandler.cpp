@@ -286,12 +286,15 @@ void StartMenu::includeInRender(RenderHandler& render_handler) {
 
 std::string DeathMenu::handleMenu(RenderHandler& render_handler) {
     _ui.at("restart")->setTexture(TextureType::restart);
+    _ui.at("replay")->setTexture(TextureType::replay);
     _ui.at("exit")->setTexture(TextureType::exit);
     if (_message.find("e") != std::string::npos) {
         // Enter pressed
         if (_state == DeathStates::Restart) {
             return "restart";
             _finished = true;
+        } else if (_state == DeathStates::Replay) {
+            return "replay";
         } else if (_state == DeathStates::Exit) {
             // terminate program
             _close_game = true;
@@ -316,6 +319,8 @@ std::string DeathMenu::handleMenu(RenderHandler& render_handler) {
     }
     if (_state == DeathStates::Restart) {
         _ui.at("restart")->setTexture(TextureType::restart_hovered);
+    } else if (_state == DeathStates::Replay) {
+        _ui.at("replay")->setTexture(TextureType::replay_hovered);
     } else if (_state == DeathStates::Exit) {
         _ui.at("exit")->setTexture(TextureType::exit_hovered);
     }
@@ -392,11 +397,15 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
             // close menu, return to main menu
             if (_resolution == Resolutions::p1280x720) {
                 render_handler.setRenderingSize(1280, 720);
+                FileHandler::getInstance().saveResolution(1280, 720);
             } else if (_resolution == Resolutions::p1920x1080) {
                 render_handler.setRenderingSize(1920, 1080);
-            } else {
+                FileHandler::getInstance().saveResolution(1920, 1080);
+            } else if (_resolution == Resolutions::p2560x1440) {
                 render_handler.setRenderingSize(2560, 1440);
+                FileHandler::getInstance().saveResolution(2560, 1440);
             }
+
             return "exit";
         }
     }
@@ -633,6 +642,9 @@ void LeaderboardMenu::init() {
         TextureType::exit_hovered, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
     _leaderboard = FileHandler::getInstance().loadScores();
+    for (const auto& score : _leaderboard) {
+        std::cout << score.name << ", " << score.score << std::endl;
+    }
 }
 
 std::string LeaderboardMenu::handleMenu(RenderHandler& render_handler) {
@@ -649,37 +661,43 @@ void LeaderboardMenu::includeInRender(RenderHandler& render_handler) {
     auto size = RenderHandler::getSize();
     int w = size.first;
     int h = size.second;
-    for (int i = 0; i < _leaderboard.size(); ++i) {
-        auto score = _leaderboard.at(i);
-        int offset = (score.name.size() / 2.0) * 100;
-        for (int j = 0; j < score.name.size(); ++j) {
-            char letter = score.name.at(j);
-            SDL_Rect hb = {(w / 2 - offset) + (j * 100),
-                           (h / 2 - 900) + (j * 200), 100, 100};
-            TextureType tex;
-            tex = getTextureType(letter);
-            auto let = EntityFactory::createGameObject(tex, hb);
-            render_handler.includeInRender(std::move(let), 1);
-        }
-        std::vector<int> score_digits;
-        int score_int = score.score;
-        while (score_int > 0) {
-            score_digits.push_back(score_int % 10);
-            score_int /= 10;
-        }
-        std::reverse(score_digits.begin(), score_digits.end());
-        if (score_digits.size() == 0) {
-            score_digits.push_back(0);
-        }
-        offset = (score_digits.size() / 2.0) * 100;
-        for (int j = 0; i < score_digits.size(); ++j) {
-            int x = score_digits.at(j);
-            SDL_Rect hb = {(w / 2 - offset) + (j * 100),
-                           (h / 2 - 800) + (j * 200), 100, 100};
-            TextureType tex;
-            tex = getTextureType(x);
-            auto digit = EntityFactory::createGameObject(tex, hb);
-            render_handler.includeInRender(std::move(digit), 1);
+    if (_leaderboard.size() == 0) {
+        auto no_score = EntityFactory::createGameObject(
+            TextureType::empty, {w / 2 - 400, h / 2 - 100, 800, 200});
+        render_handler.includeInRender(std::move(no_score), 1);
+    } else {
+        for (int i = 0; i < _leaderboard.size(); ++i) {
+            auto score = _leaderboard.at(i);
+            int offset = (score.name.size() / 2.0) * 100;
+            for (int j = 0; j < score.name.size(); ++j) {
+                char letter = score.name.at(j);
+                SDL_Rect hb = {(w / 2 - offset) + (j * 100),
+                               (h / 2 - 900) + (i * 200), 100, 100};
+                TextureType tex;
+                tex = getTextureType(letter);
+                auto let = EntityFactory::createGameObject(tex, hb);
+                render_handler.includeInRender(std::move(let), 1);
+            }
+            std::vector<int> score_digits;
+            int score_int = score.score;
+            while (score_int > 0) {
+                score_digits.push_back(score_int % 10);
+                score_int /= 10;
+            }
+            std::reverse(score_digits.begin(), score_digits.end());
+            if (score_digits.size() == 0) {
+                score_digits.push_back(0);
+            }
+            offset = (score_digits.size() / 2.0) * 100;
+            for (int j = 0; j < score_digits.size(); ++j) {
+                int x = score_digits.at(j);
+                SDL_Rect hb = {(w / 2 - offset) + (j * 100),
+                               (h / 2 - 800) + (i * 200), 100, 100};
+                TextureType tex;
+                tex = getTextureType(x);
+                auto digit = EntityFactory::createGameObject(tex, hb);
+                render_handler.includeInRender(std::move(digit), 1);
+            }
         }
     }
 }
