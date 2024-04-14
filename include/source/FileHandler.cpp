@@ -85,14 +85,31 @@ std::vector<Score> FileHandler::loadScores() {
     return scores;
 }
 
-void FileHandler::saveResolution(int width, int height) {
+void FileHandler::saveQOL(int width, int height, int volume) {
     std::ofstream qol("QOL.bin", std::ios::binary);
     if (!qol.is_open()) {
-        std::cout << "error opening QOL.bin, write mode" << std::endl;
+        std::cout << "error opening QOL.bin, write mode QOL" << std::endl;
         return;
     }
-    qol.write((char*)&width, sizeof(width));
-    qol.write((char*)&height, sizeof(height));
+    QOL q = {width, height, volume};
+    qol.write((char*)&q, sizeof(q));
+}
+
+void FileHandler::saveResolution(int width, int height) {
+    std::fstream qol("QOL.bin", std::ios::binary | std::ios::out);
+    if (!qol.is_open()) {
+        std::cout << "error opening QOL.bin, write mode Res" << std::endl;
+        return;
+    }
+    QOL q;
+    qol.read((char*)&q, sizeof(q));
+    q.width = width;
+    q.height = height;
+    if (q.volume < 0 or q.volume > 100) {
+        q.volume = 100;
+    }
+    qol.clear();
+    qol.write((char*)&q, sizeof(q));
 }
 
 void FileHandler::savePlayerPos(int x, int y) { _player_pos.push_back({x, y}); }
@@ -120,15 +137,14 @@ std::vector<std::pair<int, int>> FileHandler::loadPlayerPos() {
     return pos;
 }
 
-std::pair<int, int> FileHandler::loadResolution() {
-    std::pair<int, int> res = {1920, 1080};
+QOL FileHandler::loadQOL() {
+    QOL q = {1920, 1080, 100};
     std::ifstream qol("QOL.bin", std::ios::binary);
     if (!qol.is_open()) {
-        return res;
+        return q;
     }
-    qol.read((char*)&res.first, sizeof(res.first));
-    qol.read((char*)&res.second, sizeof(res.second));
-    return res;
+    qol.read((char*)&q, sizeof(q));
+    return q;
 }
 
 bool ScoreWrite::operator<(const ScoreWrite& b) { return score < b.score; }

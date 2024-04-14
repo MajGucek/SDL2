@@ -14,6 +14,8 @@ class Poacher;
 #include <memory>
 #include <vector>
 
+static constexpr SDL_Rect player_pos = {1550, 850, 100, 100};
+
 class IEnemyHandler {
    protected:
     int _seeing_distance = 200;

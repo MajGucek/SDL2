@@ -31,6 +31,10 @@ struct Score {
     bool operator<(const Score& b);
 };
 
+struct QOL {
+    int width, height, volume;
+};
+
 class FileHandler {
    private:
     FileHandler() = default;
@@ -41,11 +45,12 @@ class FileHandler {
     static FileHandler& getInstance();
     void saveGame(const char* player_name, int player_hp, int level, int score);
     void saveScore(const char* player_name, int score);
+    void saveQOL(int width, int height, int volume);
     void saveResolution(int width, int height);
     void savePlayerPos(int x, int y);
     void writePlayerPos();
     std::vector<std::pair<int, int>> loadPlayerPos();
-    std::pair<int, int> loadResolution();
+    QOL loadQOL();
     GameLoad loadGame();
     std::vector<Score> loadScores();
 };

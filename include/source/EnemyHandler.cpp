@@ -81,7 +81,8 @@ void PoacherHandler::init(CollisionHandler& collision_handler, int level) {
     for (int i = 0; i < level * 2; ++i) {
         int hp = 10;
         SDL_Rect hb = {w_r, h_r, 100, 100};
-        while (collision_handler.isCollidingNotWithSelf(&hb, nullptr)) {
+        while (collision_handler.isCollidingNotWithSelf(&hb, nullptr) and
+               !CollisionHandler::areColliding(hb, player_pos)) {
             w_r = rand() % (2800 + 1);
             h_r = rand() % (1400 + 1);
 
@@ -132,7 +133,8 @@ bool PoacherHandler::handle(Player* player, CollisionHandler& collision_handler,
         int w_r = rand() % (2800 + 1);
         int h_r = rand() % (1400 + 1);
         SDL_Rect hb = {w_r, h_r, 100, 100};
-        while (collision_handler.isCollidingNotWithSelf(&hb, nullptr)) {
+        while (collision_handler.isCollidingNotWithSelf(&hb, nullptr) and
+               !CollisionHandler::areColliding(hb, player_pos)) {
             w_r = rand() % (2800 + 1);
             h_r = rand() % (1400 + 1);
             hb.x = w_r;
@@ -213,7 +215,7 @@ std::pair<int, int> EntityHandler::getGameInfo() {
 
 void PlayerHandler::init(CollisionHandler& collision_handler,
                          InputHandler& input_handler, int hp) {
-    _player = EntityFactory::createPlayer({1550, 850, 100, 100}, hp, 3);
+    _player = EntityFactory::createPlayer(player_pos, hp, 3);
     input_handler.subscribe(_player);
     _player->addCollisionHandler(&collision_handler);
 }

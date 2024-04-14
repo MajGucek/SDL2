@@ -3,12 +3,13 @@
 #include <headers/game.h>
 
 Game::Game()
-    : _screen_width(1920),
+    : _game_state(GameState::MAIN_MENU),
+      _screen_width(1920),
       _screen_height(1080),
-      _game_state(GameState::MAIN_MENU),
       _hp(-1),
       _level(0),
-      _score(0) {
+      _score(0),
+      _volume(100) {
     _render_handler.initSystem()
         .createWindow(_screen_width, _screen_height)
         .createRenderer(-1, SDL_RENDERER_PRESENTVSYNC);
@@ -18,6 +19,7 @@ Game::Game()
 Game::~Game() { SDL_Quit(); }
 
 void Game::run() {
+    AudioHandler::getInstance().setMasterVolume(100);
     srand(time(NULL));
     init();
     gameLoop();
@@ -51,6 +53,7 @@ void Game::gameLoop() {
         _input_handler.addDelay(100);
         _render_handler.clearAnimationQueue();
         _render_handler.clearRenderQueue();
+        AudioHandler::getInstance().stopSFX();
     }
 }
 
@@ -74,8 +77,6 @@ void Game::gameplayLoop() {
             _game_state = GameState::MAIN_MENU;
             return;
         } else if (resp == "death") {
-            FileHandler::getInstance().saveScore(
-                _player_name.c_str(), Scoreboard::getInstance().getScore());
             _game_state = GameState::DEATH;
             return;
         } else if (resp == "next") {
@@ -122,9 +123,10 @@ void Game::startMenuLoop() {
     _start_menu->init();
     _input_handler.subscribe(_start_menu);
     Scoreboard::getInstance().resetScore();
-    auto res = FileHandler::getInstance().loadResolution();
-    _screen_width = res.first;
-    _screen_height = res.second;
+    auto res = FileHandler::getInstance().loadQOL();
+    _screen_width = res.width;
+    _screen_height = res.height;
+    _volume = res.volume;
     _render_handler.setRenderingSize(_screen_width, _screen_height);
     while (_input_handler.handleInput()) {
         TimeHandler::getInstance().tick();
@@ -240,7 +242,6 @@ void Game::settingsMenuLoop() {
 }
 
 void Game::deathMenuLoop() {
-    AudioHandler::getInstance().stopSFX();
     auto _death_menu = UIFactory::createDeathMenu();
     _death_menu->playDeathAnimation(_render_handler);
     _death_menu->init();

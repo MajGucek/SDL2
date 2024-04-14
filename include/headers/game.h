@@ -43,11 +43,9 @@ class Game {
     // --Timers-- //
 
     // Game constants //
-    int _screen_width;
-    int _screen_height;
     GameState _game_state;
+    int _screen_width, _screen_height, _hp, _level, _score, _volume;
     std::string _player_name;
-    int _hp, _level, _score;
     // --Game constants-- //
 
     // Core //

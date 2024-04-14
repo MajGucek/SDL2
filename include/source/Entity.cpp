@@ -85,14 +85,6 @@ void Player::handle(RenderHandler* render_handler, float delta_time) {
             hitDown(render_handler);
         }
     }
-    /*
-    if (will_move) {
-        if (!_movement_timer.exists()) {
-            AudioHandler::getInstance().playSFX("walking");
-            _movement_timer.startTimer(_movement_time);
-        }
-    }
-    */
 
     if (_message != "") {
         double magnitude = std::sqrt(move_X * move_X + move_Y * move_Y);
@@ -340,7 +332,7 @@ void Poacher::moveTowards(const SDL_Rect destination, float delta_time) {
 
 void Poacher::hit(int damage, RenderHandler* render_handler) {
     Entity::hit(damage, render_handler);
-    AudioHandler::getInstance().playSFX("nerd");
+    AudioHandler::getInstance().playSFX("zombie_hit");
     auto ent =
         EntityFactory::createGameObject(TextureType::poacher_hit, _hitbox);
     render_handler->includeInRender(std::move(ent), _death_time);

@@ -99,7 +99,7 @@ AudioHandler& AudioHandler::stopSFX() {
 }
 
 AudioHandler& AudioHandler::setMasterVolume(Uint8 volume_percentage) {
-    Mix_MasterVolume(volume_percentage);
+    Mix_Volume(-1, volume_percentage);
     return *this;
 }
 

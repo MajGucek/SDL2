@@ -20,5 +20,5 @@ class CollisionHandler {
     void addCollider(std::weak_ptr<Entity> collider);
     std::pair<std::weak_ptr<Entity>, bool> isColliding(SDL_Rect* collider);
     bool isCollidingNotWithSelf(SDL_Rect* collider, SDL_Rect* self);
-    bool areColliding(SDL_Rect a, SDL_Rect b);
+    static bool areColliding(SDL_Rect a, SDL_Rect b);
 };
