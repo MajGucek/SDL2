@@ -69,7 +69,8 @@
     "sstream": "cpp",
     "fstream": "cpp",
     "filesystem": "cpp",
-    "array": "cpp"
+    "array": "cpp",
+    "random": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

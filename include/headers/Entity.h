@@ -107,6 +107,7 @@ class Player : public ControlledEntity, public InputListener {
     const int _movement_time = 3800;
     const int _attack_delay_time = 400;
     const int _attack_animation_time = 25;
+    const int _attack_size = 300;
     int _damage = 50;
     int _invincibility_time = 70;
     void handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox);

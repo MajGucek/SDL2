@@ -162,23 +162,31 @@ void Player::handleHit(RenderHandler* render_handler, SDL_Rect attack_hitbox) {
 }
 
 void Player::hitUp(RenderHandler* render_handler) {
-    SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y - _hitbox.h, _hitbox.w,
-                              _hitbox.h};
+    SDL_Rect attack_hitbox = {_hitbox.x - (_attack_size / 3),
+                              _hitbox.y - _hitbox.h - (_attack_size / 3),
+                              _attack_size, _attack_size};
+    /*
+SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y - _hitbox.h, _hitbox.w,
+    _hitbox.h};
+    */
     handleHit(render_handler, attack_hitbox);
 }
 void Player::hitDown(RenderHandler* render_handler) {
-    SDL_Rect attack_hitbox = {_hitbox.x, _hitbox.y + _hitbox.h, _hitbox.w,
-                              _hitbox.h};
+    SDL_Rect attack_hitbox = {_hitbox.x - (_attack_size / 3),
+                              _hitbox.y + _hitbox.h - (_attack_size / 3),
+                              _attack_size, _attack_size};
     handleHit(render_handler, attack_hitbox);
 }
 void Player::hitLeft(RenderHandler* render_handler) {
-    SDL_Rect attack_hitbox = {_hitbox.x - _hitbox.w, _hitbox.y, _hitbox.w,
-                              _hitbox.h};
+    SDL_Rect attack_hitbox = {_hitbox.x - _hitbox.w - (_attack_size / 3),
+                              _hitbox.y - (_attack_size / 3), _attack_size,
+                              _attack_size};
     handleHit(render_handler, attack_hitbox);
 }
 void Player::hitRight(RenderHandler* render_handler) {
-    SDL_Rect attack_hitbox = {_hitbox.x + _hitbox.w, _hitbox.y, _hitbox.w,
-                              _hitbox.h};
+    SDL_Rect attack_hitbox = {_hitbox.x + _hitbox.w - (_attack_size / 3),
+                              _hitbox.y - (_attack_size / 3), _attack_size,
+                              _attack_size};
     handleHit(render_handler, attack_hitbox);
 }
 

@@ -642,9 +642,7 @@ void LeaderboardMenu::init() {
         TextureType::exit_hovered, {w / 2 - 400, h / 2 + 400, 800, 200});
     _ui.insert({"exit", std::move(exit)});
     _leaderboard = FileHandler::getInstance().loadScores();
-    for (const auto& score : _leaderboard) {
-        std::cout << score.name << ", " << score.score << std::endl;
-    }
+    std::reverse(_leaderboard.begin(), _leaderboard.end());
 }
 
 std::string LeaderboardMenu::handleMenu(RenderHandler& render_handler) {
@@ -666,7 +664,7 @@ void LeaderboardMenu::includeInRender(RenderHandler& render_handler) {
             TextureType::empty, {w / 2 - 400, h / 2 - 100, 800, 200});
         render_handler.includeInRender(std::move(no_score), 1);
     } else {
-        for (int i = 0; i < _leaderboard.size(); ++i) {
+        for (int i = 0; i < _leaderboard.size() and i < 5; ++i) {
             auto score = _leaderboard.at(i);
             int offset = (score.name.size() / 2.0) * 100;
             for (int j = 0; j < score.name.size(); ++j) {

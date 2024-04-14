@@ -86,7 +86,7 @@ std::vector<Score> FileHandler::loadScores() {
 }
 
 void FileHandler::saveResolution(int width, int height) {
-    std::ofstream qol("QOL.bin", std::ios::binary | std::ios::app);
+    std::ofstream qol("QOL.bin", std::ios::binary);
     if (!qol.is_open()) {
         std::cout << "error opening QOL.bin, write mode" << std::endl;
         return;

@@ -49,6 +49,7 @@ enum class TextureType {
     player,               // 100x100
     player_hit,           // 100x100
     hit,                  // 100x100
+    hint,                 // 200x200
     laboratory,           // 200x200
     laboratory_hit,       // 200x200
     poacher,              // 100x100

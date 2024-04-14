@@ -22,8 +22,8 @@ std::pair<std::weak_ptr<Entity>, bool> CollisionHandler::isColliding(
         std::cout << "missing size!" << std::endl;
         return none;
     }
-    for (auto other_collider : _colliders) {
-        if (auto oth_col = other_collider.lock()) {
+    for (auto it = _colliders.begin(); it != _colliders.end(); it++) {
+        if (auto oth_col = (*it).lock()) {
             if (collider->x < 0 or collider->y < 0 or
                 collider->x + collider->w > _screen_width or
                 collider->y + collider->h > _screen_height) {
@@ -32,10 +32,13 @@ std::pair<std::weak_ptr<Entity>, bool> CollisionHandler::isColliding(
             }
 
             if (SDL_HasIntersection(oth_col->getHitbox(), collider)) {
-                return {other_collider, true};
+                return {(*it), true};
             }
+        } else {
+            _colliders.erase(it);
         }
     }
+
     return none;
 }
 
@@ -45,8 +48,8 @@ bool CollisionHandler::isCollidingNotWithSelf(SDL_Rect* collider,
         std::cout << "missing size!" << std::endl;
         return false;
     }
-    for (auto other_collider : _colliders) {
-        if (auto oth_col = other_collider.lock()) {
+    for (auto it = _colliders.begin(); it != _colliders.end(); it++) {
+        if (auto oth_col = (*it).lock()) {
             if (collider->x < 0 or collider->y < 0 or
                 collider->x + collider->w > _screen_width or
                 collider->y + collider->h > _screen_height) {
@@ -58,6 +61,8 @@ bool CollisionHandler::isCollidingNotWithSelf(SDL_Rect* collider,
                     return true;
                 }
             }
+        } else {
+            _colliders.erase(it);
         }
     }
     return false;

@@ -142,6 +142,8 @@ void TextureHandler::loadTextures() {
                       IMG_LoadTexture(_renderer, "res/player_hit.png")});
     _textures.insert(
         {TextureType::hit, IMG_LoadTexture(_renderer, "res/hit.png")});
+    _textures.insert(
+        {TextureType::hint, IMG_LoadTexture(_renderer, "res/hint.png")});
     _textures.insert({TextureType::laboratory,
                       IMG_LoadTexture(_renderer, "res/laboratory.png")});
     _textures.insert({TextureType::laboratory_hit,

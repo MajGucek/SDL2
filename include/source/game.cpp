@@ -7,7 +7,7 @@ Game::Game()
       _screen_height(1080),
       _game_state(GameState::MAIN_MENU),
       _hp(-1),
-      _level(-1),
+      _level(0),
       _score(0) {
     _render_handler.initSystem()
         .createWindow(_screen_width, _screen_height)
@@ -18,6 +18,7 @@ Game::Game()
 Game::~Game() { SDL_Quit(); }
 
 void Game::run() {
+    srand(time(NULL));
     init();
     gameLoop();
 }
@@ -78,8 +79,9 @@ void Game::gameplayLoop() {
             _game_state = GameState::DEATH;
             return;
         } else if (resp == "next") {
-            std::cout << "next level" << std::endl;
-            _entity_handler.increaseDifficulty();
+            auto it = _entity_handler.getGameInfo();
+            _hp = it.first;
+            _level++;
             return;
         } else {
             _entity_handler.includeInRender(_render_handler);
@@ -199,10 +201,10 @@ void Game::loginMenuLoop() {
         if (login_menu_state == "confirm" and login_menu->getName() != "") {
             auto player_name = login_menu->getName();
             _player_name = player_name;
-            _level = 0;
+            _level = 1;
             _hp = 100;
             FileHandler::getInstance().saveGame(
-                player_name.c_str(), 100, 0,
+                player_name.c_str(), _hp, _level,
                 Scoreboard::getInstance().getScore());
             _game_state = GameState::MAIN_MENU;
             return;
@@ -250,7 +252,7 @@ void Game::deathMenuLoop() {
                                         Scoreboard::getInstance().getScore());
 
     _hp = -1;
-    _level = -1;
+    _level = 0;
     _player_name = "";
     _score = 0;
 
