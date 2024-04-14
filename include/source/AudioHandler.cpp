@@ -28,6 +28,7 @@ AudioHandler::AudioHandler() {
     addAudio("twinkle", "audio/twinkle.mp3");
     addAudio("walking", "audio/walking.mp3");
     addSong("my_heart", "audio/my_heart.mp3");
+    addAudio("ding", "audio/ding.mp3");
 }
 
 void AudioHandler::initAudio() {

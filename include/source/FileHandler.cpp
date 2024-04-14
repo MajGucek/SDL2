@@ -96,7 +96,8 @@ void FileHandler::saveQOL(int width, int height, int volume) {
 }
 
 void FileHandler::saveResolution(int width, int height) {
-    std::fstream qol("QOL.bin", std::ios::binary | std::ios::out);
+    std::fstream qol("QOL.bin",
+                     std::ios::binary | std::ios::in | std::ios::out);
     if (!qol.is_open()) {
         std::cout << "error opening QOL.bin, write mode Res" << std::endl;
         return;
@@ -109,6 +110,28 @@ void FileHandler::saveResolution(int width, int height) {
         q.volume = 100;
     }
     qol.clear();
+    qol.seekp(0);
+    qol.write((char*)&q, sizeof(q));
+}
+
+void FileHandler::saveVolume(int volume) {
+    std::fstream qol("QOL.bin",
+                     std::ios::binary | std::ios::in | std::ios::out);
+    if (!qol.is_open()) {
+        std::cout << "error opening QOL.bin, write mode Res" << std::endl;
+        return;
+    }
+    QOL q;
+    qol.read((char*)&q, sizeof(q));
+    if (q.width < 1280 or q.width > 3200) {
+        q.width = 1920;
+    }
+    if (q.height < 720 or q.height > 1800) {
+        q.height = 1080;
+    }
+    q.volume = volume;
+    qol.clear();
+    qol.seekp(0);
     qol.write((char*)&q, sizeof(q));
 }
 

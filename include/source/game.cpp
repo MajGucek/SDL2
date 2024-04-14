@@ -225,6 +225,7 @@ void Game::loginMenuLoop() {
 void Game::settingsMenuLoop() {
     auto _settings_menu = UIFactory::createSettingsMenu();
     _settings_menu->init();
+    _settings_menu->setQOL(_screen_width, _screen_height, _volume);
     _input_handler.subscribe(_settings_menu);
 
     while (_input_handler.handleInput()) {

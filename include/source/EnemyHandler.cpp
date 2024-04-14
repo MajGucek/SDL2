@@ -115,6 +115,23 @@ bool PoacherHandler::handle(Player* player, CollisionHandler& collision_handler,
                 return true;
             } else {
                 if (p->canSeePlayer(*player->getHitbox(), _seeing_distance)) {
+                    if (_level > 5) {
+                        p->setVelocity(3);
+                    } else {
+                        p->setVelocity(2);
+                    }
+                    p->moveTowards(*player->getHitbox(), delta_time);
+                    if (collision_handler.areColliding(*player->getHitbox(),
+                                                       *p->getHitbox())) {
+                        // player take damage
+                        if (p->canAttack(render_handler)) {
+                            player->hit(p->getDamage(), render_handler);
+                            return true;
+                        }
+                    }
+                } else if (p->canSeePlayer(*player->getHitbox(),
+                                           _notice_distance)) {
+                    p->setVelocity(1);
                     p->moveTowards(*player->getHitbox(), delta_time);
                     if (collision_handler.areColliding(*player->getHitbox(),
                                                        *p->getHitbox())) {

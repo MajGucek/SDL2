@@ -279,6 +279,10 @@ void TextureHandler::loadTextures() {
         {TextureType::input, IMG_LoadTexture(_renderer, "res/ui/input.png")});
     _textures.insert({TextureType::input_hovered,
                       IMG_LoadTexture(_renderer, "res/ui/input_hovered.png")});
+    _textures.insert(
+        {TextureType::volume, IMG_LoadTexture(_renderer, "res/ui/volume.png")});
+    _textures.insert({TextureType::volume_hovered,
+                      IMG_LoadTexture(_renderer, "res/ui/volume_hovered.png")});
     _textures.insert({TextureType::input_inputing,
                       IMG_LoadTexture(_renderer, "res/ui/input_inputing.png")});
     _textures.insert({TextureType::confirm,
@@ -288,6 +292,16 @@ void TextureHandler::loadTextures() {
          IMG_LoadTexture(_renderer, "res/ui/confirm_hovered.png")});
     _textures.insert(
         {TextureType::empty, IMG_LoadTexture(_renderer, "res/ui/empty.png")});
+    _textures.insert({TextureType::volume_max,
+                      IMG_LoadTexture(_renderer, "res/ui/volume_max.png")});
+    _textures.insert({TextureType::volume_min,
+                      IMG_LoadTexture(_renderer, "res/ui/volume_min.png")});
+    _textures.insert(
+        {TextureType::volume_dec,
+         IMG_LoadTexture(_renderer, "res/ui/volume_decrease.png")});
+    _textures.insert(
+        {TextureType::volume_inc,
+         IMG_LoadTexture(_renderer, "res/ui/volume_increase.png")});
 
     _textures.insert({TextureType::p2560x1440,
                       IMG_LoadTexture(_renderer, "res/ui/p2560x1440.png")});

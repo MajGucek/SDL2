@@ -65,11 +65,18 @@ class SettingsMenu : public Menu {
         p1920x1080,
         p2560x1440,
     } _resolution = Resolutions::p1920x1080;
-    enum SettingsState { Resolution, Exit } _state = SettingsState::Resolution;
+    enum SettingsState {
+        Resolution,
+        Volume,
+        Exit
+    } _state = SettingsState::Resolution;
+    int _volume = 100;
+    const int _volume_symbol_time = 25;
 
    public:
     void init() override;
     std::string handleMenu(RenderHandler& render_handler) override;
+    void setQOL(int width, int height, int volume);
 };
 
 class PauseMenu : public Menu {

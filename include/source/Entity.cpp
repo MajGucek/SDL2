@@ -29,6 +29,8 @@ void ControlledEntity::addCollisionHandler(
     _collision_handler = collision_handler;
 }
 
+void ControlledEntity::setVelocity(int velocity) { _velocity = velocity; }
+
 int ControlledEntity::getDamage() { return _damage; }
 
 void ControlledEntity::setPos(std::pair<int, int> pos) {

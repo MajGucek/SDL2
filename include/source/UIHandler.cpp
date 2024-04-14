@@ -370,8 +370,12 @@ void SettingsMenu::init() {
     int w = size.first;
     int h = size.second;
     std::shared_ptr<GameObject> resolution = EntityFactory::createGameObject(
-        TextureType::restart, {w / 2 - 400, h / 2 - 200, 800, 200});
+        TextureType::Unknown, {w / 2 - 400, h / 2 - 200, 800, 200});
     _ui.insert({"resolution", std::move(resolution)});
+
+    std::shared_ptr<GameObject> volume = EntityFactory::createGameObject(
+        TextureType::volume, {w / 2 - 400, h / 2, 800, 200});
+    _ui.insert({"volume", std::move(volume)});
 
     std::shared_ptr<GameObject> exit = EntityFactory::createGameObject(
         TextureType::exit, {w / 2 - 400, h / 2 + 400, 800, 200});
@@ -391,6 +395,7 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
             break;
     }
     _ui.at("exit")->setTexture(TextureType::exit);
+    _ui.at("volume")->setTexture(TextureType::volume);
     if (_message.find("e") != std::string::npos) {
         // Enter pressed
         if (_state == SettingsState::Exit) {
@@ -423,22 +428,65 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
                 _state = SettingsState::Resolution;
             }
         }
-        if (_state == SettingsState::Resolution) {
-            // handle increasing, decreasing resolution
-            if (_message.find("→") != std::string::npos) {
-                // increase resolution
+        if (_message.find("→") != std::string::npos) {
+            if (_state == SettingsState::Resolution) {
                 if (_resolution != Resolutions::p2560x1440) {
                     _resolution = static_cast<Resolutions>(_resolution + 1);
                 } else {
                     // smo na 1440p in povecamo
                     _resolution = Resolutions::p1280x720;
                 }
-            } else if (_message.find("←") != std::string::npos) {
-                // decrease resolution
+            } else if (_state == SettingsState::Volume) {
+                // increase volume
+                AudioHandler::getInstance().playSFX("ding");
+                if (_volume < 100) {
+                    _volume += 5;
+                    if (_volume > 100) {
+                        _volume = 100;
+                    }
+                }
+                FileHandler::getInstance().saveVolume(_volume);
+                AudioHandler::getInstance().setMasterVolume(_volume);
+                if (_volume == 100) {
+                    render_handler.includeInRender(
+                        EntityFactory::createGameObject(TextureType::volume_max,
+                                                        {0, 0, 100, 100}),
+                        _volume_symbol_time);
+                } else {
+                    render_handler.includeInRender(
+                        EntityFactory::createGameObject(TextureType::volume_inc,
+                                                        {0, 0, 100, 100}),
+                        _volume_symbol_time);
+                }
+            }
+        } else if (_message.find("←") != std::string::npos) {
+            if (_state == SettingsState::Resolution) {
                 if (_resolution != Resolutions::p1280x720) {
                     _resolution = static_cast<Resolutions>(_resolution - 1);
                 } else {
                     _resolution = Resolutions::p2560x1440;
+                }
+            } else if (_state == SettingsState::Volume) {
+                // decrease volume
+                AudioHandler::getInstance().playSFX("ding");
+                if (_volume > 0) {
+                    _volume -= 5;
+                    if (_volume < 0) {
+                        _volume = 0;
+                    }
+                }
+                FileHandler::getInstance().saveVolume(_volume);
+                AudioHandler::getInstance().setMasterVolume(_volume);
+                if (_volume == 0) {
+                    render_handler.includeInRender(
+                        EntityFactory::createGameObject(TextureType::volume_min,
+                                                        {0, 0, 100, 100}),
+                        _volume_symbol_time);
+                } else {
+                    render_handler.includeInRender(
+                        EntityFactory::createGameObject(TextureType::volume_dec,
+                                                        {0, 0, 100, 100}),
+                        _volume_symbol_time);
                 }
             }
         }
@@ -463,9 +511,22 @@ std::string SettingsMenu::handleMenu(RenderHandler& render_handler) {
 
     } else if (_state == SettingsState::Exit) {
         _ui.at("exit")->setTexture(TextureType::exit_hovered);
+    } else if (_state == SettingsState::Volume) {
+        _ui.at("volume")->setTexture(TextureType::volume_hovered);
     }
     _message = "";
     return "";
+}
+
+void SettingsMenu::setQOL(int width, int height, int volume) {
+    _volume = volume;
+    if (width == 2560) {
+        _resolution = Resolutions::p2560x1440;
+    } else if (width == 1920) {
+        _resolution = Resolutions::p1920x1080;
+    } else if (width == 1280) {
+        _resolution = Resolutions::p1280x720;
+    }
 }
 
 void PauseMenu::init() {

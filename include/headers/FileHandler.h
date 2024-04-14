@@ -47,6 +47,7 @@ class FileHandler {
     void saveScore(const char* player_name, int score);
     void saveQOL(int width, int height, int volume);
     void saveResolution(int width, int height);
+    void saveVolume(int volume);
     void savePlayerPos(int x, int y);
     void writePlayerPos();
     std::vector<std::pair<int, int>> loadPlayerPos();

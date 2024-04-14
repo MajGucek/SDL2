@@ -117,6 +117,12 @@ enum class TextureType {
     input,                // 1000x100
     input_hovered,        // 1000x100
     input_inputing,       // 1000x100
+    volume,               // 800x200
+    volume_hovered,       // 800x200
+    volume_max,           // 200x200
+    volume_min,           // 200x200
+    volume_inc,           // 200x200
+    volume_dec,           // 200x200
     empty,                // 800x200
     p2560x1440,           // 1200x200
     p2560x1440_hovered,   // 1200x200

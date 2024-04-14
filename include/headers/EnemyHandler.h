@@ -47,7 +47,8 @@ class LaboratoryHandler : public IEnemyHandler {
 
 class PoacherHandler : public IEnemyHandler {
    private:
-    int _seeing_distance = 800;
+    const int _seeing_distance = 800;
+    const int _notice_distance = 1600;
     int _level = 1;
     InternalTimer _spawn_timer;
     const int _spawn_delay = 3000;

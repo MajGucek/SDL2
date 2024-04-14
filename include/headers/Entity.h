@@ -91,7 +91,7 @@ class ControlledEntity : public Entity {
     const int _movement_time = 5000;
     const int _attack_delay_time = 5;
     int _damage = 25;
-    int _velocity = 5;
+    int _velocity = 2;
     CollisionHandler* _collision_handler;
 
    public:
@@ -99,6 +99,7 @@ class ControlledEntity : public Entity {
     void setPos(std::pair<int, int> pos);
     ControlledEntity(SDL_Rect hitbox, int hp, int velocity);
     void addCollisionHandler(CollisionHandler* collision_handler);
+    void setVelocity(int velocity);
     virtual void handle(RenderHandler* render_handler, float delta_time) {}
 };
 
